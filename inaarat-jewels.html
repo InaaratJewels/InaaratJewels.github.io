@@ -2054,7 +2054,10 @@ function applyPLEdit(pid) {
     india:pleg(pid,'india'),usa:pleg(pid,'usa'),world:pleg(pid,'world'),shippingOn:true
   };
   products[idx] = {...u, ...calcPricing(u)};
-  saveLS(); renderAll(); showToast('✓ Updated!');
+  saveLS(); 
+  renderAll(); 
+  updatePlDash(); 
+  showToast('✓ Updated!');
 }
 
 function togglePLRow(id){
@@ -2064,7 +2067,21 @@ function togglePLRow(id){
   if(chev){chev.classList.toggle('open',!open);chev.textContent=open?'›':'‹';}
   if(!open) pleLivePreview(id);
 }
+
+function updatePlDash() {
+  const totalStock = products.reduce((s, p) => s + (parseInt(p.stock) || 0), 0);
+  const totalInvest = products.reduce((s, p) => s + ((parseFloat(p.pp) || 0) * (parseInt(p.stock) || 0)), 0);
   
+  const sEl = document.getElementById('pl-stock');
+  const iEl = document.getElementById('pl-invest');
+  
+  if (sEl) sEl.textContent = totalStock;
+  if (iEl) iEl.textContent = '₹' + totalInvest.toLocaleString('en-IN');
+  
+  if (document.getElementById('pl-prod-count')) {
+    document.getElementById('pl-prod-count').textContent = products.length;
+  }
+}
 // ══════════════════════════════════════════════
 //  CSV EXPORTS
 // ══════════════════════════════════════════════
