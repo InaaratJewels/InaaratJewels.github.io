@@ -1788,7 +1788,7 @@ function goalSeek(region,val){
 //  PRODUCT CRUD
 // ══════════════════════════════════════════════
 function openSaveModal(){$i('m_name').value='';$i('m_sku').value='IJ-'+String(skuCtr).padStart(3,'0');$i('m_color').value='';$i('m_size').value='';$i('m_stock').value=1;$i('m_vendor').value='';$i('m_cat').value='';mImgData=null;$i('m_img_url').value='';$i('m_img_prev').textContent='Paste a URL above to preview';$i('save-mo').classList.add('open');}
-function prevMImgUrl(url){if(!url){mImgData=null;$i('m_img_prev').innerHTML='Paste a URL above to preview';return;}mImgData=url;$i('m_img_prev').innerHTML=`<img src="${url}" style="max-height:48px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;
+function prevMImgUrl(url){if(!url){mImgData=null;$i('m_img_prev').innerHTML='Paste a URL above to preview';return;}mImgData=url;$i('m_img_prev').innerHTML=`<img src="${url}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;
 // Returns the next collision-free SKU, advancing skuCtr as needed.
 // Shows a toast if the counter had to skip ahead.
 function nextFreeSKU(){
