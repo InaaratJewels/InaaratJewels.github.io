@@ -4496,19 +4496,11 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
+let _gdToken=localStorage.getItem('ij_gd_token')||null;
+let _gdFileId=localStorage.getItem('ij_gd_fileid')||null;
 async function init(){
   try{
-
-    // RESTORE TOKEN FIRST
-    const savedToken=localStorage.getItem('ij_gd_token');
-
-    if(savedToken){
-      _gdToken=savedToken;
-      _gdFileId=localStorage.getItem('ij_gd_fileid')||null;
-    }
-
     await loadLS();
-
     // AUTO RESTORE FROM GOOGLE DRIVE
     if(_gdToken){
       try{
@@ -4517,19 +4509,15 @@ async function init(){
         console.warn('Drive restore failed:', err);
       }
     }
-
   }catch(e){
     console.warn('Load error:',e);
   }
-
   recalcAll();
   if(products.length===0){
     const sD={pp:250,margin:45,courier:25,pack:50,addcost:0,list:18,payment:30,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:0,world:0,disc:22,shippingOn:true};
     products.push({...sD,...calcPricing(sD),id:1,name:'Black CZ Necklace & Earrings Set',sku:'IJ-001',color:'Black',stock:5,vendor:'KC Jewels',cat:'Necklace Set',img:null});
     skuCtr=2;await saveLS();
   }
-  // Restore Google Drive token from previous session
-  if(_gdToken){ _gdFileId=localStorage.getItem('ij_gd_fileid')||null; }
   updateGDStatus();
   const restoreBtn=document.getElementById('gd-restore-btn');
   if(restoreBtn) restoreBtn.style.display=_gdToken?'':'none';
