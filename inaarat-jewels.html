@@ -2024,9 +2024,9 @@ function buildPLInlineEditor(p) {
     </div>
     <div id="ple-prev-${p.id}" style="padding:7px 11px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);border-radius:9px;font-size:11px;color:var(--t2);margin-bottom:8px"></div>
     <div style="display:flex;gap:6px">
-      <button class="btn bp bsm" onclick="applyPLEdit(${p.id})">✓ Apply Changes</button>
-      <button class="btn bo bsm" onclick="openEditModal(${p.id})">✏ Full Edit</button>
-      <button class="btn bdr bsm" onclick="delProd(${p.id})">🗑 Delete</button>
+      <button class="btn bp bsm" onclick="event.stopPropagation(); applyPLEdit(${p.id})">✓ Apply Changes</button>
+      <button class="btn bo bsm" onclick="event.stopPropagation(); openEditModal(${p.id})">✏ Full Edit</button>
+      <button class="btn bdr bsm" onclick="event.stopPropagation(); delProd(${p.id})">🗑 Delete</button>
     </div>
   </div>`;
 }
