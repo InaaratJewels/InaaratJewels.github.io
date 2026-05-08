@@ -1509,24 +1509,33 @@ let   _gdFileId     = null;
 let   _gdBackupPending = false;
 
 function gDriveSignIn() {
-  // Opens Google OAuth popup
+  const REDIRECT = 'https://inaaratjewels.github.io/Inaarat-Jewels-CRM/inaarat-jewels.html';
   const params = new URLSearchParams({
     client_id:     GD_CLIENT_ID,
-    redirect_uri:  'https://developers.google.com/oauthplayground', // temp; use your domain
+    redirect_uri:  REDIRECT,
     response_type: 'token',
     scope:         GD_SCOPE,
     prompt:        'select_account'
   });
-  const w = window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params, '_blank', 'width=500,height=600');
-  window._gdAuthCallback = (token) => {
-    _gdToken = token;
-    localStorage.setItem('ij_gd_token', token);
-    showToast('✅ Google Drive connected! Auto-backup enabled.', 'var(--sage)');
-    if (w && !w.closed) w.close();
-    gDriveAutoBackup();
-    updateGDStatus();
-  };
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
 }
+
+// Handle OAuth token returned in URL hash after redirect
+(function handleOAuthRedirect() {
+  const hash = window.location.hash;
+  if (!hash) return;
+  const params = new URLSearchParams(hash.substring(1));
+  const token = params.get('access_token');
+  if (!token) return;
+  history.replaceState(null, '', window.location.pathname);
+  _gdToken = token;
+  localStorage.setItem('ij_gd_token', token);
+  setTimeout(() => {
+    showToast('Google Drive connected! Auto-backup enabled.', 'var(--sage)');
+    updateGDStatus();
+    gDriveAutoBackup();
+  }, 800);
+})();
 
 function gDriveSignOut() {
   _gdToken = null; _gdFileId = null;
