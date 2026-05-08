@@ -1539,7 +1539,68 @@ function gDriveSignIn() {
     gDriveAutoBackup();
   }, 800);
 })();
+async function gDriveRestoreLatest() {
 
+  if(!_gdToken) return;
+
+  try {
+
+    // Find backup file
+    const search = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${GD_FILE_NAME}'&spaces=drive&fields=files(id,name)`,
+      {
+        headers: {
+          Authorization: 'Bearer ' + _gdToken
+        }
+      }
+    );
+
+    const data = await search.json();
+
+    if(!data.files || !data.files.length){
+      console.warn('No Drive backup found');
+      return;
+    }
+
+    const fileId = data.files[0].id;
+
+    // Download latest backup
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {
+        headers: {
+          Authorization: 'Bearer ' + _gdToken
+        }
+      }
+    );
+
+    const backup = await res.json();
+
+    if(!backup.products) return;
+
+    // OVERWRITE LOCAL DATA
+    products = backup.products.map(p => ({
+      ...p,
+      ...calcPricing(p)
+    }));
+
+    orders = backup.orders || [];
+    expenses = backup.expenses || [];
+    skuCtr = backup.skuCtr || 1;
+
+    // SAVE TO LOCAL STORAGE
+    await saveLS();
+
+    // REFRESH UI
+    renderAll();
+    renderOrderDashboard();
+
+    showToast('☁ Google Drive sync completed!', 'var(--sage)');
+
+  } catch(err) {
+    console.error('Drive restore error:', err);
+  }
+}
 function gDriveSignOut() {
   _gdToken = null; _gdFileId = null;
   localStorage.removeItem('ij_gd_token');
@@ -4428,7 +4489,22 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
 //  INIT
 // ══════════════════════════════════════════════
 async function init(){
-  try{ await loadLS(); }catch(e){ console.warn('Load error:',e); }
+  try{
+    await loadLS();
+
+    // AUTO RESTORE FROM GOOGLE DRIVE
+    if(_gdToken){
+      try{
+        await gDriveRestoreLatest();
+      }catch(err){
+        console.warn('Drive restore failed:', err);
+      }
+    }
+
+  }catch(e){
+    console.warn('Load error:',e);
+  }
+
   recalcAll();
   if(products.length===0){
     const sD={pp:250,margin:45,courier:25,pack:50,addcost:0,list:18,payment:30,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:0,world:0,disc:22,shippingOn:true};
