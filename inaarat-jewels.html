@@ -4587,11 +4587,10 @@ init();
         const statusEl = document.getElementById('sync-status');
         statusEl.innerText = 'Checking Cloud for latest data...';
         
-        // 1. First, check if there is data in the Cloud and pull it down
         restoreFromDrive().then(() => {
-            // 2. Once restored, start the 5-minute Auto-Backup timer
             performBackup();
-            setInterval(performBackup, 300000);
+            // Change 300000 to 120000 for a 2-minute sync
+            setInterval(performBackup, 120000); 
         });
     }
 
