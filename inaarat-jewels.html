@@ -370,7 +370,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <button class="pin-key pin-zero" onclick="pinKey('0')">0</button>
       <button class="pin-key pin-del" onclick="pinDel()">⌫</button>
     </div>
-    <div id="pin-change-wrap">
+    <div id="pin-change-wrap" style="display:none">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:10px;">Change PIN</div>
       <div class="pin-change-row">
         <input class="pin-change-input" id="pin-new1" type="password" maxlength="4" inputmode="numeric" placeholder="New PIN"/>
@@ -4433,7 +4433,8 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
   });
 
   // ── Change PIN ──
-  window.openPinChange=function(){
+ window.openPinChange=function(){
+    document.getElementById('pin-change-wrap').style.display='block';
     document.getElementById('pin-change-wrap').classList.add('open');
     document.getElementById('pin-sub-text').textContent='Set a new 4-digit PIN';
     document.getElementById('pin-new1').value='';
