@@ -4529,8 +4529,7 @@ async function init(){
     skuCtr=2;await saveLS();
   }
   // Restore Google Drive token from previous session
-  const savedToken=localStorage.getItem('ij_gd_token');
-  if(savedToken){ _gdToken=savedToken; _gdFileId=localStorage.getItem('ij_gd_fileid')||null; }
+  if(_gdToken){ _gdFileId=localStorage.getItem('ij_gd_fileid')||null; }
   updateGDStatus();
   const restoreBtn=document.getElementById('gd-restore-btn');
   if(restoreBtn) restoreBtn.style.display=_gdToken?'':'none';
