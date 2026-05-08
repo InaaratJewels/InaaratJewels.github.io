@@ -4490,6 +4490,15 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
 // ══════════════════════════════════════════════
 async function init(){
   try{
+
+    // RESTORE TOKEN FIRST
+    const savedToken=localStorage.getItem('ij_gd_token');
+
+    if(savedToken){
+      _gdToken=savedToken;
+      _gdFileId=localStorage.getItem('ij_gd_fileid')||null;
+    }
+
     await loadLS();
 
     // AUTO RESTORE FROM GOOGLE DRIVE
