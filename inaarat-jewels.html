@@ -887,8 +887,9 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <div class="f"><label>Vendor</label><input id="m_vendor" type="text"/></div>
     <div class="f"><label>Category</label><input id="m_cat" type="text"/></div>
   </div>
-  <div class="f" style="margin-top:4px"><label>Image (optional)</label>
-    <label class="dz" style="padding:10px;cursor:pointer"><div id="m_img_prev" style="font-size:11px">Click to upload</div><input id="m_img" type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="prevMImg(event)"/></label>
+  <div class="f" style="margin-top:4px"><label>Image (Etsy URL or Upload)</label>
+    <input id="m_img_url" type="text" placeholder="Paste Etsy image address here..." style="margin-bottom:6px;width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:6px 10px;color:var(--tx);font-size:11px"/>
+    <label class="dz" style="padding:10px;cursor:pointer"><div id="m_img_prev" style="font-size:11px">OR Click to upload file</div><input id="m_img" type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="prevMImg(event)"/></label>
   </div>
   <div class="mod-act"><button class="btn bo" onclick="$i('save-mo').classList.remove('open')">Cancel</button><button class="btn bp" onclick="saveProduct()">💾 Save</button></div>
 </div></div>
@@ -1795,44 +1796,140 @@ function nextFreeSKU(){
 function skuNum(sku){return parseInt((sku||'').replace(/^IJ-/i,''))||0;}
 
 function saveProduct(){
-  const name=$i('m_name').value.trim();if(!name){showToast('Enter name!');return;}
-  const d=getFormData(),r=calcPricing(d);
-  const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');
-  const sku=nextFreeSKU();
-  const adjusted=sku!==rawSKU;
-  products.push({...d,...r,id:Date.now(),name,sku,color:$i('m_color').value,size:$i('m_size').value,stock:+$i('m_stock').value||1,vendor:$i('m_vendor').value,cat:$i('m_cat').value,img:mImgData});
-  skuCtr++;$i('save-mo').classList.remove('open');renderAll();saveLS();
+  const name=$i('m_name').value.trim();
+  if(!name){showToast('Enter name!');return;}
+
+  const d = getFormData(), r = calcPricing(d);
+  const rawSKU = 'IJ-'+String(skuCtr).padStart(3,'0');
+  const sku = nextFreeSKU();
+  const adjusted = sku!==rawSKU;
+
+  // --- IMAGE LOGIC UPDATE ---
+  // 1. Check if a URL was pasted
+  let finalImg = $i('m_img_url').value.trim();
+  
+  // 2. If no URL, use the uploaded file data (mImgData)
+  if(!finalImg) {
+    finalImg = mImgData;
+  }
+  // ---------------------------
+
+  products.push({
+    ...d,
+    ...r,
+    id:Date.now(),
+    name,
+    sku,
+    color:$i('m_color').value,
+    size:$i('m_size').value,
+    stock:+$i('m_stock').value||1,
+    vendor:$i('m_vendor').value,
+    cat:$i('m_cat').value,
+    img: finalImg // Use the link or the file
+  });
+
+  skuCtr++;
+  $i('save-mo').classList.remove('open');
+  
+  // Reset URL input for next time
+  $i('m_img_url').value = '';
+  
+  renderAll();
+  saveLS();
+  
   const _newProd = products[products.length-1];
   auditEntry('add','product',_newProd.id,_newProd.sku,'Name: '+_newProd.name);
   showToast(adjusted?`SKU adjusted to ${sku}`:'Saved — '+sku);
 }
 function dupProduct(){const d=getFormData(),r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;products.push({...d,...r,id:Date.now(),name:'Copy',sku,color:'',stock:1,vendor:'',cat:'',img:null});skuCtr++;renderAll();saveLS();showToast(adjusted?`SKU adjusted to ${sku}`:'Duplicated');}
 function clearCalc(){['c_pp','c_courier','c_pack','c_addcost','c_disc','c_list','c_etsyad','c_ai','c_plus','c_social','c_gift','c_india','c_usa','c_world','c_payment'].forEach(id=>$i(id).value=0);$i('c_margin').value=45;calc();}
-function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=18;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_india').value=0;$i('ap_usa').value=0;$i('ap_world').value=0;$i('ap_disc').value=22;apImgData=null;$i('ap_img_prev').textContent='Click to upload';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
+function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat','ap_img_url'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=18;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_india').value=0;$i('ap_usa').value=0;$i('ap_world').value=0;$i('ap_disc').value=22;apImgData=null;$i('ap_img_prev').textContent='Click to upload';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
 function prevAPImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{apImgData=ev.target.result;$i('ap_img_prev').innerHTML=`<img src="${ev.target.result}" style="max-height:48px;border-radius:8px"/>`;};r.readAsDataURL(f);}
 function previewAPCalc(){const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);$i('ap_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
-function addProductDirect(){const name=$i('ap_name').value.trim();if(!name){showToast('Enter name!');return;}const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _apId=Date.now();products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:apImgData});skuCtr++;$i('add-mo').classList.remove('open');renderAll();saveLS();auditEntry('add','product',_apId,sku,'Name: '+name);showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);}
-function openEditModal(id){const p=products.find(x=>x.id===id);if(!p)return;$i('edit-id').value=id;$i('e_name').value=p.name;$i('e_sku').value=p.sku;$i('e_color').value=p.color||'';$i('e_size').value=p.size||'';$i('e_stock').value=p.stock;$i('e_vendor').value=p.vendor||'';$i('e_cat').value=p.cat||'';$i('e_pp').value=p.pp;$i('e_margin').value=p.margin;$i('e_courier').value=p.courier||0;$i('e_pack').value=p.pack||0;$i('e_addcost').value=p.addcost||0;$i('e_etsyad').value=p.etsyad||0;$i('e_disc').value=p.disc;$i('e_india').value=p.india||0;$i('e_usa').value=p.usa||0;$i('e_world').value=p.world||0;eImgData=null;$i('e_img_prev').innerHTML=p.img?`<img src="${p.img}" style="max-height:48px;border-radius:8px"/> <span style="font-size:10px;color:var(--t2)">click to replace</span>`:'Click to upload/replace';previewEditCalc();$i('edit-mo').classList.add('open');}
+
+function addProductDirect(){
+  const name=$i('ap_name').value.trim();
+  if(!name){showToast('Enter name!');return;}
+  const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};
+  const r=calcPricing(d);
+  const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');
+  const sku=nextFreeSKU();
+  const adjusted=sku!==rawSKU;
+  const _apId=Date.now();
+  
+  let finalImg = $i('ap_img_url').value.trim();
+  if(!finalImg) finalImg = apImgData;
+
+  products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:finalImg});
+  skuCtr++;
+  $i('add-mo').classList.remove('open');
+  $i('ap_img_url').value = '';
+  renderAll();
+  saveLS();
+  auditEntry('add','product',_apId,sku,'Name: '+name);
+  showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);
+}
+
+function openEditModal(id){
+  const p=products.find(x=>x.id===id);
+  if(!p)return;
+  $i('edit-id').value=id;
+  $i('e_name').value=p.name;
+  $i('e_sku').value=p.sku;
+  $i('e_color').value=p.color||'';
+  $i('e_size').value=p.size||'';
+  $i('e_stock').value=p.stock;
+  $i('e_vendor').value=p.vendor||'';
+  $i('e_cat').value=p.cat||'';
+  $i('e_pp').value=p.pp;
+  $i('e_margin').value=p.margin;
+  $i('e_courier').value=p.courier||0;
+  $i('e_pack').value=p.pack||0;
+  $i('e_addcost').value=p.addcost||0;
+  $i('e_etsyad').value=p.etsyad||0;
+  $i('e_disc').value=p.disc;
+  $i('e_india').value=p.india||0;
+  $i('e_usa').value=p.usa||0;
+  $i('e_world').value=p.world||0;
+  $i('e_img_url').value = (p.img && p.img.startsWith('http')) ? p.img : '';
+  eImgData=null;
+  $i('e_img_prev').innerHTML=p.img?`<img src="${p.img}" style="max-height:48px;border-radius:8px"/> <span style="font-size:10px;color:var(--t2)">click to replace</span>`:'Click to upload/replace';
+  previewEditCalc();
+  $i('edit-mo').classList.add('open');
+}
+
 function prevEImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{eImgData=ev.target.result;$i('e_img_prev').innerHTML=`<img src="${ev.target.result}" style="max-height:48px;border-radius:8px"/>`;};r.readAsDataURL(f);}
 function previewEditCalc(){const d={pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),list:18,etsyad:gn('e_etsyad'),ai:30,plus:18,social:35,gift:50,india:gn('e_india'),usa:gn('e_usa'),world:gn('e_world'),disc:gn('e_disc'),shippingOn:true};const r=calcPricing(d);$i('e_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
+
 function saveEdit(){
   const id=+$i('edit-id').value;
   const newSku=($i('e_sku').value||'').trim();
   const conflict=products.find(p=>p.id!==id&&(p.sku||'').toUpperCase()===newSku.toUpperCase());
   if(conflict){showToast(`⚠ SKU ${newSku} already used by "${conflict.name}" — change it first.`,'var(--coral)');return;}
+  
+  let finalImg = $i('e_img_url').value.trim();
+  
   products=products.map(p=>{
     if(p.id!==id)return p;
-    const u={...p,name:$i('e_name').value,sku:newSku,color:$i('e_color').value,size:$i('e_size').value,stock:+$i('e_stock').value,vendor:$i('e_vendor').value,cat:$i('e_cat').value,pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),etsyad:gn('e_etsyad'),disc:gn('e_disc'),india:gn('e_india'),usa:gn('e_usa'),world:gn('e_world'),img:eImgData!==null?eImgData:p.img};
+    // Prioritize the URL box, then a new file upload, then the existing image
+    const imgToUse = finalImg || (eImgData !== null ? eImgData : p.img);
+    const u={...p,name:$i('e_name').value,sku:newSku,color:$i('e_color').value,size:$i('e_size').value,stock:+$i('e_stock').value,vendor:$i('e_vendor').value,cat:$i('e_cat').value,pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),etsyad:gn('e_etsyad'),disc:gn('e_disc'),india:gn('e_india'),usa:gn('e_usa'),world:gn('e_world'),img:imgToUse};
     return{...u,...calcPricing(u)};
   });
-  // Keep skuCtr ahead of any manually entered SKU numbers
-  const editedNum=skuNum(newSku);
-  if(editedNum>=skuCtr)skuCtr=editedNum+1;
-  $i('edit-mo').classList.remove('open');renderAll();saveLS();
-  const _ep=products.find(p=>p.id===id);
-  auditEntry('edit','product',id,newSku,'Name: '+(_ep?_ep.name:''));
-  showToast('Updated!');
+
+  // Keep the automatic SKU counter ahead of any manual entries
+  const editedNum = skuNum(newSku);
+  if(editedNum >= skuCtr) skuCtr = editedNum + 1;
+
+  // Finalize and close
+  $i('edit-mo').classList.remove('open'); 
+  $i('e_img_url').value = ''; 
+  renderAll(); 
+  saveLS(); 
+  auditEntry('edit','product',id,newSku,'Edited details');
+  showToast('Updated');
 }
+
 function delProd(id){const _dp=products.find(p=>p.id===id);confAction('Delete product?','Cannot be undone.',()=>{products=products.filter(p=>p.id!==id);renderAll();saveLS();auditEntry('delete','product',id,_dp?_dp.sku:String(id),'Name: '+(_dp?_dp.name:''));showToast('Deleted.');});}
 function recalcAll(){products=products.map(p=>({...p,...calcPricing(p)}));}
 function renderAll(){recalcAll();renderCalcTb();renderPL();updatePlDash();updateFilters();}
