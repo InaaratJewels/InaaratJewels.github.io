@@ -4582,27 +4582,60 @@ init();
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
 
-    function setupAutoSync() {
+   function setupAutoSync() {
         document.getElementById('auth_btn').style.display = 'none';
-        document.getElementById('sync-status').innerText = 'Connected & Protecting Data';
+        const statusEl = document.getElementById('sync-status');
+        statusEl.innerText = 'Checking Cloud for latest data...';
         
-        // Initial Backup
-        performBackup();
+        // 1. First, check if there is data in the Cloud and pull it down
+        restoreFromDrive().then(() => {
+            // 2. Once restored, start the 5-minute Auto-Backup timer
+            performBackup();
+            setInterval(performBackup, 300000);
+        });
+    }
 
-        // Auto-Sync every 5 minutes (300,000 milliseconds)
-        setInterval(performBackup, 300000);
+    async function restoreFromDrive() {
+        try {
+            const fileName = 'Inaarat_App_AutoBackup.json';
+            const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and trashed=false&fields=files(id,modifiedTime)`, {
+                headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
+            });
+            const searchResult = await searchResponse.json();
+
+            if (searchResult.files && searchResult.files.length > 0) {
+                const fileId = searchResult.files[0].id;
+                
+                const contentResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                    headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
+                });
+                
+                const cloudData = await contentResponse.json();
+                
+                // Merge cloud data into LocalStorage
+                Object.keys(cloudData).forEach(key => {
+                    localStorage.setItem(key, cloudData[key]);
+                });
+
+                document.getElementById('sync-status').innerText = 'Data Synced from Cloud';
+                document.getElementById('sync-status').style.color = '#00ffc3';
+                
+                // Refresh the app UI with the new data
+                if (typeof init === "function") init(); 
+            }
+        } catch (err) {
+            console.error("Restore failed:", err);
+        }
     }
 
     async function performBackup() {
         const statusEl = document.getElementById('sync-status');
-        statusEl.innerText = 'Syncing...';
+        const fileName = 'Inaarat_App_AutoBackup.json';
 
         try {
             const dataToBackup = JSON.stringify(localStorage);
             const file = new Blob([dataToBackup], {type: 'application/json'});
-            const fileName = 'Inaarat_App_AutoBackup.json';
 
-            // 1. Search if the file already exists to avoid duplicates
             const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and trashed=false`, {
                 headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
             });
@@ -4611,7 +4644,6 @@ init();
             let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
             let method = 'POST';
 
-            // 2. If file exists, update it (PATCH); otherwise, create it (POST)
             if (searchResult.files && searchResult.files.length > 0) {
                 const fileId = searchResult.files[0].id;
                 url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`;
@@ -4630,17 +4662,13 @@ init();
             });
 
             if (response.ok) {
-                const now = new Date().toLocaleTimeString();
-                statusEl.innerText = 'Last Sync: ' + now;
+                statusEl.innerText = 'Cloud Sync: Last Sync ' + new Date().toLocaleTimeString();
                 statusEl.style.color = '#00ffc3';
-            } else {
-                throw new Error('Upload failed');
             }
         } catch (err) {
             statusEl.innerText = 'Sync Error - Reconnect';
             statusEl.style.color = '#ff4d4d';
             document.getElementById('auth_btn').style.display = 'inline-block';
-            document.getElementById('auth_btn').innerText = 'Reconnect';
         }
     }
 </script>
