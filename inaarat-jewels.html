@@ -888,7 +888,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <div class="f"><label>Category</label><input id="m_cat" type="text"/></div>
   </div>
   <div class="f" style="margin-top:4px"><label>Image (optional)</label>
-    <label class="dz" style="padding:10px;cursor:pointer"><div id="m_img_prev" style="font-size:11px">Click to upload</div><input id="m_img" type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="prevMImg(event)"/></label>
+    <div style="display:flex;flex-direction:column;gap:6px">   <input id="m_img_url" type="text" placeholder="Paste Etsy image URL here..." style="padding:8px 10px;border:1px solid var(--bdr);border-radius:8px;font-size:12px;width:100%;box-sizing:border-box" oninput="prevMImgUrl(this.value)"/>   <div id="m_img_prev" style="font-size:11px;color:var(--t2)">Paste a URL above to preview</div> </div>
   </div>
   <div class="mod-act"><button class="btn bo" onclick="$i('save-mo').classList.remove('open')">Cancel</button><button class="btn bp" onclick="saveProduct()">💾 Save</button></div>
 </div></div>
@@ -1787,7 +1787,7 @@ function goalSeek(region,val){
 // ══════════════════════════════════════════════
 //  PRODUCT CRUD
 // ══════════════════════════════════════════════
-function openSaveModal(){$i('m_name').value='';$i('m_sku').value='IJ-'+String(skuCtr).padStart(3,'0');$i('m_color').value='';$i('m_size').value='';$i('m_stock').value=1;$i('m_vendor').value='';$i('m_cat').value='';mImgData=null;$i('m_img_prev').textContent='Click to upload';$i('save-mo').classList.add('open');}
+function openSaveModal(){$i('m_name').value='';$i('m_sku').value='IJ-'+String(skuCtr).padStart(3,'0');$i('m_color').value='';$i('m_size').value='';$i('m_stock').value=1;$i('m_vendor').value='';$i('m_cat').value='';mImgData=null;$i('m_img_url').value='';$i('m_img_prev').textContent='Paste a URL above to preview';$i('save-mo').classList.add('open');}
 function prevMImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{mImgData=ev.target.result;$i('m_img_prev').innerHTML=`<img src="${ev.target.result}" style="max-height:48px;border-radius:8px"/>`;};r.readAsDataURL(f);}
 // Returns the next collision-free SKU, advancing skuCtr as needed.
 // Shows a toast if the counter had to skip ahead.
