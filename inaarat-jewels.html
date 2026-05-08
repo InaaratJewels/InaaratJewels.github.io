@@ -4496,8 +4496,8 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-let _gdToken=localStorage.getItem('ij_gd_token')||null;
-let _gdFileId=localStorage.getItem('ij_gd_fileid')||null;
+_gdToken=localStorage.getItem('ij_gd_token')||null;
+_gdFileId=localStorage.getItem('ij_gd_fileid')||null;
 async function init(){
   try{
     await loadLS();
