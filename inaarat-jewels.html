@@ -1945,8 +1945,9 @@ function renderCalcTb(){
 }
 
 // ══════════════════════════════════════════════
-//  PRICE LIST — A1: Inline Editing
+//  PRICE LIST — A1: Inline Editing Logic
 // ══════════════════════════════════════════════
+
 function renderPL(){
   const q=($i('pl-q').value||'').toLowerCase(),fv=$i('pl-fv').value,fc=$i('pl-fc').value;
   const list=products.filter(p=>(!q||(p.name+p.sku+(p.vendor||'')+(p.cat||'')).toLowerCase().includes(q))&&(!fv||p.vendor===fv)&&(!fc||p.cat===fc));
@@ -2063,47 +2064,7 @@ function togglePLRow(id){
   if(chev){chev.classList.toggle('open',!open);chev.textContent=open?'›':'‹';}
   if(!open) pleLivePreview(id);
 }
-
-function updatePlDash(){
-  const totalStock=products.reduce((s,p)=>s+p.stock,0);
-  const totalInvest=products.reduce((s,p)=>s+(p.pp+(+p.courier||0))*p.stock,0);
-  const totalProfit=products.reduce((s,p)=>s+p.inPr,0);
-  const avgNM=products.length?products.reduce((s,p)=>s+p.inNM,0)/products.length:0;
-  $i('pl-stock').textContent=totalStock;$i('pl-invest').textContent=fmt(totalInvest);
-  const arc=157,pct=Math.min(Math.max(avgNM,0),100)/100;
-  $i('pl-g-arc').setAttribute('stroke-dashoffset',arc-arc*pct);
-  $i('pl-g-val').textContent=avgNM.toFixed(1)+'%';
-  $i('pl-avg-nm').textContent=avgNM.toFixed(1)+'%';
-  $i('pl-total-profit').textContent=fmt(totalProfit);
-  $i('pl-total-invest').textContent=fmt(totalInvest);
-  $i('pl-prod-count').textContent=products.length;
-}
-function updateFilters(){
-  const vs=[...new Set(products.map(p=>p.vendor).filter(Boolean))];
-  const cs=[...new Set(products.map(p=>p.cat).filter(Boolean))];
-  $i('pl-fv').innerHTML='<option value="">All Vendors</option>'+vs.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  $i('pl-fc').innerHTML='<option value="">All Categories</option>'+cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-}
-function showBD(type){
-  $i('bd-title').textContent=type==='vendor'?'By Vendor':'By Category';
-  const g={};
-  products.forEach(p=>{const k=type==='vendor'?(p.vendor||'N/A'):(p.cat||'N/A');if(!g[k])g[k]={stock:0,invest:0,profit:0};g[k].stock+=p.stock;g[k].invest+=(p.pp+(+p.courier||0))*p.stock;g[k].profit+=p.inPr*p.stock;});
-  $i('bd-content').innerHTML=`<table style="width:100%;font-size:11px"><thead><tr><th style="padding:5px 8px;text-align:left;color:var(--t2)">${type==='vendor'?'Vendor':'Category'}</th><th style="text-align:right;padding:5px 8px;color:var(--t2)">Stock</th><th style="text-align:right;padding:5px 8px;color:var(--t2)">Investment</th><th style="text-align:right;padding:5px 8px;color:var(--t2)">Profit</th></tr></thead><tbody>`+Object.entries(g).map(([k,v])=>`<tr><td style="padding:5px 8px;font-weight:600">${k}</td><td style="text-align:right;padding:5px 8px">${v.stock}</td><td style="text-align:right;padding:5px 8px">${fmt(v.invest)}</td><td style="text-align:right;padding:5px 8px;color:${v.profit<0?'var(--coral)':'var(--sage)'}">${fmt(v.profit)}</td></tr>`).join('')+'</tbody></table>';
-  $i('bd-panel').style.display='block';
-}
-function toggleBulk(){bulkMode=!bulkMode;$i('bulk-bar').classList.toggle('open',bulkMode);renderPL();}
-function selectAll(){document.querySelectorAll('.pchk').forEach(c=>c.checked=true);}
-function deselectAll(){document.querySelectorAll('.pchk').forEach(c=>c.checked=false);}
-function applyBulk(){
-  const sel=[...document.querySelectorAll('.pchk:checked')].map(c=>+c.dataset.id);
-  if(!sel.length){showToast('No products selected!');return;}
-  confAction(`Apply to ${sel.length} products?`,'Blank fields skipped.',()=>{
-    const bc=$i('b_courier').value,bd=$i('b_disc').value,bi=$i('b_india').value,bu=$i('b_usa').value,bw=$i('b_world').value,be=$i('b_etsyad').value;
-    products=products.map(p=>{if(!sel.includes(p.id))return p;if(bc!=='')p.courier=+bc;if(bd!=='')p.disc=+bd;if(bi!=='')p.india=+bi;if(bu!=='')p.usa=+bu;if(bw!=='')p.world=+bw;if(be!=='')p.etsyad=+be;return{...p,...calcPricing(p)};});
-    renderAll();saveLS();showToast('Bulk applied!');
-  });
-}
-
+  
 // ══════════════════════════════════════════════
 //  CSV EXPORTS
 // ══════════════════════════════════════════════
