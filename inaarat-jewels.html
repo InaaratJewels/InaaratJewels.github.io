@@ -680,6 +680,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     </div>
     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <span id="gd-status" style="display:flex;align-items:center;gap:6px"></span>
+      <span id="gd-sync-status" style="font-size:10px;font-weight:600;font-family:'Poppins',sans-serif"></span>
       <button class="btn bo bsm" onclick="gDriveRestore()" title="Restore data from Google Drive backup" style="display:none" id="gd-restore-btn">☁ Restore</button>
       <input id="orders-csv-import" type="file" accept=".csv" style="display:none" onchange="handleOrdersCSVImport(event)"/>
       <input id="expenses-csv-import" type="file" accept=".csv" style="display:none" onchange="handleExpensesCSVImport(event)"/>
@@ -941,12 +942,35 @@ function updateGDFab(){
   if(!fab)return;
   if(_gdToken){
     fab.className='connected';
-    fab.textContent='☁ Auto Backup ON';
+    fab.textContent='☁ Sync ON';
   } else {
     fab.className='disconnected';
     fab.textContent='☁ Enable Auto Backup';
   }
 }
+
+// ── Start background polling (every 30 s) ──
+function startGDPolling() {
+  stopGDPolling();
+  _gdPollTimer = setInterval(async () => {
+    if (_gdToken) await gDriveRestoreLatest(true); // silent
+  }, 30000);
+}
+function stopGDPolling() {
+  if (_gdPollTimer) { clearInterval(_gdPollTimer); _gdPollTimer = null; }
+}
+
+// ── Sync immediately when tab becomes visible again ──
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && _gdToken) {
+    await gDriveRestoreLatest(true); // silent
+  }
+});
+
+// ── Sync when window regains focus (switching between browser windows) ──
+window.addEventListener('focus', async () => {
+  if (_gdToken) await gDriveRestoreLatest(true);
+});
 </script>
 
 <div class="mo" id="save-mo"><div class="mod"><h3>💾 Save Product</h3>
@@ -1588,6 +1612,8 @@ const GD_FILE_NAME  = 'inaarat_backup.json';
 let   _gdToken      = null;
 let   _gdFileId     = null;
 let   _gdBackupPending = false;
+let   _gdLastSyncedAt  = null;   // ISO timestamp of the last backup WE uploaded
+let   _gdPollTimer     = null;   // setInterval handle for background polling
 
 function gDriveSignIn() {
   const REDIRECT = 'https://inaaratjewels.github.io/inaarat-jewels.html';
@@ -1615,74 +1641,78 @@ function gDriveSignIn() {
     showToast('Google Drive connected! Auto-backup enabled.', 'var(--sage)');
     updateGDStatus();
     gDriveAutoBackup();
+    startGDPolling();
   }, 800);
 })();
-async function gDriveRestoreLatest() {
-
-  if(!_gdToken) return;
-
+// silent=true → no toast on "already up to date"; force=true → skip timestamp check
+async function gDriveRestoreLatest(silent=false, force=false) {
+  if (!_gdToken) return;
   try {
-
-    // Find backup file
+    // Find backup file (also fetch modifiedTime for quick freshness check)
     const search = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='${GD_FILE_NAME}'&spaces=drive&fields=files(id,name)`,
-      {
-        headers: {
-          Authorization: 'Bearer ' + _gdToken
-        }
-      }
+      `https://www.googleapis.com/drive/v3/files?q=name='${GD_FILE_NAME}'&spaces=drive&fields=files(id,name,modifiedTime)`,
+      { headers: { Authorization: 'Bearer ' + _gdToken } }
     );
-
-    const data = await search.json();
-
-    if(!data.files || !data.files.length){
-      console.warn('No Drive backup found');
+    if (search.status === 401) {
+      _gdToken = null; localStorage.removeItem('ij_gd_token');
+      updateGDStatus();
+      showToast('⚠ Drive session expired — please reconnect.', 'var(--coral)');
       return;
     }
+    const data = await search.json();
+    if (!data.files || !data.files.length) { console.warn('No Drive backup found'); return; }
 
-    const fileId = data.files[0].id;
+    const file = data.files[0];
+    _gdFileId = file.id;
 
-    // Download latest backup
-    const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-      {
-        headers: {
-          Authorization: 'Bearer ' + _gdToken
-        }
+    // Skip download if Drive file hasn't changed since our last upload (and not forced)
+    if (!force && _gdLastSyncedAt && file.modifiedTime) {
+      const driveMs = new Date(file.modifiedTime).getTime();
+      const ourMs   = new Date(_gdLastSyncedAt).getTime();
+      if (driveMs <= ourMs) {
+        if (!silent) showToast('☁ Already up to date.', 'var(--t3)');
+        updateGDSyncStatus();
+        return;
       }
+    }
+
+    // Download backup
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
+      { headers: { Authorization: 'Bearer ' + _gdToken } }
     );
-
     const backup = await res.json();
+    if (!backup.products) return;
 
-    if(!backup.products) return;
+    // Check savedAt inside the file for a finer-grained guard
+    if (!force && _gdLastSyncedAt && backup.savedAt) {
+      if (new Date(backup.savedAt).getTime() <= new Date(_gdLastSyncedAt).getTime()) {
+        updateGDSyncStatus();
+        return;
+      }
+    }
 
     // OVERWRITE LOCAL DATA
-    products = backup.products.map(p => ({
-      ...p,
-      ...calcPricing(p)
-    }));
+    products  = backup.products.map(p => ({ ...p, ...calcPricing(p) }));
+    orders    = backup.orders   || [];
+    expenses  = backup.expenses || [];
+    skuCtr    = backup.skuCtr   || 1;
+    _gdLastSyncedAt = backup.savedAt || new Date().toISOString();
 
-    orders = backup.orders || [];
-    expenses = backup.expenses || [];
-    skuCtr = backup.skuCtr || 1;
-
-    // SAVE TO LOCAL STORAGE
     await saveLS();
-
-    // REFRESH UI
-    renderAll();
-    renderOrderDashboard();
-
-    showToast('☁ Google Drive sync completed!', 'var(--sage)');
+    recalcAll(); renderAll(); renderOrderDashboard();
+    updateGDSyncStatus();
+    if (!silent) showToast('☁ Synced from Google Drive!', 'var(--sage)');
 
   } catch(err) {
     console.error('Drive restore error:', err);
   }
 }
 function gDriveSignOut() {
-  _gdToken = null; _gdFileId = null;
+  _gdToken = null; _gdFileId = null; _gdLastSyncedAt = null;
   localStorage.removeItem('ij_gd_token');
   localStorage.removeItem('ij_gd_fileid');
+  stopGDPolling();
   updateGDStatus();
   showToast('Google Drive disconnected.', 'var(--t3)');
 }
@@ -1696,6 +1726,22 @@ function updateGDStatus() {
     el.innerHTML = `<span style="font-size:10px;color:var(--t3)">Auto-backup on every save</span>`;
   }
   updateGDFab();
+  updateGDSyncStatus();
+}
+
+function updateGDSyncStatus() {
+  const el = document.getElementById('gd-sync-status');
+  if (!el) return;
+  if (!_gdToken) { el.textContent = ''; return; }
+  if (_gdLastSyncedAt) {
+    const d = new Date(_gdLastSyncedAt);
+    const hh = d.getHours().toString().padStart(2,'0');
+    const mm = d.getMinutes().toString().padStart(2,'0');
+    const ss = d.getSeconds().toString().padStart(2,'0');
+    el.innerHTML = `<span style="color:var(--sage)">✓ Synced ${hh}:${mm}:${ss}</span>`;
+  } else {
+    el.innerHTML = `<span style="color:var(--t3)">Waiting for sync…</span>`;
+  }
 }
 
 async function gDriveAutoBackup() {
@@ -1703,10 +1749,11 @@ async function gDriveAutoBackup() {
   if (GD_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') return; // not configured yet
   _gdBackupPending = true;
   try {
+    const _now = new Date().toISOString();
     const payload = JSON.stringify({
       products: products.map(p => ({ ...p, img: null })), // don't upload images to Drive (too large)
       orders, expenses, skuCtr,
-      exportedAt: new Date().toISOString(), version: 2
+      exportedAt: _now, savedAt: _now, version: 2
     });
     const blob = new Blob([payload], { type: 'application/json' });
 
@@ -1750,6 +1797,9 @@ async function gDriveAutoBackup() {
       _gdToken = null; localStorage.removeItem('ij_gd_token');
       updateGDStatus();
       showToast('⚠ Google Drive session expired — please reconnect.', 'var(--coral)');
+    } else {
+      _gdLastSyncedAt = _now;
+      updateGDSyncStatus();
     }
   } catch(e) { console.warn('GDrive backup error:', e); }
   finally { _gdBackupPending = false; }
@@ -4968,6 +5018,7 @@ async function init(){
   updateGDStatus();
   const restoreBtn=document.getElementById('gd-restore-btn');
   if(restoreBtn) restoreBtn.style.display=_gdToken?'':'none';
+  if(_gdToken) startGDPolling();
   calc();renderAll();renderOrderDashboard();
 }
 init();
