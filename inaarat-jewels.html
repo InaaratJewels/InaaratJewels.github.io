@@ -441,11 +441,11 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="ct">Core Costing</div>
       <div class="g2">
         <div class="f pfx"><label>Purchase Price</label><span class="ps">₹</span><input id="c_pp" type="number" value="250" oninput="calc()"/></div>
-        <div class="f"><label>Desired Margin %</label><input id="c_margin" type="number" value="45" oninput="calc()"/></div>
-        <div class="f pfx"><label>Local Courier</label><span class="ps">₹</span><input id="c_courier" type="number" value="25" oninput="calc()"/></div>
+        <div class="f"><label>Desired Margin %</label><input id="c_margin" type="number" value="50" oninput="calc()"/></div>
+        <div class="f pfx"><label>Local Courier</label><span class="ps">₹</span><input id="c_courier" type="number" value="50" oninput="calc()"/></div>
         <div class="f pfx"><label>Packaging</label><span class="ps">₹</span><input id="c_pack" type="number" value="50" oninput="calc()"/></div>
         <div class="f pfx"><label>Additional Cost</label><span class="ps">₹</span><input id="c_addcost" type="number" value="0" oninput="calc()"/></div>
-        <div class="f"><label>Discount %</label><input id="c_disc" type="number" value="22" oninput="calc()"/></div>
+        <div class="f"><label>Discount %</label><input id="c_disc" type="number" value="25" oninput="calc()"/></div>
       </div>
     </div>
     <div class="card">
@@ -474,8 +474,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       </div>
       <div id="ship-fields"><div class="g3">
         <div class="f pfx"><label>India</label><span class="ps">₹</span><input id="c_india" type="number" value="0" oninput="calc()"/></div>
-        <div class="f pfx"><label>USA</label><span class="ps">₹</span><input id="c_usa" type="number" value="0" oninput="calc()"/></div>
-        <div class="f pfx"><label>World</label><span class="ps">₹</span><input id="c_world" type="number" value="0" oninput="calc()"/></div>
+        <div class="f pfx"><label>USA</label><span class="ps">₹</span><input id="c_usa" type="number" value="1731.25" oninput="calc()"/></div>
+        <div class="f pfx"><label>World</label><span class="ps">₹</span><input id="c_world" type="number" value="1535.44" oninput="calc()"/></div>
       </div></div>
     </div>
     <div class="btns">
@@ -580,7 +580,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div style="height:12px"></div>
       <div style="display:grid;grid-template-columns:170px 170px 1fr auto;gap:10px;align-items:end;margin-bottom:12px">
         <div class="f" style="margin:0"><label>Target Discount %</label><input id="sim-disc" type="number" value="50" oninput="simPreview()"/></div>
-        <div class="f" style="margin:0"><label>Desired Net Margin %</label><input id="sim-margin" type="number" value="45" oninput="simPreview()"/></div>
+        <div class="f" style="margin:0"><label>Desired Net Margin %</label><input id="sim-margin" type="number" value="50" oninput="simPreview()"/></div>
         <div id="sim-banner" style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.18);border-radius:10px;padding:8px 12px;font-size:11px;color:var(--t2);line-height:1.7;display:flex;align-items:center">Enter values and click Calculate.</div>
         <button class="btn bp" onclick="runSimulator()" style="align-self:end">⚡ Calculate</button>
       </div>
@@ -1013,8 +1013,8 @@ window.addEventListener('focus', async () => {
     <div class="f"><label>Vendor</label><input id="ap_vendor" type="text"/></div>
     <div class="f"><label>Category</label><input id="ap_cat" type="text"/></div>
     <div class="f pfx"><label>Purchase Price</label><span class="ps">₹</span><input id="ap_pp" type="number" value="0" oninput="previewAPCalc()"/></div>
-    <div class="f"><label>Margin %</label><input id="ap_margin" type="number" value="45" oninput="previewAPCalc()"/></div>
-    <div class="f pfx"><label>Courier</label><span class="ps">₹</span><input id="ap_courier" type="number" value="25" oninput="previewAPCalc()"/></div>
+    <div class="f"><label>Margin %</label><input id="ap_margin" type="number" value="50" oninput="previewAPCalc()"/></div>
+    <div class="f pfx"><label>Courier</label><span class="ps">₹</span><input id="ap_courier" type="number" value="50" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Packaging</label><span class="ps">₹</span><input id="ap_pack" type="number" value="50" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Extra Cost</label><span class="ps">₹</span><input id="ap_addcost" type="number" value="0" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>List Fee</label><span class="ps">₹</span><input id="ap_list" type="number" value="18" oninput="previewAPCalc()"/></div>
@@ -1026,7 +1026,7 @@ window.addEventListener('focus', async () => {
     <div class="f pfx"><label>India Ship</label><span class="ps">₹</span><input id="ap_india" type="number" value="0" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>USA Ship</label><span class="ps">₹</span><input id="ap_usa" type="number" value="0" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>World Ship</label><span class="ps">₹</span><input id="ap_world" type="number" value="0" oninput="previewAPCalc()"/></div>
-    <div class="f"><label>Discount %</label><input id="ap_disc" type="number" value="22" oninput="previewAPCalc()"/></div>
+    <div class="f"><label>Discount %</label><input id="ap_disc" type="number" value="25" oninput="previewAPCalc()"/></div>
   </div>
   <div id="ap_preview" style="margin-top:8px;padding:7px 12px;background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:10px;font-size:11px;color:var(--t2)"></div>
   <div class="f" style="margin-top:6px"><label>Image</label>
@@ -1957,7 +1957,7 @@ function saveProduct(){
   showToast(adjusted?`SKU adjusted to ${sku}`:'Saved — '+sku);
 }
 function dupProduct(){const d=getFormData(),r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _curP=products.find(p=>p.sku===$i('m_sku').value);products.push({...d,...r,id:Date.now(),name:'Copy of '+($i('m_name').value||'Product'),sku,color:'',stock:1,vendor:'',cat:'',img:_curP?_curP.img:null});skuCtr++;renderAll();saveLS();showToast(adjusted?`SKU adjusted to ${sku}`:'Duplicated');}
-function clearCalc(){['c_pp','c_courier','c_pack','c_addcost','c_disc','c_list','c_etsyad','c_ai','c_plus','c_social','c_gift','c_india','c_usa','c_world','c_payment'].forEach(id=>$i(id).value=0);$i('c_margin').value=45;calc();}
+function clearCalc(){['c_pp','c_courier','c_pack','c_addcost','c_disc','c_list','c_etsyad','c_ai','c_plus','c_social','c_gift','c_india','c_usa','c_world','c_payment'].forEach(id=>$i(id).value=0);$i('c_margin').value=50;calc();}
 function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=18;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_india').value=0;$i('ap_usa').value=0;$i('ap_world').value=0;$i('ap_disc').value=22;apImgData=null;$i('ap_img_url').value='';$i('ap_img_prev').textContent='Paste a URL above to preview';$i('ap_etsy_url').value='';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
 function prevAPImgUrl(url){if(!url){apImgData=null;$i('ap_img_prev').innerHTML='Paste a URL above to preview';return;}apImgData=url;$i('ap_img_prev').innerHTML=`<img src="${url}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
 function previewAPCalc(){const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);$i('ap_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
@@ -5194,7 +5194,7 @@ async function init(){
   }
   recalcAll();
   if(products.length===0){
-    const sD={pp:250,margin:45,courier:25,pack:50,addcost:0,list:18,payment:30,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:0,world:0,disc:22,shippingOn:true};
+    const sD={pp:250,margin:50,courier:50,pack:50,addcost:0,list:18,payment:30,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:1731.25,world:1535.44,disc:25,shippingOn:true};
     products.push({...sD,...calcPricing(sD),id:1,name:'Black CZ Necklace & Earrings Set',sku:'IJ-001',color:'Black',stock:5,vendor:'KC Jewels',cat:'Necklace Set',img:null});
     skuCtr=2;await saveLS();
   }
