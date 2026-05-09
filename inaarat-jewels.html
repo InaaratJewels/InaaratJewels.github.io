@@ -14,9 +14,9 @@
   --brd:#D9DDD6;--brd2:rgba(167,139,250,0.2);
   --ac:#A78BFA;--ac2:#8B72E8;--ac3:#C4B5FD;
   --pink:#F4A6C1;--pink2:#E78CAF;
-  --sage:#8FBF9F;--gold:#C9A84C;--gold2:#E7C27D;--coral:#D88C8C;--indigo:#4C5C8A;
-  --orange:#E8924A;--orange2:#F0A860;
-  --tx:#2C2A2E;--t2:#5F6368;--t3:#8D9299;--t4:#BFC4C9;
+  --sage:#8FBF9F;--gold2:#E7C27D;--coral:#D88C8C;--indigo:#4C5C8A;
+  --orange:#E8924A;
+  --tx:#2C2A2E;--t2:#5F6368;--t3:#8D9299;
   --sh:0 4px 16px rgba(0,0,0,0.06);--sh2:0 2px 10px rgba(167,139,250,0.1);
 }
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;font-size:13px}
@@ -107,7 +107,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .cancel-item-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(216,140,140,0.15);font-size:11px}
 .cancel-item-row:last-child{border-bottom:none}
 .canc-badge{background:rgba(100,100,100,0.1);color:#666;border:1px solid rgba(100,100,100,0.2);padding:1px 7px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-.sku-b{font-family:'Courier New',monospace;background:rgba(167,139,250,0.08);color:var(--ac2);padding:2px 8px;border-radius:20px;font-size:10px;border:1px solid rgba(167,139,250,0.25);font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.sku-b{font-family:'Courier New',monospace;background:rgba(167,139,250,0.08);color:var(--ac2);padding:2px 8px;border-radius:20px;font-size:10px;border:1px solid rgba(167,139,250,0.25);font-weight:600;display:inline-flex;align-items:center;gap:3px;cursor:pointer;transition:background .15s}
+.sku-b:hover{background:rgba(167,139,250,0.18)}
 .sku-b::before{content:'·';font-size:14px;line-height:1}
 .ac-card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
 .ac-card:hover{border-color:var(--ac);box-shadow:0 8px 24px rgba(167,139,250,0.15);transform:translateY(-2px)}
@@ -139,12 +140,12 @@ canvas{max-width:100%;max-height:390px;display:block}
 #toast{position:fixed;bottom:20px;right:20px;background:var(--ac);color:#fff;padding:9px 18px;border-radius:12px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;font-family:'Poppins',sans-serif}
 input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .pl-wrapper{background:linear-gradient(160deg,#EDE8DC 0%,#F5F2EB 100%);border:1px solid #C8C0A8;border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.08)}
-.pl-header{display:grid;grid-template-columns:48px 110px 1fr 240px 180px 120px;align-items:center;padding:10px 16px;background:linear-gradient(90deg,rgba(220,210,185,0.85),rgba(235,228,208,0.85));border-bottom:1px solid rgba(180,165,130,0.4)}
+.pl-header{display:grid;grid-template-columns:48px 110px 1fr 240px 180px;align-items:center;padding:10px 16px;background:linear-gradient(90deg,rgba(220,210,185,0.85),rgba(235,228,208,0.85));border-bottom:1px solid rgba(180,165,130,0.4)}
 .pl-hc{font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#8C7A50;font-family:'Poppins',sans-serif}
-.pl-row{background:linear-gradient(180deg,#FDFAF5 0%,#F8F4EC 100%);border-bottom:1px solid rgba(200,192,170,0.35);transition:background .15s}
+.pl-row{background:linear-gradient(180deg,#FDFAF5 0%,#F8F4EC 100%);border-bottom:1px solid rgba(200,192,170,0.35);transition:background .15s,box-shadow .15s}
 .pl-row:last-child{border-bottom:none}
-.pl-row:hover{background:linear-gradient(180deg,#FFFDF8 0%,#FAF7EF 100%)}
-.pl-row-main{display:grid;grid-template-columns:48px 110px 1fr 240px 180px 120px;align-items:center;min-height:110px;padding:12px 16px;cursor:pointer}
+.pl-row:hover{background:linear-gradient(180deg,#FFFDF8 0%,#FAF7EF 100%);box-shadow:0 2px 12px rgba(167,139,250,0.08);cursor:pointer}
+.pl-row-main{display:grid;grid-template-columns:48px 110px 1fr 240px 180px;align-items:center;min-height:110px;padding:12px 16px;cursor:pointer}
 .pl-img-frame{width:88px;height:88px;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.12);flex-shrink:0;background:linear-gradient(135deg,#E8E0F0,#F0EAF8);display:flex;align-items:center;justify-content:center;font-size:34px}
 .pl-img-frame img{width:100%;height:100%;object-fit:cover}
 .pl-margin-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Poppins',sans-serif}
@@ -153,10 +154,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .pl-mr{background:rgba(210,90,90,0.15);color:#9A3030;border:1px solid rgba(210,90,90,0.35)}
 .pl-det{display:none;border-top:1px solid rgba(200,192,170,0.3);background:linear-gradient(135deg,rgba(245,240,230,0.7),rgba(255,252,245,0.9));padding:16px 20px}
 .pl-det.open{display:block}
-.pl-act-btn{width:32px;height:32px;border-radius:8px;border:1px solid #C8C0A8;background:linear-gradient(160deg,#FDFAF5,#F0EBE0);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.pl-act-btn:hover{border-color:#A78BFA;background:#F5F0FF}
-.pl-chev{width:28px;height:28px;border-radius:7px;border:1px solid #C8C0A8;background:linear-gradient(160deg,#FDFAF5,#F0EBE0);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#8C7A50;transition:all .2s;font-weight:700}
-.pl-chev.open{background:var(--ac);border-color:var(--ac);color:#fff;transform:rotate(180deg)}
+
 .avail-lo{background:#F5E8C0;color:#8A6520;border:1px solid #DFC07A;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;display:inline-block}
 .avail-out{background:#FAD8D8;color:#B04040;border:1px solid #E09090;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;display:inline-block}
 .ord-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:12px 16px;background:var(--card);border:1px solid var(--brd);border-radius:14px;box-shadow:var(--sh)}
@@ -211,8 +209,6 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .sg-badge-dup{background:rgba(231,194,125,0.15);color:#a8782a;border:1px solid rgba(231,194,125,0.3);padding:2px 8px;border-radius:20px;font-weight:700;font-size:10px}
 .sg-badge-unm{background:rgba(216,140,140,0.12);color:#9A3030;border:1px solid rgba(216,140,140,0.25);padding:2px 8px;border-radius:20px;font-weight:700;font-size:10px}
 /* Inline editable field in PL detail */
-.pl-field-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.pl-field-grid .f{margin:0}
 /* PDF staging */
 .pdf-stage-row{border:1px solid var(--brd);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--card)}
 .pdf-stage-row-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;background:var(--bg2)}
@@ -247,9 +243,6 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .pl-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;display:inline-block}
 .pl-badge-matched{background:rgba(143,191,159,0.2);color:#2A7A40;border:1px solid rgba(143,191,159,0.4)}
 .pl-badge-custom{background:rgba(231,194,125,0.2);color:#8A6020;border:1px solid rgba(231,194,125,0.4)}
-/* Smart Breakdown Panel */
-
-
 /* ── Reserve vs Actual Reconciliation Panel ── */
 .rvsa-panel{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:0;box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
 .rvsa-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:linear-gradient(90deg,rgba(76,92,138,0.07),rgba(143,191,159,0.05));border-bottom:1px solid var(--brd);user-select:none}
@@ -473,7 +466,17 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <button class="btn bo bsm" onclick="clearCalc()">↺ Clear</button>
       <button class="btn bo bsm" onclick="handleProductExport()">⬇ CSV</button>
     </div>
-    <div class="card"><div class="ct">Breakdown</div><div id="bk-rows"></div><div id="abar" class="abar"></div></div>
+    <div class="card">
+      <div class="coll-hdr" onclick="toggleColl('bk-body','bk-chev')">
+        <div class="ct" style="margin:0">Breakdown</div>
+        <span class="chev" id="bk-chev">▼</span>
+      </div>
+      <div class="coll-body closed" id="bk-body">
+        <div style="height:8px"></div>
+        <div id="bk-rows"></div>
+        <div id="abar" class="abar"></div>
+      </div>
+    </div>
   </div>
   <div style="display:flex;flex-direction:column;gap:10px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -518,9 +521,10 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       </div>
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-          <div class="ct" style="margin:0">Saved Products</div>
+          <div class="ct" style="margin:0">Recent Products</div>
           <span id="prod-count" style="font-size:10px;color:var(--t3);font-weight:600;background:var(--bg2);padding:2px 8px;border-radius:20px">0</span>
         </div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:5px">Showing last 3 saved</div>
         <div style="overflow-x:auto;border-radius:9px;border:1px solid var(--brd)">
           <table style="width:100%;border-collapse:collapse;font-size:11px">
             <thead><tr style="background:var(--bg2)">
@@ -603,11 +607,12 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       </svg>
       <div style="margin-top:-10px"><div class="gval" id="pl-g-val" style="color:var(--sage);font-size:18px">0%</div><div class="glbl">All Products</div></div>
     </div>
-    <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
       <div class="metric"><div class="mv" id="pl-avg-nm" style="color:var(--sage);font-size:16px">0%</div><div class="ml">Avg Margin</div></div>
       <div class="metric"><div class="mv" id="pl-total-profit" style="color:var(--indigo);font-size:16px">₹0</div><div class="ml">Total Profit</div></div>
       <div class="metric"><div class="mv" id="pl-total-invest" style="color:var(--gold2);font-size:16px">₹0</div><div class="ml">Investment</div></div>
       <div class="metric"><div class="mv" id="pl-prod-count" style="color:var(--ac);font-size:16px">0</div><div class="ml">Products</div></div>
+      <div class="metric" id="pl-lowstock-metric" onclick="$i('pl-sort').value='stock-asc';renderPL()" style="cursor:pointer" title="Click to sort by lowest stock"><div class="mv" id="pl-low-stock-count" style="color:var(--coral);font-size:16px">0</div><div class="ml">⚠ Low Stock</div></div>
     </div>
   </div>
   <div class="card" id="bd-panel" style="display:none;margin-bottom:12px">
@@ -644,12 +649,12 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
   <div class="btns" style="margin-bottom:12px">
     <input id="pl-q" type="text" style="flex:1;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 12px;color:var(--tx);font-size:12px;outline:none;min-width:130px;font-family:Inter,sans-serif" placeholder="Search name, SKU, vendor…" oninput="renderPL()"/>
     <select id="pl-fv" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Vendors</option></select>
-    <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>     <select id="pl-sort" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="sku">SKU ↑</option><option value="name">Name A-Z</option><option value="price-desc">Price ↓ High</option><option value="price-asc">Price ↑ Low</option><option value="profit-desc">Profit ↓ High</option><option value="profit-asc">Profit ↑ Low</option><option value="stock-desc">Stock ↓ High</option><option value="stock-asc">Stock ↑ Low</option></select>
+    <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>     <select id="pl-sort" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="sku">SKU ↑</option><option value="name">Name A-Z</option><option value="price-desc">Price ↓ High</option><option value="price-asc">Price ↑ Low</option><option value="profit-desc">Profit ↓ High</option><option value="profit-asc">Profit ↑ Low</option><option value="stock-desc">Stock ↓ High</option><option value="stock-asc">Stock ↑ Low</option><option value="sold-desc">Most Sold ↓</option><option value="sold-asc">Least Sold ↑</option></select>
   </div>
   <div class="pl-wrapper">
     <div class="pl-header">
       <div class="pl-hc">#</div><div class="pl-hc">Image</div><div class="pl-hc">Details</div>
-      <div class="pl-hc">Listing Price</div><div class="pl-hc">Performance</div><div class="pl-hc">Actions</div>
+      <div class="pl-hc">Listing Price</div><div class="pl-hc">Performance</div>
     </div>
     <div id="pl-rows"></div>
   </div>
@@ -722,7 +727,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="rvsa-header-title">📊 Reserve vs Actual Reconciliation <span style="font-size:10px;font-weight:500;color:var(--t3);font-family:'Inter',sans-serif">Returns · Damage · Misc · Shipping — reserved vs real spend</span></div>
       <span id="rvsa-chev" style="font-size:11px;color:var(--t3)">▼</span>
     </div>
-    <div class="rvsa-body" id="rvsa-body">
+    <div class="rvsa-body" id="rvsa-body" style="display:none">
       <div id="rvsa-summary-bar" class="rvsa-summary neutral">📊 Loading reconciliation…</div>
       <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--brd);background:var(--card)">
         <table class="rvsa-tbl" id="rvsa-tbl">
@@ -750,8 +755,9 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <input id="ord-search" type="text" placeholder="Search Order ID, Customer, SKU…" oninput="applyGF()" style="width:100%;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:8px 14px;color:var(--tx);font-size:12px;outline:none;font-family:'Inter',sans-serif;box-shadow:var(--sh2)"/>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-    <button class="btn bp" onclick="openAddOrderModal()">+ Add Order</button>
+    <button class="btn bp" onclick="openAddOrderModal()" title="Shortcut: N">+ Add Order</button>
     <button class="btn ba" onclick="openAddExpenseModal()">💸 Add Purchase</button>
+    <button class="btn bt bsm" onclick="markShippedAsDelivered()" title="Mark all Shipped orders as Delivered">✓ Shipped → Delivered</button>
     <select id="ord-sort" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="date-desc">Date ↓ Newest</option><option value="date-asc">Date ↑ Oldest</option><option value="amt-desc">Amount ↓ High</option><option value="amt-asc">Amount ↑ Low</option></select>     <select id="ord-status-filter" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif">
       <option value="">All Statuses</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Returned</option><option>Refunded</option><option>Cancelled</option>
     </select>
@@ -1713,6 +1719,13 @@ function confAction(title,msg,cb){$i('cf-title').textContent=title;$i('cf-msg').
 $i('cf-ok').onclick=()=>{$i('conf-mo').classList.remove('open');if(confCb)confCb();};
 function toggleColl(id,ch){$i(id).classList.toggle('closed');$i(ch).classList.toggle('open');}
 
+function copySKU(sku, el) {
+  navigator.clipboard.writeText(sku).then(() => {
+    showToast('📋 Copied: ' + sku);
+    if(el) { const old=el.title; el.title='Copied!'; setTimeout(()=>el.title=old,1500); }
+  }).catch(() => showToast('Copy failed'));
+}
+
 // ══════════════════════════════════════════════
 //  PRICING ENGINE
 // ══════════════════════════════════════════════
@@ -1847,17 +1860,22 @@ function renderCalcTb(){
   $i('prod-count').textContent=products.length;
   const tb=$i('calc-tb');
   if(!products.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--t3)">No products saved yet</td></tr>';return;}
-  tb.innerHTML=products.map((p,i)=>`<tr><td style="padding:6px 8px">${i+1}</td><td style="padding:6px 8px;max-width:90px;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</td><td style="padding:6px 8px"><span class="sku-b">${esc(p.sku)}</span></td><td style="padding:6px 8px;color:var(--ac);font-weight:700">${fmt(p.listingPrice)}</td><td style="padding:6px 8px;color:#c9903a">${fmt(p.inF)}</td><td style="padding:6px 8px;color:${p.inPr<0?'var(--coral)':'var(--sage)'};font-weight:700">${fmt(p.inPr)}</td><td style="padding:6px 8px"><button class="btn bdr bxs" onclick="delProd(${p.id})">✕</button></td></tr>`).join('');
+  const last3=products.slice(-3);
+  tb.innerHTML=last3.map((p,i)=>`<tr><td style="padding:6px 8px">${products.length-last3.length+i+1}</td><td style="padding:6px 8px;max-width:90px;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</td><td style="padding:6px 8px"><span class="sku-b" onclick="copySKU('${esc(p.sku)}',this)" title="Click to copy SKU">${esc(p.sku)}</span></td><td style="padding:6px 8px;color:var(--ac);font-weight:700">${fmt(p.listingPrice)}</td><td style="padding:6px 8px;color:#c9903a">${fmt(p.inF)}</td><td style="padding:6px 8px;color:${p.inPr<0?'var(--coral)':'var(--sage)'};font-weight:700">${fmt(p.inPr)}</td><td style="padding:6px 8px"><button class="btn bdr bxs" onclick="delProd(${p.id})">✕</button></td></tr>`).join('');
 }
 
 // ══════════════════════════════════════════════
 //  PRICE LIST — A1: Inline Editing
 // ══════════════════════════════════════════════
+function getSoldQty(sku){
+  return orders.filter(o=>!(o.cancelled&&o.cancelType==='full'))
+    .reduce((s,o)=>s+(o.items||[]).filter(i=>i.sku===sku).reduce((q,i)=>q+(i.qty||1),0),0);
+}
 function renderPL(){
   const q=($i('pl-q').value||'').toLowerCase(),fv=$i('pl-fv').value,fc=$i('pl-fc').value;
   const list=products.filter(p=>(!q||(p.name+p.sku+(p.vendor||'')+(p.cat||'')).toLowerCase().includes(q))&&(!fv||p.vendor===fv)&&(!fc||p.cat===fc));
   const c=$i('pl-rows');const _plSort=($i('pl-sort')||{value:'sku'}).value;
-  list.sort((a,b)=>{if(_plSort==='name')return a.name.localeCompare(b.name);if(_plSort==='price-desc')return b.listingPrice-a.listingPrice;if(_plSort==='price-asc')return a.listingPrice-b.listingPrice;if(_plSort==='profit-desc')return b.inPr-a.inPr;if(_plSort==='profit-asc')return a.inPr-b.inPr;if(_plSort==='stock-desc')return b.stock-a.stock;if(_plSort==='stock-asc')return a.stock-b.stock;return 0;});
+  list.sort((a,b)=>{if(_plSort==='name')return a.name.localeCompare(b.name);if(_plSort==='price-desc')return b.listingPrice-a.listingPrice;if(_plSort==='price-asc')return a.listingPrice-b.listingPrice;if(_plSort==='profit-desc')return b.inPr-a.inPr;if(_plSort==='profit-asc')return a.inPr-b.inPr;if(_plSort==='stock-desc')return b.stock-a.stock;if(_plSort==='stock-asc')return a.stock-b.stock;if(_plSort==='sold-desc')return getSoldQty(b.sku)-getSoldQty(a.sku);if(_plSort==='sold-asc')return getSoldQty(a.sku)-getSoldQty(b.sku);return 0;});
   if(!list.length){c.innerHTML='<div style="text-align:center;padding:40px;color:#9B8B6A">No products found.</div>';return;}
   c.innerHTML=list.map((p,i)=>{
     const nm=p.inNM,mc=nm>=30?'pl-mg':nm>=15?'pl-ma':'pl-mr';
@@ -1871,12 +1889,12 @@ function renderPL(){
     <div style="padding:0 12px">
       <div style="font-size:15px;font-weight:700;color:#2A2828;font-family:'Poppins',sans-serif;margin-bottom:8px">${esc(p.name)}</div>
       <table style="border-collapse:collapse;font-size:12px;line-height:1.75">
-        <tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">SKU</td><td style="font-family:'Courier New',monospace;color:#7B6BB0;font-weight:700">${esc(p.sku)}</td></tr>
+        <tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">SKU</td><td style="font-family:'Courier New',monospace;color:#7B6BB0;font-weight:700"><span class="sku-b" onclick="event.stopPropagation();copySKU('${esc(p.sku)}',this)" title="Click to copy SKU">${esc(p.sku)}</span></td></tr>
         ${p.color?`<tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Color</td><td>${esc(p.color)}</td></tr>`:''}
         ${p.size?`<tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Size</td><td>${esc(p.size)}</td></tr>`:''}
         ${p.vendor?`<tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Vendor</td><td>${esc(p.vendor)}</td></tr>`:''}
         <tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Buy</td><td style="font-weight:700">${fmt(p.pp)}</td></tr>
-        <tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Stock</td><td>${p.stock}${loBadge}</td></tr>
+        <tr><td style="color:#8C7A60;font-weight:600;padding-right:8px">Stock</td><td>${p.stock}${loBadge} <span style="font-size:10px;color:var(--t3);margin-left:4px">· ${getSoldQty(p.sku)} sold</span></td></tr>
       </table>
     </div>
     <div style="padding:0 10px">
@@ -1889,10 +1907,6 @@ function renderPL(){
     <div style="padding:0 12px;border-left:1px solid rgba(200,190,170,0.35)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">Margin: <span class="pl-margin-pill ${mc}">${nm.toFixed(1)}%</span></div>
       <div style="font-size:14px;font-weight:700;color:#3A4A7A"><span style="font-size:12px;font-weight:500;color:#6E6B74;margin-right:4px">Profit:</span>${fmt(p.inPr)}</div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:6px;border-left:1px solid rgba(200,190,170,0.35);padding:0 8px" onclick="event.stopPropagation()">
-      <button class="pl-act-btn" onclick="openEditModal(${p.id})" title="Edit">✏️</button>
-      <button class="pl-chev" id="plchev-${p.id}" onclick="togglePLRow(${p.id})">›</button>
     </div>
   </div>
   <div class="pl-det" id="pldet-${p.id}">
@@ -1909,7 +1923,18 @@ function buildPLInlineEditor(p) {
     return `<div class="f" style="margin:0"><label>${label}</label><div style="position:relative">${pfxH}<input type="number" id="ple-${p.id}-${id}" value="${val}" style="${pl};width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;text-align:right;outline:none" oninput="pleLivePreview(${p.id})"/></div></div>`;
   };
   return `<div style="padding:4px 0 10px">
-    <div style="font-size:11px;font-weight:700;color:var(--ac);margin-bottom:8px">✏ Edit Pricing Fields</div>
+    <div style="font-size:11px;font-weight:700;color:var(--ac);margin-bottom:8px">✏ Edit Product</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--brd)">
+      <div class="f" style="margin:0"><label>Name</label><input type="text" id="ple-${p.id}-name" value="${esc(p.name)}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>SKU</label><input type="text" id="ple-${p.id}-sku" value="${esc(p.sku)}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;outline:none;font-family:'Courier New',monospace;color:var(--ac2)"/></div>
+      <div class="f" style="margin:0"><label>Color</label><input type="text" id="ple-${p.id}-color" value="${esc(p.color||'')}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>Size</label><input type="text" id="ple-${p.id}-size" value="${esc(p.size||'')}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>Stock</label><input type="number" id="ple-${p.id}-stock" value="${p.stock}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>Vendor</label><input type="text" id="ple-${p.id}-vendor" value="${esc(p.vendor||'')}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>Category</label><input type="text" id="ple-${p.id}-cat" value="${esc(p.cat||'')}" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+      <div class="f" style="margin:0"><label>Image URL</label><input type="text" id="ple-${p.id}-img" value="${esc(p.img||'')}" placeholder="https://…" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:11px;outline:none"/></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Pricing</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:8px">
       ${fld('pp','Purchase ₹',p.pp,'₹')}
       ${fld('margin','Margin %',p.margin)}
@@ -1931,7 +1956,6 @@ function buildPLInlineEditor(p) {
     <div id="ple-prev-${p.id}" style="padding:7px 11px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);border-radius:9px;font-size:11px;color:var(--t2);margin-bottom:8px"></div>
     <div style="display:flex;gap:6px">
       <button class="btn bp bsm" onclick="applyPLEdit(${p.id})">✓ Apply Changes</button>
-      <button class="btn bo bsm" onclick="openEditModal(${p.id})">✏ Full Edit</button>
       <button class="btn bdr bsm" onclick="delProd(${p.id})">🗑 Delete</button>
     </div>
   </div>`;
@@ -1952,22 +1976,39 @@ function pleLivePreview(pid) {
 function applyPLEdit(pid) {
   const idx = products.findIndex(p=>p.id===pid);
   if(idx<0) return;
+  const skuEl = document.getElementById(`ple-${pid}-sku`);
+  const newSku = skuEl ? skuEl.value.trim() : products[idx].sku;
+  const conflict = products.find(p=>p.id!==pid&&(p.sku||'').toUpperCase()===newSku.toUpperCase());
+  if(conflict){showToast(`⚠ SKU ${newSku} already used by "${conflict.name}"`,'var(--coral)');return;}
+  const nameEl = document.getElementById(`ple-${pid}-name`);
+  const imgEl  = document.getElementById(`ple-${pid}-img`);
   const u = {...products[idx],
+    name:   nameEl ? (nameEl.value.trim()||products[idx].name) : products[idx].name,
+    sku:    newSku,
+    color:  document.getElementById(`ple-${pid}-color`)?.value||'',
+    size:   document.getElementById(`ple-${pid}-size`)?.value||'',
+    stock:  parseInt(document.getElementById(`ple-${pid}-stock`)?.value)||products[idx].stock,
+    vendor: document.getElementById(`ple-${pid}-vendor`)?.value||'',
+    cat:    document.getElementById(`ple-${pid}-cat`)?.value||'',
+    img:    imgEl && imgEl.value ? imgEl.value : products[idx].img,
     pp:pleg(pid,'pp'),margin:pleg(pid,'margin'),disc:pleg(pid,'disc'),
     courier:pleg(pid,'courier'),pack:pleg(pid,'pack'),addcost:pleg(pid,'addcost'),
     list:pleg(pid,'list'),payment:pleg(pid,'payment'),etsyad:pleg(pid,'etsyad'),
     ai:pleg(pid,'ai'),plus:pleg(pid,'plus'),social:pleg(pid,'social'),gift:pleg(pid,'gift'),
     india:pleg(pid,'india'),usa:pleg(pid,'usa'),world:pleg(pid,'world'),shippingOn:true
   };
+  // Keep skuCtr ahead of any manually entered SKU numbers
+  const editedNum = skuNum(newSku);
+  if(editedNum>=skuCtr) skuCtr=editedNum+1;
   products[idx] = {...u, ...calcPricing(u)};
+  auditEntry('edit','product',pid,newSku,'Name: '+(nameEl?nameEl.value.trim():products[idx].name));
   saveLS(); renderAll(); showToast('✓ Updated!');
 }
 
 function togglePLRow(id){
-  const det=$i('pldet-'+id),chev=$i('plchev-'+id);
+  const det=$i('pldet-'+id);
   const open=det.classList.contains('open');
   det.classList.toggle('open',!open);
-  if(chev){chev.classList.toggle('open',!open);chev.textContent=open?'›':'‹';}
   if(!open) pleLivePreview(id);
 }
 
@@ -1976,6 +2017,7 @@ function updatePlDash(){
   const totalInvest=products.reduce((s,p)=>s+(p.pp+(+p.courier||0))*p.stock,0);
   const totalProfit=products.reduce((s,p)=>s+p.inPr,0);
   const avgNM=products.length?products.reduce((s,p)=>s+p.inNM,0)/products.length:0;
+  const lowStockCount=products.filter(p=>p.stock<=3).length;
   $i('pl-stock').textContent=totalStock;$i('pl-invest').textContent=fmt(totalInvest);
   const arc=157,pct=Math.min(Math.max(avgNM,0),100)/100;
   $i('pl-g-arc').setAttribute('stroke-dashoffset',arc-arc*pct);
@@ -1984,6 +2026,10 @@ function updatePlDash(){
   $i('pl-total-profit').textContent=fmt(totalProfit);
   $i('pl-total-invest').textContent=fmt(totalInvest);
   $i('pl-prod-count').textContent=products.length;
+  const lsEl=$i('pl-low-stock-count');
+  if(lsEl){lsEl.textContent=lowStockCount;lsEl.style.color=lowStockCount>0?'var(--coral)':'var(--sage)';}
+  const lsMetric=$i('pl-lowstock-metric');
+  if(lsMetric){lsMetric.style.borderColor=lowStockCount>0?'rgba(216,140,140,0.35)':'var(--brd)';}
 }
 function updateFilters(){
   const vs=[...new Set(products.map(p=>p.vendor).filter(Boolean))];
@@ -2590,7 +2636,8 @@ function renderUnifiedTable(fOrders,fExp){
               <tbody id="oexp-items-${e.id}">${itemRowsHTML}</tbody>
             </table>
           </div>
-          ${(e.items||[]).length===0?`<div style="text-align:center;padding:14px;color:var(--t3);font-size:11px">No products linked — open full Edit to add items</div>`:''}
+          ${(e.items||[]).length===0?`<div style="text-align:center;padding:10px;color:var(--t3);font-size:11px">No products linked yet — add items below</div>`:''}
+          <div style="margin-top:6px"><button class="btn bo bxs" onclick="addInlineOrderItem(${e.id})">＋ Add Item</button></div>
         </div>
 
         <!-- SECTION 5: Full P&L Breakdown (like pricelist) -->
@@ -2629,7 +2676,6 @@ function renderUnifiedTable(fOrders,fExp){
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0">
           <button class="btn bp bsm" id="oedit-save-${e.id}" onclick="saveOrderInlineEdit(${e.id})" style="display:none">✓ Save Changes</button>
           <button class="btn bp bsm" onclick="saveOrderCostOverrides(${e.id})">💾 Save Cost Overrides</button>
-          <button class="btn bo bsm" onclick="openEditOrderModal(${e.id})">✏ Full Edit</button>
           ${e.cancelled?`<span class="canc-badge">🚫 ${e.cancelType==='full'?'Fully Cancelled':'Partially Cancelled'}</span>`:
             `<button class="btn bdr bsm" onclick="openCancelOrderModal(${e.id})" style="border-color:rgba(216,140,140,0.5)">🚫 Cancel Order</button>`}
           <button class="btn bdr bsm" onclick="delOrder(${e.id})">🗑 Delete</button>
@@ -2657,8 +2703,8 @@ function renderUnifiedTable(fOrders,fExp){
             `}
           </div></div>`:''}
       </div>`;
-      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><span class="t-ord">▲ Order</span></td><td style="font-weight:700;color:var(--ac)">${esc(e.ordNo)}</td><td>${esc(e.customer||'—')}</td><td>${skus||'—'}</td><td>—</td><td>—</td><td>${revDisplay}</td><td><span class="pill ${stMap[e.status]||'pac'}">${e.status||'—'}</span></td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td><td>▸</td></tr>
-<tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
+      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><span class="t-ord">▲ Order</span></td><td style="font-weight:700;color:var(--ac)">${esc(e.ordNo)}</td><td>${esc(e.customer||'—')}</td><td>${skus||'—'}</td><td>—</td><td>—</td><td>${revDisplay}</td><td><span class="pill ${stMap[e.status]||'pac'}">${e.status||'—'}</span></td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+<tr class="ut-exp" id="${expId}"><td colspan="9">${expandedHTML}</td></tr>`;
     } else {
       const adjAmt=effExp(e),hasVC=(e.vendorCredit||0)>0;
       const amtDisplay=hasVC?`<span class="amt-ex">− ${fmt(adjAmt)}</span> <span class="amt-ref" style="font-size:10px">+credit</span>`:`<span class="amt-ex">− ${fmt(adjAmt)}</span>`;
@@ -2712,7 +2758,6 @@ function renderUnifiedTable(fOrders,fExp){
         <!-- Actions -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px">
           <button class="btn bp bsm" onclick="saveInlineExpenseEdit(${e.id})">✓ Save Changes</button>
-          <button class="btn bo bsm" onclick="openEditExpenseModal(${e.id})">🖊 Full Edit Modal</button>
           ${e.cancelled?`<span class="canc-badge">🚫 ${e.cancelType==='full'?'Fully Cancelled':'Partially Cancelled'}</span>`:
             `<button class="btn bdr bsm" onclick="openCancelPurchaseModal(${e.id})" style="border-color:rgba(216,140,140,0.5)">🚫 Cancel Purchase</button>`}
           <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
@@ -2730,15 +2775,15 @@ function renderUnifiedTable(fOrders,fExp){
             ${e.cancelType==='itemwise'&&e.cancelledItems?`<div style="margin-top:6px"><strong>Cancelled Items:</strong><ul style="margin:4px 0 0 16px">${e.cancelledItems.map(ci=>`<li>${esc(ci.name||ci.sku)} × ${ci.qty} — ${fmt(ci.cancelledAmt||0)}</li>`).join('')}</ul></div>`:''}
           </div></div>`:''}
       </div>`;
-      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:600">${esc(e.title)}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td>—</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td><td>▸</td></tr>
-<tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
+      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:600">${esc(e.title)}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td>—</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+<tr class="ut-exp" id="${expId}"><td colspan="9">${expandedHTML}</td></tr>`;
     }
   }).join('');
 
   c.innerHTML=`<div class="ut-wrap">
     <div class="ut-head"><span style="font-size:11px;font-weight:700;color:var(--t2)">Entries <span style="background:var(--ac);color:#fff;border-radius:20px;padding:1px 8px;font-size:10px;margin-left:4px">${unified.length}</span></span><span style="font-size:10px;color:var(--t3)">Click any row to expand</span></div>
     <div style="overflow-x:auto"><table class="ut">
-      <thead><tr><th>Type</th><th>Order / Title</th><th>Customer</th><th>SKUs</th><th>Category</th><th>Vendor</th><th>Amount</th><th>Status / Ref</th><th>Date</th><th></th></tr></thead>
+      <thead><tr><th>Type</th><th>Order / Title</th><th>Customer</th><th>SKUs</th><th>Category</th><th>Vendor</th><th>Amount</th><th>Status / Ref</th><th>Date</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
   </div>`;
@@ -2749,6 +2794,53 @@ function toggleUTRow(expId){
   const isOpen=row.classList.contains('open');
   document.querySelectorAll('.ut-exp.open').forEach(r=>{if(r.id!==expId)r.classList.remove('open');});
   row.classList.toggle('open',!isOpen);
+}
+
+// ── Inline order item add ──
+function addInlineOrderItem(ordId){
+  const tbody=document.getElementById(`oexp-items-${ordId}`);
+  if(!tbody)return;
+  const skuOpts=products.map(p=>`<option value="${esc(p.sku)}">${esc(p.sku)} — ${esc(p.name)}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.className='new-oi-row';
+  tr.innerHTML=`
+    <td colspan="2"><select onchange="prefillInlineOrderItem(this,${ordId})" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;color:var(--ac2);font-family:'Courier New',monospace;font-weight:700;outline:none"><option value="">— Select SKU —</option>${skuOpts}</select></td>
+    <td><input type="number" class="noi-price" value="0" placeholder="Sell ₹" style="width:90px;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;text-align:right;outline:none"/></td>
+    <td><input type="number" class="noi-qty" value="1" min="1" style="width:50px;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;text-align:center;outline:none"/></td>
+    <td><input type="number" class="noi-pp" value="0" placeholder="Cost ₹" style="width:80px;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;text-align:right;outline:none"/></td>
+    <td><input type="number" class="noi-ls" value="0" placeholder="Ship ₹" style="width:70px;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;text-align:right;outline:none"/></td>
+    <td style="text-align:right;white-space:nowrap">
+      <button onclick="commitInlineOrderItem(this,${ordId})" class="btn bp bxs">✓ Add</button>
+      <button onclick="this.closest('tr').remove()" class="btn bdr bxs" style="margin-left:4px">✕</button>
+    </td>`;
+  tbody.appendChild(tr);
+}
+function prefillInlineOrderItem(sel,ordId){
+  const sku=sel.value;
+  const p=products.find(x=>x.sku===sku);
+  if(!p)return;
+  const row=sel.closest('tr');
+  row.querySelector('.noi-price').value=p.inF.toFixed(2);
+  row.querySelector('.noi-pp').value=p.pp;
+  row.querySelector('.noi-ls').value=p.courier||0;
+}
+function commitInlineOrderItem(btn,ordId){
+  const row=btn.closest('tr');
+  const sku=row.querySelector('select').value;
+  if(!sku){showToast('Select a SKU first');return;}
+  const qty=parseInt(row.querySelector('.noi-qty').value)||1;
+  const price=parseFloat(row.querySelector('.noi-price').value)||0;
+  const pp=parseFloat(row.querySelector('.noi-pp').value)||0;
+  const ls=parseFloat(row.querySelector('.noi-ls').value)||0;
+  const p=products.find(x=>x.sku===sku);
+  const idx=orders.findIndex(o=>o.id===ordId);
+  if(idx<0)return;
+  orders[idx].items=orders[idx].items||[];
+  orders[idx].items.push({sku,qty,price,name:p?.name||sku,listPrice:price});
+  if(!orders[idx].itemCosts)orders[idx].itemCosts={};
+  orders[idx].itemCosts[sku]={purchaseCost:pp,localShip:ls};
+  saveLS();renderOrderDashboard();
+  showToast('✓ Item added!');
 }
 
 // E1: inline order status update
@@ -3362,6 +3454,20 @@ function calcEOrderTotal(){const items=getItems('eoi'),rev=gn('eo_rev'),ship=gn(
   const etsy=etsyFees.total,cost=items.reduce((s,i)=>s+i.cost*i.qty,0);
   const profit=grossRev-etsy-cost-ship-refund,nm=grossRev>0?(profit/grossRev)*100:0;
   $i('eo_preview').innerHTML=`Rev: ${fmt(rev)} | Etsy: ${fmt(etsy)} <span style="font-size:10px;color:var(--t3)">(11.5%+₹${ETSY_LIST_FEE}/SKU+₹${ETSY_PAY_FIXED})</span> | Cost: ${fmt(cost)} | Profit: <strong style="color:${profit<0?'var(--coral)':'var(--indigo)'}">${fmt(profit)}</strong> | Net: ${nm.toFixed(1)}%`;}
+function markShippedAsDelivered(){
+  const shipped=orders.filter(o=>o.status==='Shipped');
+  if(!shipped.length){showToast('No Shipped orders to update.');return;}
+  confAction(`Mark ${shipped.length} Shipped order(s) as Delivered?`,'This cannot be undone.',()=>{
+    shipped.forEach(o=>{
+      const idx=orders.findIndex(x=>x.id===o.id);
+      if(idx<0)return;
+      orders[idx]={...orders[idx],status:'Delivered'};
+      auditEntry('status_change','order',o.id,o.ordNo||String(o.id),'Shipped → Delivered');
+    });
+    saveLS();renderOrderDashboard();showToast(`✓ ${shipped.length} order(s) marked Delivered!`,'var(--sage)');
+  });
+}
+
 function openAddOrderModal(){$i('o_no').value='';$i('o_customer').value='';$i('o_date').value=ts();$i('o_rev').value=0;$i('o_shipcost').value=0;$i('o_tax').value=0;$i('o_refund').value=0;$i('o_notes').value='';$i('o_preview').textContent='';ordIC=0;$i('order-item-rows').innerHTML='';addOrderItemRow();$i('ord-mo').classList.add('open');}
 
 // Returns the existing order if order number already exists (ignoring revenue), else null.
@@ -4429,6 +4535,22 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
     else if(e.key==='Backspace') pinDel();
   });
 
+  // App-level keyboard shortcuts (when unlocked, not in an input)
+  document.addEventListener('keydown',function(e){
+    if(pinLocked) return;
+    const tag=(document.activeElement||{}).tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+    if(document.querySelector('.mo.open')) return; // modal open
+    if(e.key==='n'||e.key==='N'){
+      // N = Add Order (only when on Orders tab)
+      if($i('tab-orders').classList.contains('active')){ e.preventDefault(); openAddOrderModal(); }
+    }
+    if(e.key==='p'||e.key==='P'){
+      // P = Add Product (only when on Price List tab)
+      if($i('tab-pl').classList.contains('active')){ e.preventDefault(); openAddProductModal(); }
+    }
+  });
+
   // ── Change PIN ──
  window.openPinChange=function(){
     document.getElementById('pin-change-wrap').style.display='block';
@@ -4522,147 +4644,5 @@ async function init(){
 }
 init();
 </script>
-  <!-- START INAARAT AUTO-BACKUP SYSTEM -->
-<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-
-<div id="backup-bar" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a1a; color: #00ffc3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; padding: 8px 20px; z-index: 99999; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);">
-    <div>
-        <span style="opacity: 0.8;">Cloud Sync:</span> 
-        <strong id="sync-status">Inactive</strong>
-    </div>
-    <div id="sync-actions">
-        <button id="auth_btn" onclick="handleAuthClick()" style="background: #00ffc3; color: #1a1a1a; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s;">
-            Enable Auto-Backup
-        </button>
-    </div>
-</div>
-
-<script>
-    // PASTE YOUR KEYS HERE
-    const CLIENT_ID = '428779541195-9pmmuhg3v8hl8qf458mr34emeqjg8rkt.apps.googleusercontent.com';
-    const API_KEY = 'AIzaSyDiE9yS5s-U2s-u3_FNW59DnCmNlig8dh8';
-
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
-
-    function gapiLoaded() {
-        gapi.load('client', async () => {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-            });
-            gapiInited = true;
-        });
-    }
-
-    function gisLoaded() {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: '', 
-        });
-        gisInited = true;
-    }
-
-    function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-            if (resp.error !== undefined) throw (resp);
-            setupAutoSync();
-        };
-        tokenClient.requestAccessToken({prompt: 'consent'});
-    }
-
-   function setupAutoSync() {
-        document.getElementById('auth_btn').style.display = 'none';
-        const statusEl = document.getElementById('sync-status');
-        statusEl.innerText = 'Checking Cloud for latest data...';
-        
-        restoreFromDrive().then(() => {
-            performBackup();
-            // Change 300000 to 120000 for a 2-minute sync
-            setInterval(performBackup, 120000); 
-        });
-    }
-
-    async function restoreFromDrive() {
-        try {
-            const fileName = 'Inaarat_App_AutoBackup.json';
-            const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and trashed=false&fields=files(id,modifiedTime)`, {
-                headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
-            });
-            const searchResult = await searchResponse.json();
-
-            if (searchResult.files && searchResult.files.length > 0) {
-                const fileId = searchResult.files[0].id;
-                
-                const contentResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                    headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
-                });
-                
-                const cloudData = await contentResponse.json();
-                
-                // Merge cloud data into LocalStorage
-                Object.keys(cloudData).forEach(key => {
-                    localStorage.setItem(key, cloudData[key]);
-                });
-
-                document.getElementById('sync-status').innerText = 'Data Synced from Cloud';
-                document.getElementById('sync-status').style.color = '#00ffc3';
-                
-                // Refresh the app UI with the new data
-                if (typeof init === "function") init(); 
-            }
-        } catch (err) {
-            console.error("Restore failed:", err);
-        }
-    }
-
-    async function performBackup() {
-        const statusEl = document.getElementById('sync-status');
-        const fileName = 'Inaarat_App_AutoBackup.json';
-
-        try {
-            const dataToBackup = JSON.stringify(localStorage);
-            const file = new Blob([dataToBackup], {type: 'application/json'});
-
-            const searchResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}' and trashed=false`, {
-                headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token})
-            });
-            const searchResult = await searchResponse.json();
-            
-            let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-            let method = 'POST';
-
-            if (searchResult.files && searchResult.files.length > 0) {
-                const fileId = searchResult.files[0].id;
-                url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`;
-                method = 'PATCH';
-            }
-
-            const metadata = { 'name': fileName, 'mimeType': 'application/json' };
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-            form.append('file', file);
-
-            const response = await fetch(url, {
-                method: method,
-                headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token}),
-                body: form,
-            });
-
-            if (response.ok) {
-                statusEl.innerText = 'Cloud Sync: Last Sync ' + new Date().toLocaleTimeString();
-                statusEl.style.color = '#00ffc3';
-            }
-        } catch (err) {
-            statusEl.innerText = 'Sync Error - Reconnect';
-            statusEl.style.color = '#ff4d4d';
-            document.getElementById('auth_btn').style.display = 'inline-block';
-        }
-    }
-</script>
-<!-- END INAARAT AUTO-BACKUP SYSTEM -->
 </body>
 </html>
