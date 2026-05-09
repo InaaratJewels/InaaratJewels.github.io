@@ -219,7 +219,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .pdf-stage-row-body{display:none;padding:14px 16px;border-top:1px solid var(--brd)}
 .pdf-stage-row-body.open{display:block}
 /* exp item row */
-.exp-item-row{display:grid;grid-template-columns:32px 110px 1.8fr 60px 90px 60px 80px 28px;gap:6px;align-items:end;padding:7px 10px;background:var(--bg2);border-bottom:1px solid var(--brd)}
+.exp-item-row{display:grid;grid-template-columns:32px 110px 1.4fr 70px 60px 60px 90px 60px 80px 28px;gap:6px;align-items:end;padding:7px 10px;background:var(--bg2);border-bottom:1px solid var(--brd)}
 /* SKU Autocomplete */
 .sku-ac-wrap{position:relative;width:100%}
 .sku-ac-input{width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--tx);font-size:11px;outline:none;font-family:'Courier New',monospace;font-weight:700;color:var(--ac2);transition:border-color .15s}
@@ -1078,7 +1078,7 @@ window.addEventListener('focus', async () => {
   </div>
   <div class="ct" style="margin-bottom:6px">Items</div>
   <div class="order-items-wrap">
-    <div style="display:grid;grid-template-columns:1fr 50px 90px 90px 75px 75px 28px;gap:5px;padding:6px 10px;background:var(--bg2);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--brd)"><span>SKU</span><span>Qty</span><span>List ₹</span><span>Sell ₹</span><span>Disc %</span><span>Etsy ₹</span><span></span></div>
+    <div style="display:grid;grid-template-columns:180px 130px 80px 60px 90px 90px 75px 75px 28px;gap:5px;padding:6px 10px;background:var(--bg2);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--brd)"><span>SKU</span><span>Product Name</span><span>Color</span><span>Size</span><span>Qty</span><span>List ₹</span><span>Sell ₹</span><span>Disc %</span><span></span></div>
     <div id="order-item-rows"></div>
     <div style="padding:8px 10px;background:var(--card)"><button class="btn bo bsm" onclick="addOrderItemRow()">+ Add Item</button></div>
   </div>
@@ -1106,7 +1106,7 @@ window.addEventListener('focus', async () => {
   </div>
   <div class="ct" style="margin-bottom:6px">Items</div>
   <div class="order-items-wrap">
-    <div style="display:grid;grid-template-columns:1fr 50px 90px 90px 75px 75px 28px;gap:5px;padding:6px 10px;background:var(--bg2);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--brd)"><span>SKU</span><span>Qty</span><span>List ₹</span><span>Sell ₹</span><span>Disc %</span><span>Etsy ₹</span><span></span></div>
+    <div style="display:grid;grid-template-columns:180px 130px 80px 60px 90px 90px 75px 75px 28px;gap:5px;padding:6px 10px;background:var(--bg2);font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--brd)"><span>SKU</span><span>Product Name</span><span>Color</span><span>Size</span><span>Qty</span><span>List ₹</span><span>Sell ₹</span><span>Disc %</span><span></span></div>
     <div id="eorder-item-rows"></div>
     <div style="padding:8px 10px;background:var(--card)"><button class="btn bo bsm" onclick="addEOrderItemRow()">+ Add Item</button></div>
   </div>
@@ -1141,7 +1141,7 @@ window.addEventListener('focus', async () => {
     </div>
     <div style="border:1px solid var(--brd);border-radius:10px;overflow:hidden">
       <div class="exp-item-row" style="background:var(--bg2);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase">
-        <span>#</span><span>SKU</span><span>Item Name</span><span>Qty</span><span>Unit Cost ₹</span><span>GST %</span><span>GST ₹</span><span></span>
+        <span>#</span><span>SKU</span><span>Item Name</span><span>Color</span><span>Size</span><span>Qty</span><span>Unit Cost ₹</span><span>GST %</span><span>GST ₹</span><span></span>
       </div>
       <div id="exp-item-rows"></div>
     </div>
@@ -1168,7 +1168,7 @@ window.addEventListener('focus', async () => {
     </div>
     <div style="border:1px solid var(--brd);border-radius:10px;overflow:hidden">
       <div class="exp-item-row" style="background:var(--bg2);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase">
-        <span>#</span><span>SKU</span><span>Item Name</span><span>Qty</span><span>Unit Cost ₹</span><span>GST %</span><span>GST ₹</span><span></span>
+        <span>#</span><span>SKU</span><span>Item Name</span><span>Color</span><span>Size</span><span>Qty</span><span>Unit Cost ₹</span><span>GST %</span><span>GST ₹</span><span></span>
       </div>
       <div id="edit-exp-item-rows"></div>
     </div>
@@ -3735,13 +3735,15 @@ document.addEventListener('mousedown',function(e){
 
 function itemRowHTML(pfx,idx){
   const inputId=`${pfx}-sku-inp-${idx}`, hiddenId=`${pfx}-sku-${idx}`;
-  return`<div style="display:grid;grid-template-columns:1fr 50px 90px 90px 75px 75px 28px;gap:5px;padding:8px 10px;background:${idx%2===0?'var(--card)':'var(--bg2)'};border-bottom:1px solid var(--brd);align-items:end" id="${pfx}-row-${idx}">
+  return`<div style="display:grid;grid-template-columns:180px 130px 80px 60px 90px 90px 75px 75px 28px;gap:5px;padding:8px 10px;background:${idx%2===0?'var(--card)':'var(--bg2)'};border-bottom:1px solid var(--brd);align-items:end" id="${pfx}-row-${idx}">
     <div class="f" style="margin:0">${skuACHtml(inputId,hiddenId)}</div>
+    <div class="f" style="margin:0"><input type="text" id="${pfx}-name-${idx}" readonly placeholder="Product name" style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--ac2);font-size:11px;outline:none;width:100%;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="Product Name"/></div>
+    <div class="f" style="margin:0"><input type="text" id="${pfx}-color-${idx}" readonly placeholder="—" style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--t2);font-size:11px;outline:none;width:100%;text-align:center" title="Color"/></div>
+    <div class="f" style="margin:0"><input type="text" id="${pfx}-size-${idx}" readonly placeholder="—" style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--t2);font-size:11px;outline:none;width:100%;text-align:center" title="Size"/></div>
     <div class="f" style="margin:0"><input type="number" id="${pfx}-qty-${idx}" value="1" min="1" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--tx);font-size:11px;outline:none;text-align:right;width:100%" oninput="calcOrderTotal()"/></div>
     <div class="f" style="margin:0"><input type="number" id="${pfx}-list-${idx}" placeholder="₹0" title="Listing Price" style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--t2);font-size:11px;outline:none;text-align:right;width:100%" readonly/></div>
     <div class="f" style="margin:0"><input type="number" id="${pfx}-price-${idx}" placeholder="₹0" title="Selling Price" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--tx);font-size:11px;outline:none;text-align:right;width:100%" oninput="onSellPriceChange('${pfx}',${idx})"/></div>
     <div class="f" style="margin:0"><input type="number" id="${pfx}-discpct-${idx}" placeholder="0%" title="% Discount" step="0.01" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--indigo);font-size:11px;outline:none;text-align:right;width:100%;font-weight:700" oninput="onDiscPctChange('${pfx}',${idx})"/></div>
-    <div class="f" style="margin:0"><input type="number" id="${pfx}-etsy-${idx}" readonly style="background:#f0f0f0;border:1px solid var(--brd);border-radius:7px;padding:5px 8px;color:var(--t2);font-size:11px;outline:none;text-align:right;width:100%"/></div>
     <button onclick="removeItemRow('${pfx}',${idx})" style="background:none;border:none;cursor:pointer;color:var(--coral);font-size:16px;padding:0;line-height:1">✕</button>
   </div>`;
 }
@@ -3899,11 +3901,17 @@ function fillItemBySku(pfx,idx,sku){
   const priceEl=$i(pfx+'-price-'+idx);
   const listEl=$i(pfx+'-list-'+idx);
   const discEl=$i(pfx+'-disc-'+idx);
+  const nameEl=$i(pfx+'-name-'+idx);
+  const colorEl=$i(pfx+'-color-'+idx);
+  const sizeEl=$i(pfx+'-size-'+idx);
   if(priceEl)priceEl.value=regionPrice.toFixed(2);
   if(listEl)listEl.value=regionPrice.toFixed(2);
   if(discEl)discEl.value='0.00';
   const etsyEl=$i(pfx+'-etsy-'+idx);
   if(etsyEl)etsyEl.value=(regionPrice*ETSY_TOTAL_RATE).toFixed(2);
+  if(nameEl)nameEl.value=p.name||'';
+  if(colorEl)colorEl.value=p.color||'—';
+  if(sizeEl)sizeEl.value=p.size||'—';
   syncRevFromItems(pfx);
   calcOrderTotal();
   if(pfx==='eoi')calcEOrderTotal();
@@ -4010,7 +4018,9 @@ function openEditOrderModal(id){
   (o.items||[]).forEach((item,i)=>{
     $i('eorder-item-rows').insertAdjacentHTML('beforeend',itemRowHTML('eoi',eOrdIC));
     setTimeout(()=>{
-      const se=$i('eoi-sku-'+i);if(se)se.value=item.sku;
+      // Populate SKU autocomplete input + hidden
+      const hidEl=$i('eoi-sku-'+i);if(hidEl)hidEl.value=item.sku;
+      const inpEl=$i('eoi-sku-inp-'+i);if(inpEl){inpEl.value=item.sku;inpEl.classList.add('has-value');}
       const p=products.find(x=>x.sku===item.sku);
       const region=o.region||'india';
       const listPrice=item.listPrice||getRegionPrice(p,region)||item.price||0;
@@ -4023,6 +4033,10 @@ function openEditOrderModal(id){
       }
       const qe=$i('eoi-qty-'+i);if(qe)qe.value=item.qty;
       const ee=$i('eoi-etsy-'+i);if(ee)ee.value=(item.etsy||item.price*ETSY_TOTAL_RATE).toFixed(2);
+      // Fill name, color, size
+      const nameEl=$i('eoi-name-'+i);if(nameEl)nameEl.value=p?.name||item.name||'';
+      const colorEl=$i('eoi-color-'+i);if(colorEl)colorEl.value=p?.color||'—';
+      const sizeEl=$i('eoi-size-'+i);if(sizeEl)sizeEl.value=p?.size||'—';
     },50);
     eOrdIC++;
   });
@@ -4062,6 +4076,8 @@ function addExpItemRow(name='',qty=1,unitCost=0,gstPct=18,sku=''){
     <span style="font-size:11px;font-weight:700;color:var(--t3);text-align:center;padding-top:6px" id="exprow-sr-${idx}">${srNo}</span>
     ${skuACHtml(inputId,hiddenId)}
     <input type="text" placeholder="Item name" value="${name}" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;width:100%" id="expitem-name-${idx}"/>
+    <input type="text" placeholder="—" readonly style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--t2);outline:none;width:100%;text-align:center" id="expitem-color-${idx}"/>
+    <input type="text" placeholder="—" readonly style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--t2);outline:none;width:100%;text-align:center" id="expitem-size-${idx}"/>
     <input type="number" value="${qty}" min="1" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="expitem-qty-${idx}" oninput="calcExpGST(${idx})"/>
     <input type="number" value="${unitCost||''}" placeholder="0.00" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="expitem-uc-${idx}" oninput="calcExpGST(${idx})"/>
     <input type="number" value="${gstPct}" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="expitem-gst-${idx}" oninput="calcExpGST(${idx})"/>
@@ -4087,6 +4103,11 @@ function fillExpItem(idx){
   if(!p)return;
   if(nameEl)nameEl.value=p.name;
   if(ucEl)ucEl.value=p.pp;
+  // Fill color and size
+  const colorEl=$i(`expitem-color-${idx}`);
+  const sizeEl=$i(`expitem-size-${idx}`);
+  if(colorEl)colorEl.value=p.color||'—';
+  if(sizeEl)sizeEl.value=p.size||'—';
   // Autofill header vendor and title if empty
   const vendorEl=$i('ex_vendor');
   if(vendorEl&&!vendorEl.value&&p.vendor)vendorEl.value=p.vendor;
@@ -4233,6 +4254,8 @@ function addEditExpItemRow(name='',qty=1,unitCost=0,gstPct=18,sku=''){
     <span style="font-size:11px;font-weight:700;color:var(--t3);text-align:center;padding-top:6px" id="eerow-sr-${idx}">${srNo}</span>
     ${skuACHtml(inputId,hiddenId)}
     <input type="text" placeholder="Item name" value="${name}" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;width:100%" id="eeitem-name-${idx}"/>
+    <input type="text" placeholder="—" readonly style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--t2);outline:none;width:100%;text-align:center" id="eeitem-color-${idx}"/>
+    <input type="text" placeholder="—" readonly style="background:#f5f5f0;border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--t2);outline:none;width:100%;text-align:center" id="eeitem-size-${idx}"/>
     <input type="number" value="${qty}" min="1" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="eeitem-qty-${idx}" oninput="calcEditExpGST(${idx})"/>
     <input type="number" value="${unitCost||''}" placeholder="0.00" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="eeitem-uc-${idx}" oninput="calcEditExpGST(${idx})"/>
     <input type="number" value="${gstPct}" style="background:var(--bg2);border:1px solid var(--brd);border-radius:7px;padding:5px 7px;font-size:11px;color:var(--tx);outline:none;text-align:right;width:100%" id="eeitem-gst-${idx}" oninput="calcEditExpGST(${idx})"/>
@@ -4258,6 +4281,11 @@ function fillEditExpItem(idx,silent=false){
   if(!p)return;
   if(nameEl&&!nameEl.value)nameEl.value=p.name;
   if(ucEl&&!ucEl.value)ucEl.value=p.pp;
+  // Fill color and size
+  const colorEl=$i(`eeitem-color-${idx}`);
+  const sizeEl=$i(`eeitem-size-${idx}`);
+  if(colorEl)colorEl.value=p.color||'—';
+  if(sizeEl)sizeEl.value=p.size||'—';
   if(!silent){
     const vendorEl=$i('eeexp_vendor');
     if(vendorEl&&!vendorEl.value&&p.vendor)vendorEl.value=p.vendor;
