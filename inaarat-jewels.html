@@ -436,6 +436,101 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .rvsa-tot-row td{font-weight:700;border-top:2px solid var(--brd);background:var(--bg2);padding-top:8px}
 .total-row td{font-weight:700;border-top:2px solid var(--brd)}
 
+/* ── Expense category expandable ── */
+.exp-cat-row{border:1px solid var(--brd);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.exp-cat-hdr{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--bg2);user-select:none;transition:background .15s}
+.exp-cat-hdr:hover{background:rgba(167,139,250,0.06)}
+.exp-cat-body{display:none;background:var(--card)}
+.exp-cat-body.open{display:block}
+.exp-cat-chev{font-size:11px;color:var(--t3);transition:transform .2s;flex-shrink:0}
+
+.seo-section-head{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+/* ── Typographic Scale (replaces 18 ad-hoc font sizes) ── */
+.t-xs  { font-size:9px  }
+.t-2xs { font-size:10px }
+.t-sm  { font-size:11px }
+.t-base{ font-size:12px }
+.t-md  { font-size:13px }
+.t-lg  { font-size:14px }
+.t-xl  { font-size:16px }
+.t-2xl { font-size:18px }
+.t-3xl { font-size:22px }
+
+/* ── Spacing scale ── */
+.gap-xs { gap:4px  }
+.gap-sm { gap:6px  }
+.gap-md { gap:8px  }
+.gap-lg { gap:12px }
+.gap-xl { gap:16px }
+.mb-xs  { margin-bottom:4px  }
+.mb-sm  { margin-bottom:8px  }
+.mb-md  { margin-bottom:12px }
+.mb-lg  { margin-bottom:16px }
+.mb-xl  { margin-bottom:24px }
+.mt-xs  { margin-top:4px  }
+.mt-sm  { margin-top:8px  }
+.mt-md  { margin-top:12px }
+.mt-lg  { margin-top:16px }
+
+/* ── Unified section header ── */
+.sec-head{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--tx);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-sub{font-size:11px;color:var(--t3);font-weight:400;font-family:'Inter',sans-serif}
+
+/* ── Topbar button group — unified pill style ── */
+.tb-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--brd);background:var(--bg2);color:var(--t2);transition:all .18s;font-family:'Poppins',sans-serif;white-space:nowrap;flex-shrink:0}
+.tb-btn:hover{border-color:var(--ac);color:var(--ac);background:rgba(167,139,250,0.06)}
+.tb-div{width:1px;height:22px;background:var(--brd);margin:0 2px;flex-shrink:0}
+
+/* ── More dropdown — use CSS hover, no inline JS ── */
+#more-dd-menu .mi{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s;user-select:none}
+#more-dd-menu .mi:hover{background:rgba(167,139,250,0.1);color:var(--ac)}
+#more-dd-menu .mi-div{height:1px;background:var(--brd);margin:4px 6px}
+#more-dd-menu .mi-badge{background:var(--coral);color:#fff;border-radius:20px;padding:0 6px;font-size:9px;font-weight:700;margin-left:auto}
+
+/* ── Card grid consistency ── */
+.card-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card-grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+
+/* ── Settings section headers ── */
+.settings-section{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:16px 18px;box-shadow:var(--sh)}
+.settings-section + .settings-section{margin-top:12px}
+
+/* ── Consistent label style ── */
+.field-label{display:block;font-size:10px;font-weight:700;color:var(--t2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+
+/* ── Consistent empty-state ── */
+.empty-state{text-align:center;padding:48px 24px;color:var(--t3)}
+.empty-state-icon{font-size:32px;margin-bottom:12px}
+.empty-state-title{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.empty-state-sub{font-size:12px;line-height:1.6}
+
+/* ── Toolbar row — consistent across all tabs ── */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;row-gap:6px}
+
+/* ── Focus ring for accessibility ── */
+.btn:focus-visible,.tb-btn:focus-visible,.ntab:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* ── Drive button connected state ── */
+#gd-topbar-btn.connected{border-color:rgba(143,191,159,0.5);color:var(--sage2)}
+#gd-topbar-btn.connected:hover{border-color:var(--sage2);background:rgba(143,191,159,0.08)}
+
+/* ── Last saved label ── */
+#last-saved-lbl{font-size:10px;color:var(--t3);font-family:'Inter',sans-serif;font-weight:500;opacity:.8}
+#last-saved-lbl.saving{color:var(--gold2);opacity:1}
+#last-saved-lbl.saved{color:var(--sage2);opacity:1}
+
+/* ── Consistent card-grid responsive ── */
+@media(max-width:900px){
+  .card-grid-2,.card-grid-3,.card-grid-4{grid-template-columns:1fr!important}
+  .card-grid-auto{grid-template-columns:1fr!important}
+  .toolbar{row-gap:6px}
+}
+
+/* ── ord-header/toolbar consistent ── */
+.ord-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px}
+
 </style>
 </head>
 <body>
@@ -523,22 +618,22 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
   <div style="position:relative;flex-shrink:0" id="more-dd-wrap">
     <button class="ntab" onclick="toggleMoreMenu()" id="more-dd-btn" aria-haspopup="true" aria-label="More navigation options">More ▾</button>
     <div id="more-dd-menu" style="position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--brd);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.12);min-width:200px;z-index:9999;display:none;padding:6px">
-      <div onclick="switchTab('deadstock');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">⚠️ Dead Stock <span id="dead-badge" style="background:var(--coral);color:#fff;border-radius:20px;padding:0 6px;font-size:9px;font-weight:700;display:none;margin-left:auto"></span></div>
-      <div onclick="switchTab('expenses');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">💸 Expenses</div>
-      <div onclick="switchTab('sourcing');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">🔬 Sourcing Lab</div>
-      <div onclick="switchTab('tax');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">🧾 Tax &amp; Currency</div>
-      <div onclick="switchTab('shipping');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">🚚 Shipping Sync</div>
-      <div onclick="switchTab('customers');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">👥 Customers</div>
-      <div style="height:1px;background:var(--brd);margin:4px 6px"></div>
-      <div onclick="switchTab('quote');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">📄 Quote / PI</div>
-      <div onclick="switchTab('settings');closeMoreMenu()" style="display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2);font-family:'Poppins',sans-serif;transition:background .15s" onmouseover="this.style.background='rgba(167,139,250,0.1)'" onmouseout="this.style.background=''">⚙️ Settings</div>
+      <div class="mi" onclick="switchTab('deadstock');closeMoreMenu()">⚠️ Dead Stock <span id="dead-badge" class="mi-badge" style="display:none"></span></div>
+      <div class="mi" onclick="switchTab('expenses');closeMoreMenu()">💸 Expenses</div>
+      <div class="mi" onclick="switchTab('sourcing');closeMoreMenu()">🔬 Sourcing Lab</div>
+      <div class="mi" onclick="switchTab('tax');closeMoreMenu()">🧾 Tax &amp; Currency</div>
+      <div class="mi" onclick="switchTab('shipping');closeMoreMenu()">🚚 Shipping Sync</div>
+      <div class="mi" onclick="switchTab('customers');closeMoreMenu()">👥 Customers</div>
+      <div class="mi-div"></div>
+      <div class="mi" onclick="switchTab('quote');closeMoreMenu()">📄 Quote / PI</div>
+      <div class="mi" onclick="switchTab('settings');closeMoreMenu()">⚙️ Settings</div>
     </div>
   </div>
   <div style="margin-left:auto;display:flex;gap:6px;align-items:center;position:relative">
-    <span id="last-saved-lbl" title="Last saved time"></span>
+    <span id="last-saved-lbl" class="tb-btn" style="border:none;background:none;cursor:default;opacity:.7;padding:4px 8px" title="Last saved time"></span>
     <!-- Google Drive Panel Trigger -->
     <div style="position:relative" id="gd-wrap">
-      <button id="gd-topbar-btn" onclick="toggleGDPanel()" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--brd);background:var(--bg2);color:var(--t2);transition:all .18s;font-family:'Poppins',sans-serif;white-space:nowrap;flex-shrink:0">
+      <button class="tb-btn" id="gd-topbar-btn" onclick="toggleGDPanel()">
         <span id="gd-dot" class="gd-status-dot"></span>
         <span id="gd-topbar-label">☁ Drive</span>
       </button>
@@ -577,8 +672,9 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <!-- Hidden legacy FAB (still used by some internal calls) -->
     <span id="gd-sync-status" style="display:none"></span>
     <!-- gd-fab removed — permanently hidden, gdFabClick() was unreachable -->
-    <button id="btn-lock-app" onclick="window.pinLock&&window.pinLock()" aria-label="Lock application">🔒 Lock</button>
-    <button id="btn-change-pin" onclick="window.openChangePinModal&&window.openChangePinModal()" style="padding:5px 12px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--brd);background:var(--bg2);color:var(--t2);display:flex;align-items:center;gap:5px;transition:all .18s;font-family:'Poppins',sans-serif;white-space:nowrap;flex-shrink:0;">🔑 PIN</button>
+    <div class="tb-div"></div>
+    <button class="tb-btn" id="btn-lock-app" onclick="window.pinLock&&window.pinLock()" aria-label="Lock application">🔒 Lock</button>
+    <button class="tb-btn" id="btn-change-pin" onclick="window.openChangePinModal&&window.openChangePinModal()">🔑 PIN</button>
   </div>
 </div>
 
@@ -835,7 +931,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 
 <!-- TAB: ORDERS -->
 <div id="tab-orders" class="panel"><div class="content">
-  <div class="ord-header">
+  <div class="ord-header toolbar">
     <span style="font-size:12px;font-weight:700;color:var(--t2);font-family:'Poppins',sans-serif;white-space:nowrap">📊 Dashboard</span>
     <select id="ord-dur" onchange="applyGF()" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:6px 10px;color:var(--tx);font-size:12px;outline:none;font-family:'Inter',sans-serif">
       <option value="30d">Last 30 Days</option><option value="today">Today</option>
@@ -1245,8 +1341,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 <!-- QUOTE & PI GENERATOR -->
 
 <div id="tab-settings" class="panel"><div class="content">
-  <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:16px">⚙️ Business Settings</div>
-  <div class="g2" style="gap:14px">
+  <div class="sec-head">⚙️ Business Settings</div>
+  <div class="card-grid-2">
     <div class="card card-grad">
       <div class="ct">🏢 Business Identity</div>
       <div class="f"><label>Business / Shop Name</label><input id="set-shop-name" type="text" placeholder="Inaarat Jewels"/></div>
@@ -1263,7 +1359,15 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="f"><label>Registered Trademark</label><input id="set-trademark" type="text" placeholder="Inaarat Jewels"/></div>
       <div class="f"><label>Business Address (for GST print)</label><textarea id="set-address" rows="2" placeholder="City, State, PIN"></textarea></div>
     </div>
-    <div class="card">
+    <div class="card card-grad" style="margin-top:12px">
+      <div class="ct">🤖 AI Integration</div>
+      <div class="f">
+        <label>Anthropic API Key <span style="font-size:9px;color:var(--t3);font-weight:400;text-transform:none">Required on GitHub Pages</span></label>
+        <input id="set-api-key" type="password" placeholder="sk-ant-api03-…" autocomplete="off" style="font-family:monospace;font-size:11px"/>
+        <div style="font-size:10px;color:var(--t3);margin-top:4px">Get key at <a href="https://console.anthropic.com/keys" target="_blank" rel="noopener" style="color:var(--ac)">console.anthropic.com/keys</a></div>
+      </div>
+    </div>
+<div class="card">
       <div class="ct">📦 Inventory Defaults</div>
       <div class="f"><label>Default Reorder Threshold (units)</label><input id="set-reorder-default" type="number" value="2" min="1"/></div>
       <div class="f"><label>Dead Stock Threshold (days)</label><input id="set-dead-days" type="number" value="60" min="1"/></div>
@@ -1318,7 +1422,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="card">
         <div class="ct">Extras</div>
         <div class="f pfx"><label>Shipping Charge</label><span class="ps">₹</span><input id="pi_ship" type="number" value="0" oninput="renderPI()" /></div>
-        <div class="f"><label>CA Tax (GST %)</label><input id="pi_tax" type="number" value="0" placeholder="0 = no tax" oninput="renderPI()" /></div>
+        <div class="f"><label>GST % <span style="font-size:9px;color:var(--t3);font-weight:400">0 / 5 / 12 / 18 / 28</span></label><input id="pi_tax" type="number" value="0" placeholder="0 = no tax" min="0" max="28" oninput="renderPI()" /></div>
       </div>
       <div class="btns">
         <button class="btn bp" onclick="renderPI()">🔄 Refresh</button>
@@ -1336,6 +1440,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 
 <!-- SOURCING LAB -->
 <div id="tab-sourcing" class="panel"><div class="content">
+  <div style="display:flex;gap:12px;font-size:11px;color:var(--t2);margin-bottom:14px"><span id="sd-count" style="font-weight:700;color:var(--ac)">0 items</span><span>flagged for sourcing</span></div>
+  <div id="sd-list" style="display:none"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
     <div class="card">
       <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:12px">🔬 Vendor Performance</div>
@@ -1373,7 +1479,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <option value="other">Other</option>
     </select>
     <input id="exp-from" type="date" style="padding:6px 10px;border-radius:9px;border:1px solid var(--brd);background:var(--bg2);font-size:12px;color:var(--tx)" onchange="renderExpenseTracker()"/>
-    <input id="exp-to" type="date" style="padding:6px 10px;border-radius:9px;border:1px solid var(--brd);background:var(--bg2);font-size:12px;color:var(--tx)" onchange="if($i('exp-from').value&&$i('exp-to').value&&$i('exp-from').value>$i('exp-to').value)showToast('⚠ From date is after To date','var(--coral)');renderExpenseTracker()"/>
+    <input id="exp-to" type="date" style="padding:6px 10px;border-radius:9px;border:1px solid var(--brd);background:var(--bg2);font-size:12px;color:var(--tx)" onchange="if($i('exp-from').value&&$i('exp-to').value&&$i('exp-from').value>$i('exp-to').value){showToast('⚠ From date is after To date — filter not applied','var(--coral)');return;}renderExpenseTracker()"/>
     <button class="btn bo bsm" onclick="$i('exp-search').value='';$i('exp-cat-filter').value='';$i('exp-from').value='';$i('exp-to').value='';renderExpenseTracker()">✕ Clear</button>
   </div>
   <div class="info-row" style="margin-bottom:12px">💸 Expense entries are shared with the Orders system. Add expenses below or via <strong>Sales → Etsy Order Manager</strong>.</div>
@@ -1545,8 +1651,13 @@ document.addEventListener('visibilitychange', async () => {
 });
 
 // ── Sync when window regains focus (switching between browser windows) ──
-window.addEventListener('focus', async () => {
-  if (typeof _gdToken !== 'undefined' && _gdToken) await gDriveRestoreLatest(true);
+window.addEventListener('focus', () => {
+  // Deferred so script block 2 variables are initialised before this runs
+  setTimeout(async () => {
+    try {
+      if (typeof _gdToken !== 'undefined' && _gdToken) await gDriveRestoreLatest(true);
+    } catch(e) {}
+  }, 0);
 });
 </script>
 
@@ -1581,7 +1692,7 @@ window.addEventListener('focus', async () => {
     <div class="f pfx"><label>Courier</label><span class="ps">₹</span><input id="ap_courier" type="number" value="50" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Packaging</label><span class="ps">₹</span><input id="ap_pack" type="number" value="50" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Extra Cost</label><span class="ps">₹</span><input id="ap_addcost" type="number" value="0" oninput="previewAPCalc()"/></div>
-    <div class="f pfx"><label>List Fee</label><span class="ps">₹</span><input id="ap_list" type="number" value="0" oninput="previewAPCalc()"/></div>
+    <div class="f pfx"><label>List Fee</label><span class="ps">₹</span><input id="ap_list" type="number" value="18" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Etsy Ads</label><span class="ps">₹</span><input id="ap_etsyad" type="number" value="100" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>AI Sub</label><span class="ps">₹</span><input id="ap_ai" type="number" value="30" oninput="previewAPCalc()"/></div>
     <div class="f pfx"><label>Etsy Plus</label><span class="ps">₹</span><input id="ap_plus" type="number" value="18" oninput="previewAPCalc()"/></div>
@@ -2005,6 +2116,29 @@ function netMarginPct(profit, grossRev) {
   return grossRev > 0 ? (profit / grossRev) * 100 : 0;
 }
 
+
+// ── Region normalisation — single source of truth ────────────────
+// Takes any region string (from Etsy PDF, SG Excel, manual entry,
+// old saved data) and returns canonical 'india' | 'usa' | 'world'
+function normaliseRegion(raw) {
+  if (!raw) return 'india';
+  const r = String(raw).toLowerCase().trim();
+  // Already canonical
+  if (r === 'india' || r === 'usa' || r === 'world') return r;
+  // USA variants (check before India — "us" must not hit india catch-all)
+  if (/united states of america|united states|^us$|^usa$|america/.test(r)) return 'usa';
+  // USA with state code e.g. "US, TX" or "United States, CA"
+  if (r.startsWith('us,') || r.startsWith('united states,')) return 'usa';
+  // India variants — anchored to avoid matching "austin", "berlin", "within" etc.
+  if (/^india$|^in$|^bharat$|^ind$/.test(r)) return 'india';
+  if (r.includes('india') || r.includes('bharat')) return 'india';
+  // World — flat regex, no multiline literal
+  const WORLD = /united kingdom|^uk$|england|scotland|wales|britain|canada|australia|germany|france|netherlands|singapore|uae|dubai|malaysia|new zealand|sweden|norway|denmark|italy|spain|japan|south korea|china|hong kong|switzerland|belgium|austria|poland|czechia|portugal|thailand|indonesia|vietnam|philippines|mexico|brazil|south africa|egypt|turkey|israel|saudi|kuwait|qatar|bahrain|oman|jordan|ireland|finland|romania|hungary|greece|ukraine|russia|argentina|colombia|chile|peru|taiwan|bangladesh|pakistan|sri lanka|nepal|myanmar/;
+  if (WORLD.test(r)) return 'world';
+  // Any other non-blank, non-India string → world
+  if (r.length > 1) return 'world';
+  return 'india';
+}
 // Compute total Etsy fees for an order
 // subtotal = revenue you earn (after discount, excl. tax & delivery) — your P&L base
 // salesTax = buyer-paid tax (Etsy remits to govt — pass-through, NOT your revenue)
@@ -2033,6 +2167,7 @@ function calcEtsyFeesLegacy(subtotal) {
 let products = [], orders = [], expenses = [];
 let auditLog = [];
 let skuCtr = 1, bulkMode = false, confCb = null;
+let skuMap = new Map(); // global — rebuilt in recalcAll() and after any product change
 let mImgData = null, apImgData = null, eImgData = null;
 let prodImgs = [], curImgIdx = 0, logoImage = null;
 let rotation = 0, flipH = false, flipV = false, curMode = 'watermark';
@@ -2233,7 +2368,7 @@ function renderDashboard() {
   const regionWrap=$i('dash-region-wrap');
   if(regionWrap&&allOrders.length>0){
     const regions={india:0,usa:0,world:0};
-    allOrders.forEach(o=>{const r=(o.region||'india').toLowerCase();if(regions[r]!==undefined)regions[r]+=(o.totalRev||0);else regions.world+=(o.totalRev||0);});
+    allOrders.forEach(o=>{const r=normaliseRegion(o.region);regions[r]+=(o.totalRev||0);});
     const total=Object.values(regions).reduce((a,b)=>a+b,1);
     regionWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px">
       ${[['🇮🇳 India',regions.india,'#c9903a'],['🇺🇸 USA',regions.usa,'#4a7fa5'],['🌍 World',regions.world,'var(--sage)']].map(([l,v,c])=>`<div><div style="display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px"><span style="color:var(--t2)">${l}</span><strong style="color:${c}">${fmt(v)}</strong></div><div style="height:5px;background:var(--bg2);border-radius:3px"><div style="height:100%;width:${(v/total*100).toFixed(0)}%;background:${c};border-radius:3px"></div></div></div>`).join('')}
@@ -2429,7 +2564,7 @@ function renderExpenseTracker(){
   const expSource = (typeof getFilteredExpenses === 'function' &&
     ($i('exp-search')?.value || $i('exp-cat-filter')?.value || $i('exp-from')?.value || $i('exp-to')?.value))
     ? getFilteredExpenses() : expenses;
-  if(expenses.length===0){wrap.innerHTML='<div style="font-size:11px;color:var(--t3);padding:20px;text-align:center">No expenses logged yet</div>';return;}
+  if(expenses.length===0){wrap.innerHTML='<div class="empty-state"><div class="empty-state-icon">💸</div><div class="empty-state-title">No expenses yet</div><div class="empty-state-sub">Add your first purchase or expense to see your cost breakdown here.</div></div>';return;}
   const catMap={};
   const catEntries={}; // store individual entries per category for expandable view
   expSource.filter(e=>!e.cancelled).forEach(e=>{
@@ -2509,7 +2644,7 @@ function renderShippingSync(){
   }
   const rvsaWrap=$i('ship-rvsa-wrap');
   if(rvsaWrap){
-    let charged=0;allOrders.forEach(o=>{const r=(o.region||'india').toLowerCase();(o.items||[]).forEach(item=>{const pl=products.find(p=>p.sku===item.sku);if(!pl)return;const qty=item.qty||1;charged+=(r==='usa'?(pl.usa||0):r==='world'?(pl.world||0):(pl.india||0))*qty;});});
+    let charged=0;allOrders.forEach(o=>{const r=normaliseRegion(o.region);charged+=(o.deliveryPaidByBuyer||0);(o.items||[]).forEach(item=>{const pl=products.find(p=>p.sku===item.sku);if(!pl)return;const qty=item.qty||1;const disc=(o.discPct||0)/100;charged+=(r==='usa'?(pl.usSG||0):r==='world'?(pl.woSG||0):(pl.inSG||0))*(1-disc)*qty;});})
     const actual=expenses.filter(e=>e.vendor==='ShipGlobal'&&e.cat==='shipping').reduce((s,e)=>s+effExp(e),0);
     const variance=actual-charged;
     rvsaWrap.innerHTML=`<div class="srow"><span class="sl2">Shipping Charged to Customers</span><span class="sv">${fmt(charged)}</span></div><div class="srow"><span class="sl2">ShipGlobal Actual</span><span class="sv">${fmt(actual)}</span></div><div class="srow ${variance>0?'srow sfee':'stot'}"><span class="sl2">Variance (over/under)</span><span class="sv" style="color:${variance>0?'var(--coral)':'var(--sage)'}">${variance>0?'+':''}${fmt(variance)}</span></div>`;
@@ -2523,511 +2658,31 @@ function renderShippingSync(){
 
 // ══════════════════════════════════════════════
 //  SEO LAB — 3-Stage Etsy Sales Engine
-// ══════════════════════════════════════════════
-let _seoImages = [];   // [{base64, mediaType, previewUrl}]
-let _seoStage1Data = null;  // research report (in-memory only, not stored)
-let _seoStage2Data = null;  // strategy brief  (in-memory only, not stored)
 
-// ── Image handling ──
-function seoAddImages(files){
-  const remaining = 6 - _seoImages.length;
-  const toLoad = Array.from(files).slice(0, remaining);
-  if(!toLoad.length){ showToast('Maximum 6 images','var(--coral)'); return; }
-  let loaded = 0;
-  toLoad.forEach(file=>{
-    if(file.size > 5*1024*1024){ showToast(file.name+' exceeds 5 MB','var(--coral)'); loaded++; checkDone(); return; }
-    const reader = new FileReader();
-    reader.onload = e => {
-      const dataUrl = e.target.result;
-      _seoImages.push({base64: dataUrl.split(',')[1], mediaType: file.type||'image/jpeg', previewUrl: dataUrl});
-      loaded++;
-      checkDone();
-    };
-    reader.readAsDataURL(file);
-  });
-  function checkDone(){ if(loaded === toLoad.length) renderSeoImageGrid(); }
-}
 
-function renderSeoImageGrid(){
-  const grid = $i('seo-img-grid'), countEl = $i('seo-img-count');
-  if(!grid) return;
-  grid.innerHTML = _seoImages.map((img,i) => `
-    <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--brd)">
-      <img src="${img.previewUrl}" style="width:100%;height:100%;object-fit:cover"/>
-      <button onclick="seoRemoveImage(${i})" style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;cursor:pointer;font-size:12px;line-height:1">✕</button>
-      <div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.5);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px">#${i+1}</div>
-    </div>`).join('');
-  if(countEl) countEl.textContent = _seoImages.length + ' / 6 images';
-  const dz = $i('seo-img-dz');
-  if(dz) dz.style.display = _seoImages.length >= 6 ? 'none' : 'block';
-}
-
-function seoRemoveImage(idx){ _seoImages.splice(idx,1); renderSeoImageGrid(); }
-
-function setSEOStatus(msg, col='var(--t3)'){
-  const el=$i('seo-status');
-  if(el){el.textContent=msg;el.style.color=col;}
-}
-
-function seoReset(){
-  if(_seoStage1Data||_seoStage2Data){
-    if(!confirm('Start over? All research and copy from this session will be lost.'))return;
-  }
-  _seoStage1Data=null; _seoStage2Data=null;
-  setSEOStatus('');
-  ['seo-out-1-body','seo-out-2-body','seo-out-3-body'].forEach(id=>{
-    const el=$i(id); if(el) el.innerHTML='';
-  });
-  $i('seo-out-2').style.display='none';
-  $i('seo-out-3').style.display='none';
-  $i('seo-stage2-btn-wrap').style.display='none';
-  $i('seo-stage3-btn-wrap').style.display='none';
-  setStagePills(1);
-  const ob=$i('seo-out-1-body');
-  if(ob) ob.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:12px;line-height:1.7">Fill the brief + upload images, then click<br><strong>Stage 1 — Research Market</strong></div></div>';
-}
-
-function setStagePills(active){
-  [1,2,3].forEach(n=>{
-    const el=$i('stage-pill-'+n);
-    if(!el) return;
-    el.classList.remove('active','done');
-    if(n < active) el.classList.add('done');
-    else if(n === active) el.classList.add('active');
-  });
-}
-
-function seoGoToStage(n){
-  if(n===2 && !_seoStage1Data){ showToast('Run Stage 1 first','var(--coral)'); return; }
-  if(n===3 && !_seoStage2Data){ showToast('Run Stage 2 first','var(--coral)'); return; }
-  setStagePills(n);
-}
 
 // Build image content array for API calls
-function seoImageContent(){
-  if(!_seoImages.length) return [];
-  return _seoImages.map(img=>({type:'image',source:{type:'base64',media_type:img.mediaType,data:img.base64}}));
-}
+
 
 // Central API call — no auth header needed (claude.ai handles it)
-async function seoAPICall(systemPrompt, userContent, maxTokens=1500){
-  const response = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages:[{role:'user', content: userContent}]
-    })
-  });
-  if(!response.ok){
-    const err = await response.json().catch(()=>({}));
-    throw new Error('API '+response.status+': '+(err.error?.message||JSON.stringify(err).slice(0,120)));
-  }
-  const data = await response.json();
-  return (data.content||[]).map(c=>c.text||'').filter(Boolean).join('');
-}
-
 // Web search call — uses brave search public endpoint (no key, CORS-safe)
 // Falls back to Claude with web_search tool if running inside claude.ai artifact context
-async function seoSearchCall(query, maxTokens=800){
-  // Primary: try Brave Search via a CORS-safe proxy / DuckDuckGo instant answers
-  // For production use inside claude.ai artifacts — the anthropic API call works there
-  // For downloaded file use — we skip live search and pass query as text to Claude
-  let searchResults = '';
-  try{
-    // Try DuckDuckGo instant answer API (CORS-safe, no key)
-    const ddg = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,{
-      headers:{'Accept':'application/json'}
-    });
-    if(ddg.ok){
-      const ddgData = await ddg.json();
-      const parts = [];
-      if(ddgData.AbstractText) parts.push(ddgData.AbstractText);
-      if(ddgData.RelatedTopics) ddgData.RelatedTopics.slice(0,8).forEach(t=>{ if(t.Text) parts.push(t.Text); });
-      searchResults = parts.join('\n');
-    }
-  }catch(e){ searchResults = ''; }
-
-  // Now ask Claude to synthesise — whether we got live data or not
-  const response = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens: maxTokens,
-      messages:[{role:'user', content: searchResults
-        ? `Based on this search data about "${query}":\n\n${searchResults}\n\nPlus your training knowledge: ${query}`
-        : `Using your knowledge of Etsy marketplace, jewellery trends, and buyer behaviour: ${query}`
-      }]
-    })
-  });
-  if(!response.ok){
-    const e=await response.json().catch(()=>({}));
-    throw new Error('API '+(e.error?.message||response.status));
-  }
-  const data = await response.json();
-  return (data.content||[]).map(c=>c.text||'').filter(Boolean).join('\n');
-}
-
 // ════════════════════════════════════════════════
 //  STAGE 1 — MARKET RESEARCH (Gemini researcher role)
 // ════════════════════════════════════════════════
-async function runStage1(){
-  const name = ($i('seo_name').value||'').trim();
-  if(!name){ showToast('Enter product name first','var(--coral)'); return; }
-  setStagePills(1);
-  const out = $i('seo-out-1-body');
-  const cat  = $i('seo_cat').value;
-  const heritage = $i('seo_heritage').value;
-  const market = $i('seo_market').value;
-  const heritageLabel = heritage || 'Bridal'; // free text — used directly
 
-  out.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t2)"><div style="font-size:20px;margin-bottom:8px">🔍</div><div id="s1-progress" style="font-size:12px">Searching Etsy market data…</div></div>';
-  setSEOStatus('Stage 1 running…','var(--gold2)');
-
-  const setP = msg => { const el=$i('s1-progress'); if(el)el.textContent=msg; setSEOStatus(msg,'var(--gold2)'); };
-
-  try{
-    // Search 1: competitor top sellers
-    setP('🔍 Finding top-selling Etsy listings for '+cat+'…');
-    const search1 = await seoSearchCall(
-      `Search Etsy for best selling ${cat.toLowerCase()} jewellery ${market.includes('USA')?'in USA':market.includes('UK')?'in UK':'globally'} for ${heritageLabel.toLowerCase()} wear in 2026. List the exact title phrases, keywords, and attributes used by the top-ranking listings. Focus on: wedding season appeal, materials, style descriptors, and buyer intent language. Be specific and factual.`,
-      1000
-    );
-
-    // Search 2: buyer review language
-    setP('💬 Mining buyer review language for keyword gold…');
-    const search2 = await seoSearchCall(
-      `Find Etsy buyer reviews for Indian ${cat.toLowerCase()} jewellery sets. What exact words and phrases do buyers use to describe what they love — comfort, quality, occasions, gifting? Extract the highest-converting emotional language buyers use. Focus on ${heritageLabel.toLowerCase()} wear buyers.`,
-      800
-    );
-
-    // Search 3: pricing + click gap
-    setP('📊 Analysing pricing benchmarks and click gap…');
-    const search3 = await seoSearchCall(
-      `What is the current price range for ${cat.toLowerCase()} jewellery on Etsy for ${heritageLabel.toLowerCase()} occasions? What search terms are underserved (high search, low competition)? What do top sellers emphasise that budget sellers miss? Search for 2025-2026 Etsy jewellery market data.`,
-      800
-    );
-
-    // Now synthesise into a structured research brief
-    setP('📋 Synthesising research brief…');
-    const systemRole = `You are the Lead Market Research & SEO Strategist for Inaarat Jewels, an Indian jewellery brand on Etsy. Your mission is to scale from 163 to 1,000 sales by finding the "Click Gap" — search terms and buyer angles the top sellers are NOT exploiting. You think in terms of Etsy's algorithm: recency signals, listing maturation (30-60 day ramp), and buyer intent. You NEVER suggest festival-specific or date-specific language. You focus on PERMANENT WEDDING DESIRES: lightweight comfort, royal aesthetic, tarnish-resistance, gifting ease.`;
-
-    const imgContent = seoImageContent();
-    const userContent = [
-      ...imgContent,
-      {type:'text', text:`PRODUCT DETAILS:
-Name: ${name}
-Category: ${cat}
-Heritage Level: ${heritageLabel}
-Materials: ${$i('seo_materials').value||'(see images)'}
-Occasion: ${$i('seo_occasion').value||'Wedding/Party'}
-USP: ${$i('seo_usp').value||'Not specified'}
-Target Market: ${market}
-Price: ${$i('seo_price').value?'₹'+$i('seo_price').value:'Not specified'}
-${imgContent.length?'\nPRODUCT IMAGES ATTACHED: '+imgContent.length+' photo(s). Identify: exact stone types, metal finish, colour, design style, craftsmanship quality, weight estimate (lightweight/heavy), and Heritage Level.':''}
-
-LIVE MARKET RESEARCH (from Etsy search):
-=== TOP COMPETITOR DATA ===
-${search1}
-
-=== BUYER REVIEW LANGUAGE ===
-${search2}
-
-=== PRICING & CLICK GAP ANALYSIS ===
-${search3}
-
-YOUR TASK — Generate a structured Research Brief with exactly these sections:
-
-## HERITAGE ASSESSMENT
-One sentence identifying this product's Heritage Level and why.
-
-## 30-DAY MATURATION HOOK
-The single best sales angle to lead with that will remain relevant for 2+ months (no dates/festivals).
-
-## SEO KEYWORD PULSE — 15 HIGH-INTENT PHRASES
-List exactly 15 keyword phrases found in the research, ranked by buyer intent. Mark each: [HIGH] [MED] [LOW] volume estimate.
-
-## COMPETITOR CLICK GAP
-What are the top sellers NOT saying that Inaarat Jewels can own? 3-5 specific gaps.
-
-## ATTRIBUTE SELECTION TABLE
-| Attribute | Recommended Value | Reason |
-|-----------|-------------------|--------|
-List: Material (max 5), Gold Spec, Gemstone, Closure, Style, Theme — using only real Etsy-compliant attribute values.
-
-## SELECT LIST (use these)
-5 attributes/angles to include.
-
-## AVOID LIST (skip these)
-5 things to avoid — search dead-ends or festival-specific language that limits listing longevity.`}
-    ];
-
-    const brief = await seoAPICall(systemRole, userContent, 2000);
-    _seoStage1Data = {brief, name, cat, heritage, heritageLabel, market, imgCount: imgContent.length};
-
-    // Render
-    out.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);border-radius:7px;padding:4px 10px;font-size:10px;color:var(--ac2);font-weight:700">
-          ${imgContent.length?'📸 '+imgContent.length+' images analysed · ':''}🔍 3 live searches · Heritage: ${heritageLabel}
-        </span>
-      </div>
-      <div style="font-size:12px;line-height:1.8;color:var(--t2);white-space:pre-wrap;max-height:480px;overflow-y:auto;padding-right:4px">${esc(brief)}</div>
-      <div style="margin-top:12px;display:flex;gap:7px">
-        <button class="btn bo bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(brief)}).then(()=>showToast('Research copied!'))">📋 Copy Brief</button>
-        <span style="font-size:10px;color:var(--t3);align-self:center">Review the brief, then click Stage 2 →</span>
-      </div>`;
-
-    // Show Stage 2
-    $i('seo-out-2').style.display='block';
-    $i('seo-stage2-btn-wrap').style.display='block';
-    setStagePills(2);
-    setSEOStatus('✅ Stage 1 complete — ready for Stage 2','var(--sage)');
-
-  }catch(e){
-    out.innerHTML = `<div style="color:var(--coral);padding:16px;font-size:12px">
-      <div style="font-weight:700;margin-bottom:6px">❌ Stage 1 failed</div>
-      <div style="background:var(--bg2);border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:var(--tx);margin-bottom:8px;word-break:break-all">${esc(e.message)}</div>
-      <div style="font-size:11px;color:var(--t2);line-height:1.7">
-        <strong>Possible causes:</strong><br>
-        • API key / auth issue — this app must be used from the claude.ai chat interface<br>
-        • Temporary timeout — click Retry below<br>
-        • No internet connection
-      </div>
-      <button class="btn bp bsm" style="margin-top:10px" onclick="runStage1()">🔄 Retry Stage 1</button>
-    </div>`;
-    setSEOStatus('Stage 1 failed — see error','var(--coral)');
-  }
-}
 
 // ════════════════════════════════════════════════
 //  STAGE 2 — KEYWORD STRATEGY (Claude strategist)
 // ════════════════════════════════════════════════
-async function runStage2(){
-  if(!_seoStage1Data){ showToast('Run Stage 1 first','var(--coral)'); return; }
-  setStagePills(2);
-  const out = $i('seo-out-2-body');
-  out.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t2)"><div style="font-size:20px;margin-bottom:8px">🧠</div><div id="s2-progress" style="font-size:12px">Building keyword strategy…</div></div>';
-  setSEOStatus('Stage 2 running…','var(--gold2)');
-  const setP = msg => { const el=$i('s2-progress'); if(el)el.textContent=msg; setSEOStatus(msg,'var(--gold2)'); };
 
-  try{
-    setP('🎯 Selecting keywords and buyer hook…');
-    const systemRole = `You are the Senior Sales Architect & Keyword Strategist for Inaarat Jewels. You think like a conversion scientist. Your job is to take the Market Research Brief and extract a precise, actionable strategy that maximises Etsy click-through rate and conversion. You understand Etsy's search algorithm: the title carries 60% of SEO weight, the first 3 tags reinforce the title's primary keyword, and the listing needs to "mature" over 30-60 days. You avoid festival-specific language and focus on permanent wedding desires.`;
-
-    const imgContent = seoImageContent();
-    const userContent = [
-      ...imgContent,
-      {type:'text', text:`MARKET RESEARCH BRIEF (from Stage 1):
-${_seoStage1Data.brief}
-
-PRODUCT: ${_seoStage1Data.name} | Category: ${_seoStage1Data.cat} | Heritage: ${_seoStage1Data.heritageLabel} | Market: ${_seoStage1Data.market}
-
-YOUR TASK — Strategic Selection Brief. Output exactly these sections:
-
-## PRIMARY KEYWORD (1 phrase)
-The single highest-intent search phrase to lead the Etsy title. Max 5 words. Explain why in one sentence.
-
-## SECONDARY KEYWORDS (3 phrases)
-The next 3 keywords to weave into title and first 160 chars of description. One sentence justification each.
-
-## BUYER HOOK (1 sentence)
-The emotional angle that connects this product to the buyer's desire. Not features — transformation. What does wearing this make the buyer feel or become?
-
-## THE CLICK GAP ANGLE
-One specific, ownable claim that top competitors are NOT making. This is Inaarat Jewels' differentiation point.
-
-## TITLE FORMULA
-Show the exact title structure: [Primary KW] + [Material] + [Style descriptor] + [Use case] + [Differentiator]
-Give a draft title using this formula. Max 140 chars, under 15 words.
-
-## 13 TAGS — FINAL SELECTION
-List exactly 13 tags. Max 20 chars each. Format as a numbered list.
-Rule: No tag should repeat exact wording from the title. Mix: 3 broad category + 4 occasion/buyer + 3 material/style + 3 gifting/emotion tags.
-
-## SELECT LIST (include these in listing)
-5 specific attributes, angles, or phrases to use.
-
-## AVOID LIST (cut these)
-5 things to cut — overly niche, festival-specific, or search dead-ends.
-
-## DESCRIPTION HOOK (first 160 chars)
-The opening sentence/two of the description — optimised for both Google and Etsy SEO. This is what buyers see before clicking "read more".`}
-    ];
-
-    const strategy = await seoAPICall(systemRole, userContent, 2000);
-    _seoStage2Data = {strategy};
-
-    // Parse tags for display
-    // Broaden tag extraction: match numbered (1.), bulleted (- •), or lettered (a.) lists
-    const tagMatches = strategy.match(/^(?:\d+[.)\s]|[-•*]|[a-z][.)\s])\s*(.{2,22})$/gm)||[];
-    const tags = tagMatches.map(t=>t.replace(/^(?:\d+[.)\s]|[-•*]|[a-z][.)\s])\s*/,'').trim())
-      .filter(t=>t.length>=2&&t.length<=20&&!/^(tag|keyword|phrase|example)/i.test(t)).slice(0,13);
-
-    out.innerHTML = `
-      <div style="font-size:12px;line-height:1.8;color:var(--t2);white-space:pre-wrap;max-height:480px;overflow-y:auto;padding-right:4px">${esc(strategy)}</div>
-      ${tags.length?`<div style="margin-top:12px"><div class="seo-section-head">Extracted Tags (click to copy)</div><div>${tags.map(t=>`<span class="seo-kw-chip ${t.length>20?'seo-avoid-tag':''}" onclick="navigator.clipboard.writeText('${esc(t)}');showToast('Tag copied!')" title="${t.length} chars">${esc(t)}</span>`).join('')}</div></div>`:''}
-      <div style="margin-top:12px;display:flex;gap:7px">
-        <button class="btn bo bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(strategy)}).then(()=>showToast('Strategy copied!'))">📋 Copy Strategy</button>
-        <span style="font-size:10px;color:var(--t3);align-self:center">Review the strategy, then click Stage 3 →</span>
-      </div>`;
-
-    $i('seo-out-3').style.display='block';
-    $i('seo-stage3-btn-wrap').style.display='block';
-    setStagePills(3);
-    setSEOStatus('✅ Stage 2 complete — ready for Stage 3','var(--sage)');
-
-  }catch(e){
-    out.innerHTML = `<div style="color:var(--coral);padding:16px;font-size:12px">
-      <div style="font-weight:700;margin-bottom:6px">❌ Stage 2 failed</div>
-      <div style="background:var(--bg2);border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:var(--tx);margin-bottom:8px;word-break:break-all">${esc(e.message)}</div>
-      <button class="btn ba bsm" style="margin-top:8px" onclick="runStage2()">🔄 Retry Stage 2</button>
-    </div>`;
-    setSEOStatus('Stage 2 failed — see error','var(--coral)');
-  }
-}
 
 // ════════════════════════════════════════════════
 //  STAGE 3 — LISTING COPY (Claude copywriter)
 // ════════════════════════════════════════════════
-async function runStage3(){
-  if(!_seoStage2Data){ showToast('Run Stage 2 first','var(--coral)'); return; }
-  setStagePills(3);
-  const out = $i('seo-out-3-body');
-  out.innerHTML = '<div style="padding:20px;text-align:center;color:var(--t2)"><div style="font-size:20px;margin-bottom:8px">✍️</div><div id="s3-progress" style="font-size:12px">Writing your 10X listing…</div></div>';
-  setSEOStatus('Stage 3 running…','var(--gold2)');
-  const setP = msg => { const el=$i('s3-progress'); if(el)el.textContent=msg; setSEOStatus(msg,'var(--gold2)'); };
 
-  try{
-    setP('✍️ Writing sales-driven listing copy…');
 
-    const systemRole = `You are the Senior Sales Architect & Copywriter for Inaarat Jewels®. Your single mission is to write Etsy listings that convert browsers into buyers. You write in a luxury brand voice — confident, aspirational, specific, and warm. You understand that the first 160 chars of the description are indexed by Google. You never use generic phrases like "beautiful jewellery" or "perfect gift". Every word earns its place. You write for the buyer's transformation, not the product's features.`;
 
-    const price = $i('seo_price').value ? '₹'+$i('seo_price').value : 'Premium';
-    const imgContent = seoImageContent();
-
-    const userContent = [
-      ...imgContent,
-      {type:'text', text:`PRODUCT: ${_seoStage1Data.name}
-Category: ${_seoStage1Data.cat} | Heritage: ${_seoStage1Data.heritageLabel} | Market: ${_seoStage1Data.market} | Price: ${price}
-Materials: ${$i('seo_materials').value||(imgContent.length?'(see images)':'not specified')}
-USP: ${$i('seo_usp').value||'Handcrafted luxury, lightweight, tarnish-resistant'}
-${imgContent.length?'IMAGES: '+imgContent.length+' product photos attached. Study them carefully for exact visual details to mention in the listing.':''}
-
-RESEARCH BRIEF (Stage 1 summary):
-${_seoStage1Data.brief.slice(0,1200)}
-
-STRATEGY BRIEF (Stage 2 full):
-${_seoStage2Data.strategy}
-
-YOUR TASK — Write the complete Etsy listing. Follow this EXACT structure:
-
-## TITLE
-One line. Max 140 chars. Under 15 words. Lead with primary keyword. Use commas to separate attributes.
-
-## DESCRIPTION
-
-[Hook — first 160 chars, Google+Etsy SEO optimised, buyer transformation angle]
-
-[Prose — 3-4 sentences. Luxury brand voice. Craftsmanship, occasion, feeling. No generic phrases.]
-
-[Why Inaarat Jewels — 2 sentences on brand ethos and quality promise.]
-
-⁍ Store in dry airtight packaging
-⁍ Avoid water, perfume, and harsh chemicals
-⁍ Clean gently with soft cloth after use
-⁍ Preserve pearl shine by storing separately
-
-At Inaarat Jewels®, every design is selected to reflect elegance, quality, and timeless beauty. We prioritize premium aesthetics, detailed craftsmanship, and standout occasion wear that elevates your jewelry wardrobe.
-
-EXPLORE MORE:
-Instagram: Inaarat_jewels3
-Web: www.pinkcityhub.in
-© Registered Trademark: Inaarat Jewels
-
-## 13 TAGS
-One per line. Max 20 chars each. No repetition of exact title wording.
-
-## ETSY ATTRIBUTES
-| Field | Value |
-|-------|-------|
-List: Primary colour, Material (up to 5), Gemstone, Closure type, Style, Theme
-
-## LISTING AUDIT SCORE
-Rate this listing 1-10 on: Title keyword strength | Tag diversity | Description hook | Longevity (no date-specific language) | Conversion potential
-One line per dimension. Total score out of 50.`}
-    ];
-
-    const listing = await seoAPICall(systemRole, userContent, 2500);
-
-    // Parse sections
-    const getSection = (label) => {
-      const re = new RegExp('##\\s*'+label+'\\s*\\n([\\s\\S]*?)(?=##|$)','i');
-      const m = listing.match(re);
-      return m ? m[1].trim() : '';
-    };
-    const titleText    = getSection('TITLE');
-    const descText     = getSection('DESCRIPTION');
-    const tagsText     = getSection('13 TAGS');
-    const attribText   = getSection('ETSY ATTRIBUTES');
-    const auditText    = getSection('LISTING AUDIT SCORE');
-    const tags13       = tagsText.split('\n').map(t=>t.replace(/^[\d\.\-\*]+\s*/,'').trim()).filter(t=>t&&t.length<=25).slice(0,13);
-    const titleLen     = titleText.length;
-    const fullCopy     = `TITLE:\n${titleText}\n\nDESCRIPTION:\n${descText}\n\nTAGS:\n${tagsText}`;
-
-    out.innerHTML = `
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button class="btn bt bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(fullCopy)}).then(()=>showToast('Full listing copied! ✓'))">📋 Copy Full Listing</button>
-        <button class="btn bp bsm" onclick="runStage3()">🔄 Rewrite</button>
-      </div>
-
-      ${titleText?`<div class="seo-section-head">TITLE <span style="color:${titleLen>140?'var(--coral)':'var(--sage)'}">${titleLen}/140 chars</span></div>
-      <div class="seo-copy-block" onclick="navigator.clipboard.writeText(this.textContent.trim());showToast('Title copied!')" title="Click to copy">${esc(titleText)}</div>
-      ${titleLen>140?'<div style="font-size:10px;color:var(--coral);margin-top:3px">⚠ Over 140 chars — trim before publishing</div>':''}`:'' }
-
-      ${tags13.length?`<div class="seo-section-head" style="margin-top:12px">13 TAGS — click to copy</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px">${tags13.map(t=>`<span class="seo-kw-chip" onclick="navigator.clipboard.writeText('${esc(t)}');showToast('Tag copied!')" title="${t.length} chars">${esc(t)}${t.length>20?'<span style="color:var(--coral);font-size:8px"> '+t.length+'!</span>':''}</span>`).join('')}</div>`:'' }
-
-      ${descText?`<div class="seo-section-head" style="margin-top:12px">DESCRIPTION <span style="font-size:9px;font-weight:400;text-transform:none">(click to copy)</span></div>
-      <div class="seo-copy-block" style="max-height:320px;overflow-y:auto" onclick="navigator.clipboard.writeText(this.textContent.trim());showToast('Description copied!')" title="Click to copy">${esc(descText).replace(/\n/g,'<br>')}</div>`:'' }
-
-      ${attribText?`<div class="seo-section-head" style="margin-top:12px">ETSY ATTRIBUTES</div>
-      <div style="font-size:11px;color:var(--t2);background:var(--bg2);border-radius:8px;padding:10px;border:1px solid var(--brd);white-space:pre-wrap">${esc(attribText)}</div>`:'' }
-
-      ${auditText?`<div class="seo-section-head" style="margin-top:12px">LISTING AUDIT SCORE</div>
-      <div style="font-size:11px;color:var(--t2);background:rgba(143,191,159,0.07);border:1px solid rgba(143,191,159,0.25);border-radius:8px;padding:10px;white-space:pre-wrap">${esc(auditText)}</div>`:'' }
-
-      <div style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap">
-        <button class="btn bo bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(titleText)}).then(()=>showToast('Title copied!'))">Copy Title</button>
-        <button class="btn bo bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(tags13.join(', '))}).then(()=>showToast('Tags copied!'))">Copy Tags</button>
-        <button class="btn bo bsm" onclick="navigator.clipboard.writeText(${JSON.stringify(descText)}).then(()=>showToast('Description copied!'))">Copy Description</button>
-      </div>`;
-
-    setSEOStatus('✅ Listing complete — ready to paste into Etsy','var(--sage)');
-
-  }catch(e){
-    out.innerHTML = `<div style="color:var(--coral);padding:16px;font-size:12px">
-      <div style="font-weight:700;margin-bottom:6px">❌ Stage 3 failed</div>
-      <div style="background:var(--bg2);border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:var(--tx);margin-bottom:8px;word-break:break-all">${esc(e.message)}</div>
-      <button class="btn bt bsm" style="margin-top:8px" onclick="runStage3()">🔄 Retry Stage 3</button>
-    </div>`;
-    setSEOStatus('Stage 3 failed — see error','var(--coral)');
-  }
-}
-
-// Legacy alias — keep for any old references
-window.generateSEO = runStage1;
 // ══════════════════════════════════════════════
 //  POPULATE PO/PI SELECTS
 // ══════════════════════════════════════════════
@@ -3057,7 +2712,7 @@ function auditEntry(action, entityType, entityId, entityRef, summary) {
     summary
   };
   auditLog.push(entry);
-  localStorage.setItem('ij_auditlog', JSON.stringify(auditLog));
+  safeLS('ij_auditlog', JSON.stringify(auditLog));
   renderAuditLog();
 }
 
@@ -3102,7 +2757,7 @@ function exportAuditCSV() {
 function clearAuditLog() {
   if (!confirm('Clear all audit log entries? This cannot be undone.')) return;
   auditLog = [];
-  localStorage.setItem('ij_auditlog', JSON.stringify(auditLog));
+  safeLS('ij_auditlog', JSON.stringify(auditLog));
   idbDel('ij_audit_full').catch(()=>{}); // clear full log from IndexedDB too
   renderAuditLog();
   showToast('Audit log cleared.');
@@ -3167,7 +2822,14 @@ function idbGetAll() {
 let _saveDebounceTimer = null;
 let _saveQueued = false;
 
+// Safe localStorage write — silently ignores quota errors for non-critical writes
+function safeLS(key, val) {
+  try { localStorage.setItem(key, val); }
+  catch(e) { console.warn('localStorage quota:', key, e); }
+}
+
 async function saveLS() {
+  skuMap = new Map(products.map(p=>[p.sku,p])); // keep global in sync on every save
   try {
     // Strip images from products — store image keys in product record instead
     const slim = products.map(p => {
@@ -3196,24 +2858,22 @@ async function saveLS() {
     showToast('⚠ Save failed — storage may be full! Export a backup now.', 'var(--coral)');
     return;
   }
+  // Trigger Drive backup (debounced, offline-aware)
+  clearTimeout(_saveDebounceTimer);
+  queueDriveBackup();
+  updateLastSaved();
+}
+
 // ══════════════════════════════════════════════
-//  OFFLINE QUEUE + AUTO-SYNC
-//  Strategy:
-//  - Every saveLS() queues a Drive upload
-//  - If offline → stored in IDB queue, retried on reconnect
-//  - Drive restore uses timestamp-based smart merge (newer wins per record)
-//  - Online event auto-flushes the queue
+//  OFFLINE QUEUE + AUTO-SYNC  (module-level, runs once)
 // ══════════════════════════════════════════════
-let _gdUploadQueued = false;      // pending upload in current session
+let _gdUploadQueued = false;
 let _gdOnlineRetryTimer = null;
 
-// Queue a Drive backup — works online or offline
 function queueDriveBackup() {
   _gdUploadQueued = true;
-  // Persist queue flag in IDB so it survives page reload
   idbPut('ij_upload_queued', '1').catch(()=>{});
   if (navigator.onLine) {
-    // Online — debounce 3s then upload
     clearTimeout(_saveDebounceTimer);
     _saveDebounceTimer = setTimeout(async () => {
       await gDriveAutoBackup();
@@ -3221,15 +2881,12 @@ function queueDriveBackup() {
       idbDel('ij_upload_queued').catch(()=>{});
     }, 3000);
   } else {
-    // Offline — show indicator, will upload when back online
     updateOfflineStatus(true);
   }
 }
 
-// Called when browser goes online
 async function onNetworkRestore() {
   updateOfflineStatus(false);
-  // Check if we have a queued upload (this session or from a previous offline session)
   const queued = await idbGet('ij_upload_queued').catch(()=>null);
   if (queued || _gdUploadQueued) {
     showToast('🌐 Back online — syncing to Drive…', 'var(--sage)');
@@ -3243,7 +2900,6 @@ async function onNetworkRestore() {
   }
 }
 
-// Show/hide offline status in topbar
 function updateOfflineStatus(offline) {
   const lbl = $i('last-saved-lbl');
   if (!lbl) return;
@@ -3251,36 +2907,25 @@ function updateOfflineStatus(offline) {
     lbl.textContent = '📴 Offline — queued';
     lbl.style.color = 'var(--coral)';
   } else {
-    // Will be overwritten by next updateLastSaved()
     lbl.style.color = '';
   }
 }
 
-// Wire up network events
 window.addEventListener('online',  () => onNetworkRestore());
 window.addEventListener('offline', () => {
   updateOfflineStatus(true);
   showToast('📴 Offline — changes saved locally, will sync when back online', 'var(--gold2)', 5000);
 });
 
-// On load: check if we had a queued upload from a previous session
 (async function checkQueuedUpload() {
   const q = await idbGet('ij_upload_queued').catch(()=>null);
   if (q && navigator.onLine && typeof _gdToken !== 'undefined' && _gdToken) {
-    // Had unsent changes from last session — upload now
     setTimeout(async () => {
       await gDriveAutoBackup();
       idbDel('ij_upload_queued').catch(()=>{});
-    }, 5000); // wait 5s after init
+    }, 5000);
   }
 })();
-
-// Trigger Google Drive auto-backup — offline-aware
-  clearTimeout(_saveDebounceTimer);
-  queueDriveBackup();
-  // Update last-saved indicator
-  updateLastSaved();
-}
 
 // ── Load: text data from localStorage, images from IndexedDB ──
 async function loadLS() {
@@ -3474,11 +3119,11 @@ async function gDriveRestoreLatest(silent=false, force=false) {
       idbPut('ij_audit_full', JSON.stringify(auditLog)).catch(()=>{});
       localStorage.setItem('ij_auditlog', JSON.stringify(auditLog.slice(-500)));
     }
-    if(backup.monthlyTargets) localStorage.setItem('ij_monthly_targets', JSON.stringify(backup.monthlyTargets));
-    if(backup.settings)      localStorage.setItem('ij_settings', JSON.stringify(backup.settings));
-    if(backup.custNotes)     localStorage.setItem('ij_cust_notes', JSON.stringify(backup.custNotes));
+    if(backup.monthlyTargets) safeLS('ij_monthly_targets', JSON.stringify(backup.monthlyTargets));
+    if(backup.settings)      safeLS('ij_settings', JSON.stringify(backup.settings));
+    if(backup.custNotes)     safeLS('ij_cust_notes', JSON.stringify(backup.custNotes));
     _gdLastSyncedAt = backup.savedAt || new Date().toISOString();
-    localStorage.setItem('ij_gd_last_synced', _gdLastSyncedAt);
+    safeLS('ij_gd_last_synced', _gdLastSyncedAt);
 
     await saveLS();
     recalcAll(); renderAll(); renderOrderDashboard();
@@ -3654,7 +3299,7 @@ async function gDriveAutoBackup() {
         body: form
       });
       const created = await res.json();
-      if (created.id) { _gdFileId = created.id; localStorage.setItem('ij_gd_fileid', _gdFileId); }
+      if (created.id) { _gdFileId = created.id; safeLS('ij_gd_fileid', _gdFileId); }
     }
     if (res.status === 401) {
       // Token expired
@@ -3663,7 +3308,7 @@ async function gDriveAutoBackup() {
       showToast('⚠ Google Drive session expired — please reconnect.', 'var(--coral)');
     } else {
       _gdLastSyncedAt = _now;
-      localStorage.setItem('ij_gd_last_synced', _now); // persist so reload doesn't overwrite local with stale Drive
+      safeLS('ij_gd_last_synced', _now); // persist so reload doesn't overwrite local with stale Drive
       updateGDSyncStatus();
     }
   } catch(e) { console.warn('GDrive backup error:', e); }
@@ -3936,24 +3581,60 @@ function updRC(k,list,fin,pr,nm,tr,sg){
 }
 function goalSeek(region,val){
   const dp=parseFloat(val);if(isNaN(dp))return;
-  const discVal=parseFloat($i('c_disc').value)||0;
-  if(discVal>=100){showToast('Cannot goal-seek with 100% discount','var(--coral)');return;}
-  const d=getFormData(),r=calcPricing(d);
-  const disc=d.disc/100,ship=d.shippingOn?(region==='in'?+d.india:region==='us'?+d.usa:+d.world):0;
-  // Corrected formula: sell × (1 - ETSY_FULL_RATE) - ETSY_PAY_FIXED = dp + fixedCosts
-  const sellNet=(dp+r.fixedCosts+ETSY_PAY_FIXED)/(1-ETSY_FULL_RATE);
-  const LP=sellNet/(1-disc)-ship;
-  if(LP<=0){showToast('Not achievable');return;}
-  const nm=netMarginPct(dp,sellNet);
-  if(nm<0){showToast('Not achievable');return;}
-  $i('c_margin').value=nm.toFixed(2);calc();showToast('✓ Margin → '+nm.toFixed(2)+'%');
+  const d=getFormData();
+  const disc_frac=(d.disc||0)/100;
+  if(disc_frac>=1){showToast('Cannot goal-seek with 100% discount','var(--coral)');return;}
+
+  // Get current pricing to know fixedCosts and shipping adder for this region
+  const r=calcPricing(d);
+  const fc=r.fixedCosts;
+
+  // Shipping adder and SG cost depend on region
+  // adder = what is added to listing price for shipping (user-entered ₹ adder)
+  // SG    = adder × (1-disc) × (1-ETSY_FULL_RATE) = net SG cost recovery after Etsy cut
+  const adder = region==='in' ? +(d.india||0) : region==='us' ? +(d.usa||0) : +(d.world||0);
+  const TR    = adder*(1-disc_frac);           // what buyer pays for shipping
+  const SG    = TR*(1-ETSY_FULL_RATE);         // net SG cost (after Etsy fees on TR)
+
+  // ── Algebra (per-region, correct) ─────────────────────────────
+  // profit = F×(1−ETSY_FULL_RATE) − ETSY_PAY_FIXED − fc − SG
+  // where F = (lp + adder)×(1-disc) = full buyer payment
+  // Solving for F:
+  const F = (dp + fc + SG + ETSY_PAY_FIXED) / (1-ETSY_FULL_RATE);
+  if(F<=0){showToast('Target not achievable — profit too high for these costs','var(--coral)');return;}
+
+  // Full listing price before discount
+  const fullL = F / (1-disc_frac);
+  // Product-only listing price (strip the shipping adder)
+  const lp = fullL - adder;
+  if(lp<=0){showToast('Not achievable — shipping adder too large for target','var(--coral)');return;}
+
+  // baseSell = what buyer pays for product only (at discount)
+  const baseSell = lp*(1-disc_frac);
+
+  // Solve for margin from baseSell formula:
+  // baseSell = (fc + ETSY_PAY_FIXED) / (1 - ETSY_FULL_RATE - mg/100)
+  // mg/100  = 1 - ETSY_FULL_RATE - (fc + ETSY_PAY_FIXED)/baseSell
+  const nm = (1 - ETSY_FULL_RATE - (fc+ETSY_PAY_FIXED)/baseSell)*100;
+
+  if(nm<0||nm>=100){showToast('Target not achievable — try a lower profit target','var(--coral)');return;}
+
+  // Write margin back and recalculate
+  $i('c_margin').value=nm.toFixed(2);
+  calc();
+
+  // Verify actual profit matches target (floating point check)
+  const verify=calcPricing(getFormData());
+  const actualPr=region==='in'?verify.inPr:region==='us'?verify.usPr:verify.woPr;
+  const regionLabel=region==='in'?'India':region==='us'?'USA':'World';
+  showToast(`✓ ${regionLabel} goal-seek: margin → ${nm.toFixed(2)}% | Actual profit: ₹${actualPr.toFixed(0)}`,'var(--sage)',4000);
 }
 
 // ══════════════════════════════════════════════
 //  PRODUCT CRUD
 // ══════════════════════════════════════════════
 function openSaveModal(){$i('m_name').value='';$i('m_sku').value='IJ-'+String(skuCtr).padStart(3,'0');$i('m_color').value='';$i('m_size').value='';$i('m_stock').value=1;$i('m_vendor').value='';$i('m_cat').value='';mImgData=null;$i('m_img_url').value='';$i('m_img_prev').textContent='Paste a URL above to preview';$i('save-mo').classList.add('open');}
-function prevMImgUrl(url){if(!url){mImgData=null;$i('m_img_prev').innerHTML='Paste a URL above to preview';return;}mImgData=url;$i('m_img_prev').innerHTML=`<img src="${url}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
+function prevMImgUrl(url){if(!url){mImgData=null;$i('m_img_prev').innerHTML='Paste a URL above to preview';return;}mImgData=url;$i('m_img_prev').innerHTML=`<img src="${esc(url)}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
 // Returns the next collision-free SKU, advancing skuCtr as needed.
 // Shows a toast if the counter had to skip ahead.
 function nextFreeSKU(){
@@ -3967,11 +3648,15 @@ function skuNum(sku){return parseInt((sku||'').replace(/^IJ-/i,''))||0;}
 
 function saveProduct(){
   const name=$i('m_name').value.trim();if(!name){showToast('Enter name!');return;}
+  const _pp=parseFloat($i('c_pp')?.value)||0;
+  const _mg=parseFloat($i('c_margin')?.value)||0;
+  if(_pp<=0) showToast('⚠ Purchase price is ₹0 — profit calculations will be inaccurate.','var(--gold2)',4000);
+  if(_mg<=0) showToast('⚠ Margin is 0% — listing price may not cover costs.','var(--gold2)',4000);
   const d=getFormData(),r=calcPricing(d);
   const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');
   const sku=nextFreeSKU();
   const adjusted=sku!==rawSKU;
-  products.push({...d,...r,id:Date.now(),name,sku,color:$i('m_color').value,size:$i('m_size').value,stock:+$i('m_stock').value||1,vendor:$i('m_vendor').value,cat:$i('m_cat').value,img:mImgData});
+  products.push({...d,...r,id:Date.now(),name,sku,color:$i('m_color').value,size:$i('m_size').value,stock:+$i('m_stock').value||1,vendor:$i('m_vendor').value,cat:$i('m_cat').value,img:mImgData,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
   skuCtr++;$i('save-mo').classList.remove('open');renderAll();saveLS();
   const _newProd = products[products.length-1];
   auditEntry('add','product',_newProd.id,_newProd.sku,'Name: '+_newProd.name);
@@ -3979,12 +3664,12 @@ function saveProduct(){
 }
 function dupProduct(){const d=getFormData(),r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _curP=products.find(p=>p.sku===$i('m_sku').value);products.push({...d,...r,id:Date.now(),name:'Copy of '+($i('m_name').value||'Product'),sku,color:'',stock:1,vendor:'',cat:'',img:_curP?_curP.img:null});skuCtr++;renderAll();saveLS();showToast(adjusted?`SKU adjusted to ${sku}`:'Duplicated');}
 function clearCalc(){['c_pp','c_courier','c_pack','c_addcost','c_disc','c_list','c_etsyad','c_ai','c_plus','c_social','c_gift','c_india','c_usa','c_world','c_payment'].forEach(id=>$i(id).value=0);$i('c_margin').value=50;calc();}
-function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=0;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_india').value=0;$i('ap_usa').value=1731.25;$i('ap_world').value=1535.44;$i('ap_disc').value=25;apImgData=null;$i('ap_img_url').value='';$i('ap_img_prev').textContent='Paste a URL above to preview';$i('ap_etsy_url').value='';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
-function prevAPImgUrl(url){if(!url){apImgData=null;$i('ap_img_prev').innerHTML='Paste a URL above to preview';return;}apImgData=url;$i('ap_img_prev').innerHTML=`<img src="${url}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
+function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=18;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_india').value=0;$i('ap_usa').value=1731.25;$i('ap_world').value=1535.44;$i('ap_disc').value=25;apImgData=null;$i('ap_img_url').value='';$i('ap_img_prev').textContent='Paste a URL above to preview';$i('ap_etsy_url').value='';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
+function prevAPImgUrl(url){if(!url){apImgData=null;$i('ap_img_prev').innerHTML='Paste a URL above to preview';return;}apImgData=url;$i('ap_img_prev').innerHTML=`<img src="${esc(url)}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
 function previewAPCalc(){const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);$i('ap_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
-function addProductDirect(){const name=$i('ap_name').value.trim();if(!name){showToast('Enter name!');return;}const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _apId=Date.now();products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:apImgData,etsyUrl:$i('ap_etsy_url').value,reorderAt:parseInt($i('ap_reorder_at')?.value)||2,updatedAt:new Date().toISOString()});skuCtr++;$i('add-mo').classList.remove('open');renderAll();saveLS();auditEntry('add','product',_apId,sku,'Name: '+name);showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);}
-function openEditModal(id){const p=products.find(x=>x.id===id);if(!p)return;$i('edit-id').value=id;$i('e_name').value=p.name;$i('e_sku').value=p.sku;$i('e_color').value=p.color||'';$i('e_size').value=p.size||'';$i('e_stock').value=p.stock;$i('e_vendor').value=p.vendor||'';$i('e_cat').value=p.cat||'';$i('e_pp').value=p.pp;$i('e_margin').value=p.margin;$i('e_courier').value=p.courier||0;$i('e_pack').value=p.pack||0;$i('e_addcost').value=p.addcost||0;$i('e_etsyad').value=p.etsyad||0;$i('e_disc').value=p.disc;$i('e_india').value=p.india||0;$i('e_usa').value=p.usa||0;$i('e_world').value=p.world||0;eImgData=p.img||null;$i('e_img_url').value=p.img||'';$i('e_etsy_url').value=p.etsyUrl||'';$i('e_img_prev').innerHTML=p.img?`<img src="${p.img}" style="max-height:80px;border-radius:8px"/>`:'Paste a URL above to preview';previewEditCalc();$i('edit-mo').classList.add('open');}
-function prevEImgUrl(url){if(!url){eImgData=null;$i('e_img_prev').innerHTML='Paste a URL above to preview';return;}eImgData=url;$i('e_img_prev').innerHTML=`<img src="${url}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
+function addProductDirect(){const name=$i('ap_name').value.trim();if(!name){showToast('Enter name!');return;}const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:gn('ap_india'),usa:gn('ap_usa'),world:gn('ap_world'),disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _apId=Date.now();products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:apImgData,etsyUrl:$i('ap_etsy_url').value,reorderAt:parseInt($i('ap_reorder_at')?.value)||2,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()});skuCtr++;$i('add-mo').classList.remove('open');renderAll();saveLS();auditEntry('add','product',_apId,sku,'Name: '+name);showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);}
+function openEditModal(id){const p=products.find(x=>x.id===id);if(!p)return;$i('edit-id').value=id;$i('e_name').value=p.name;$i('e_sku').value=p.sku;$i('e_color').value=p.color||'';$i('e_size').value=p.size||'';$i('e_stock').value=p.stock;$i('e_vendor').value=p.vendor||'';$i('e_cat').value=p.cat||'';$i('e_pp').value=p.pp;$i('e_margin').value=p.margin;$i('e_courier').value=p.courier||0;$i('e_pack').value=p.pack||0;$i('e_addcost').value=p.addcost||0;$i('e_etsyad').value=p.etsyad||0;$i('e_disc').value=p.disc;$i('e_india').value=p.india||0;$i('e_usa').value=p.usa||0;$i('e_world').value=p.world||0;eImgData=p.img||null;$i('e_img_url').value=p.img||'';$i('e_etsy_url').value=p.etsyUrl||'';$i('e_img_prev').innerHTML=p.img?`<img src="${esc(p.img)}" style="max-height:80px;border-radius:8px"/>`:'Paste a URL above to preview';previewEditCalc();$i('edit-mo').classList.add('open');}
+function prevEImgUrl(url){if(!url){eImgData=null;$i('e_img_prev').innerHTML='Paste a URL above to preview';return;}eImgData=url;$i('e_img_prev').innerHTML=`<img src="${esc(url)}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
 function previewEditCalc(){const d={pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),list:gn('e_list')||0,etsyad:gn('e_etsyad'),ai:30,plus:18,social:35,gift:50,india:gn('e_india'),usa:gn('e_usa'),world:gn('e_world'),disc:gn('e_disc'),shippingOn:true};const r=calcPricing(d);$i('e_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
 function saveEdit(){
   const id=+$i('edit-id').value;
@@ -4021,7 +3706,10 @@ function delProd(id){
     showToast(orderCount>0?'Deleted. ⚠ '+orderCount+' order(s) may show ₹0 COGS.':'Deleted.');
   });
 }
-function recalcAll(){products=products.map(p=>({...p,...calcPricing(p)}));}
+function recalcAll(){
+  products=products.map(p=>({...p,...calcPricing(p)}));
+  skuMap=new Map(products.map(p=>[p.sku,p])); // keep global in sync
+}
 function renderAll(skipRecalc=false){if(!skipRecalc)recalcAll();renderCalcTb();renderPL();updatePlDash();updateFilters();populateDocSelects();const badge=document.getElementById('dead-badge');if(badge){const dc=products.filter(p=>isDeadStock(p.sku)).length;badge.textContent=dc;badge.style.display=dc>0?'':'none';}}
 
 // ══════════════════════════════════════════════
@@ -4127,8 +3815,8 @@ function buildPLInlineEditor(p) {
       ${fld('courier','Courier ₹',p.courier||0,'₹')}
       ${fld('pack','Packaging ₹',p.pack||0,'₹')}
       ${fld('addcost','Extra Cost ₹',p.addcost||0,'₹')}
-      ${fld('list','List Fee ₹',p.list||0,'₹')}
-      ${fld('payment','Payment ₹',p.payment||0,'₹')}
+      ${fld('list','Listing Fee ₹',p.list!==undefined?p.list:18,'₹')}
+      ${fld('payment','Fixed Pymt ₹',p.payment||0,'₹')}
       ${fld('etsyad','Etsy Ads ₹',p.etsyad||0,'₹')}
       ${fld('ai','AI Sub ₹',p.ai||30,'₹')}
       ${fld('plus','Etsy Plus ₹',p.plus||18,'₹')}
@@ -4137,6 +3825,11 @@ function buildPLInlineEditor(p) {
       ${fld('india','India Ship ₹',p.india||0,'₹')}
       ${fld('usa','USA Ship ₹',p.usa||0,'₹')}
       ${fld('world','World Ship ₹',p.world||0,'₹')}
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-bottom:6px;padding:0 2px">
+      ℹ Etsy % fees (6.5% TX + 5% Proc + 0.29% Reg + ₹25 fixed) are calculated automatically from the listing price — you don't enter them here.
+      <strong>Listing Fee</strong> = Etsy ₹0.18 listing fee ÷ expected orders (optional).
+      <strong>Fixed Pymt</strong> = any additional per-order buffer you want to include (optional).
     </div>
     <div id="ple-prev-${p.id}" style="padding:7px 11px;background:rgba(197,160,89,0.06);border:1px solid rgba(197,160,89,0.18);border-radius:9px;font-size:11px;color:var(--t2);margin-bottom:8px"></div>
     <div style="display:flex;gap:6px">
@@ -4186,7 +3879,7 @@ function applyPLEdit(pid) {
   // Keep skuCtr ahead of any manually entered SKU numbers
   const editedNum = skuNum(newSku);
   if(editedNum>=skuCtr) skuCtr=editedNum+1;
-  products[idx] = {...u, ...calcPricing(u)};
+  products[idx] = {...u, ...calcPricing(u), updatedAt:new Date().toISOString()};
   auditEntry('edit','product',pid,newSku,'Name: '+(nameEl?nameEl.value.trim():products[idx].name));
   saveLS(); renderAll(); showToast('✓ Updated!');
 }
@@ -4313,7 +4006,7 @@ function handleOrdersCSVImport(event){
         const rev=parseFloat(get('ordertotal')||get('revenue')||get('totalrev')||get('amount')||0)||0;
         const ship=parseFloat(get('shipcost')||get('shippingcost')||get('shipping')||0)||0;
         const status=(get('status')||'Delivered').trim();
-        const region=(get('region')||get('shiptocountry')||'').trim()||'india';
+        const region=normaliseRegion(get('region')||get('shiptocountry')||'');
         const shipNo=(get('shipno')||get('trackingnumber')||get('tracking')||'').trim();
         const notes=(get('notes')||get('note')||get('message')||'').trim();
         const skuStr=get('skus')||get('sku')||'';
@@ -4422,7 +4115,7 @@ function handleHistoryImport(event){
         });
       }
       if(data.skuCtr&&data.skuCtr>skuCtr)skuCtr=data.skuCtr;
-      if(data.monthlyTargets)localStorage.setItem('ij_monthly_targets',JSON.stringify(data.monthlyTargets));
+      if(data.monthlyTargets)safeLS('ij_monthly_targets',JSON.stringify(data.monthlyTargets));
       if(data.settings)localStorage.setItem('ij_settings',JSON.stringify(data.settings));
       if(data.custNotes)localStorage.setItem('ij_cust_notes',JSON.stringify(data.custNotes));
       const existingOrdNos=new Set(orders.map(o=>String(o.ordNo)));
@@ -4678,8 +4371,7 @@ function accRow(lbl,val,hl=false){return`<div class="acc-row ${hl?'acc-hl':''}">
 function renderOrderDashboard(){
   const fOrders=orders.filter(o=>inGF(o.date)&&matchSearch(o)&&(!GF.status||o.status===GF.status));
   const fExp=expenses.filter(e=>inGF(e.date)&&matchSearch(e));
-  // O(1) SKU lookup Map — build once, use throughout
-  const skuMap=new Map(products.map(p=>[p.sku,p]));
+  // Use global skuMap (rebuilt in recalcAll — always in sync with products)
 
   // ── Revenue ──
   // Exclude: fully cancelled + refundIsCancellation (not dispatched — revenue never earned)
@@ -4813,8 +4505,7 @@ function renderOrderDashboard(){
       // Region-wise profit breakdown
       const rBreak={india:{rev:0,etsy:0,cogs:0,ship:0},usa:{rev:0,etsy:0,cogs:0,ship:0},world:{rev:0,etsy:0,cogs:0,ship:0}};
       fOrders.filter(o=>!(o.cancelled&&o.cancelType==='full')&&!o.refundIsCancellation).forEach(o=>{
-        const r=(o.region||'india').toLowerCase();
-        const key=r==='usa'?'usa':r==='world'?'world':'india';
+        const key=normaliseRegion(o.region);
         rBreak[key].rev+=(o.totalRev||0);
         rBreak[key].etsy+=(o.totalEtsy||0);
         const ic=o.itemCosts||{};
@@ -4863,13 +4554,8 @@ function toggleRVSAPanel(){
 function renderRVSAPanel(fOrders, fExp) {
   const tbody = $i('rvsa-tbody');
   const summaryBar = $i('rvsa-summary-bar');
-  // Auto-open RVSA panel so data is visible without manual toggle
-  const rvsaBody = $i('rvsa-body');
-  if(rvsaBody && rvsaBody.style.display==='none') {
-    rvsaBody.style.display='block';
-    const chev=$i('rvsa-chev'); if(chev) chev.textContent='▲';
-  }
   if (!tbody || !summaryBar) return;
+  // RVSA panel stays closed until user clicks — only render data, don't auto-open
 
   // ── Reserved amounts (baked into listing price per product × units sold) ──
   let retReserved = 0, dmgReserved = 0, miscReserved = 0;
@@ -4920,26 +4606,33 @@ function renderRVSAPanel(fOrders, fExp) {
   let shipCharged = 0;
   fOrders.forEach(o => {
     if (o.cancelled && o.cancelType === 'full') return;
-    const region = (o.region || 'india').toLowerCase();
+    const region = normaliseRegion(o.region);
     const disc = (o.discPct || 0) / 100;  // discPct is stored as 0–100 e.g. 22 means 22%
     (o.items || []).forEach(item => {
       const pl = products.find(p => p.sku === item.sku);
       if (!pl) return;
       const qty = item.qty || 1;
-      // Use the correct region adder
-      let adder = 0;
-      if (region === 'usa')        adder = pl.usa   || 0;
-      else if (region === 'world') adder = pl.world || 0;
-      else                         adder = pl.india || 0;
-      // Buyer pays adder × (1 − discount) — this is the actual shipping recovery
-      // If adder is 0 but ShipGlobal was used, fall back to o.shipcost (actual ship paid)
-      const charged = adder > 0 ? adder * (1 - disc) : 0;
-      shipCharged += charged * qty;
+      // SG recovery built into listing price (what we designed the price to recover)
+      // usSG/inSG/woSG = listing_adder × (1 − ETSY_FULL_RATE) — from calcPricing
+      let sgRecovery = 0;
+      if (region === 'usa')        sgRecovery = pl.usSG  || 0;
+      else if (region === 'world') sgRecovery = pl.woSG  || 0;
+      else                         sgRecovery = pl.inSG  || 0;
+      // Apply discount: buyer paid (1 − disc%) of the listed recovery
+      const recoveredInPrice = sgRecovery * (1 - disc) * qty;
+      shipCharged += recoveredInPrice;
     });
   });
 
-  // Fallback: if no adder was found but order has a recorded ship cost, use that
-  // (handles cases where order was saved before adder was set on product)
+  // Also add buyer delivery payments (separate from recovery built into price)
+  // deliveryPaidByBuyer = what buyer paid for shipping on top of item price (from Etsy PDF)
+  const deliveryCollected = fOrders.reduce((s, o) => {
+    if (o.cancelled && o.cancelType === 'full') return s;
+    return s + (o.deliveryPaidByBuyer || 0);
+  }, 0);
+  shipCharged += deliveryCollected;
+
+  // Fallback: if still 0 and no SG recovery in pricelist, use stored shipcost
   if (shipCharged === 0) {
     shipCharged = fOrders.reduce((s, o) => {
       if (o.cancelled && o.cancelType === 'full') return s;
@@ -4962,7 +4655,12 @@ function renderRVSAPanel(fOrders, fExp) {
   const dmgVar   = dmgActual   - dmgReserved;
   const miscVar  = miscActual  - miscReserved;
   // Shipping: positive = you paid MORE than you charged → over (bad)
-  const shipVar  = shipActual  - shipCharged;
+  // Etsy takes TX+Proc+Reg% on shipping income (₹25 fixed is per-order, not per-component)
+  const etsyOnShipping = shipCharged * (ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE);
+  // Net reserve = what's left for lost/damaged/reshipment
+  const shipReserveNet = shipCharged - etsyOnShipping - shipActual;
+  // Variance for display (positive = surplus reserve, negative = shortfall)
+  const shipVar = shipActual - (shipCharged - etsyOnShipping); // cost vs net income
 
   // ── Summary ──
   // For the percentage: only count reserves that have a meaningful base
@@ -5031,7 +4729,7 @@ function renderRVSAPanel(fOrders, fExp) {
     </tr>
     <tr>
       <td><div class="rvsa-metric">🚚 Shipping Recovery<div class="rvsa-metric-sub">What you charged customers vs what ShipGlobal billed you</div></div></td>
-      <td>${fmt(shipCharged)}<div style="font-size:9px;color:var(--t3);margin-top:2px">${shipCharged===0?'No shipping charged (India / adder=₹0)':'Adder × (1 − discount%) — buyer actual paid'}</div></td>
+      <td>${fmt(shipCharged)}<div style="font-size:9px;color:var(--t3);margin-top:2px">${shipCharged===0?'No shipping recovery (adder=₹0)':'SG recovery in price + buyer delivery'}</div><div style="font-size:9px;color:var(--t3)">Less Etsy: −${fmt(etsyOnShipping)}</div><div style="font-size:9px;font-weight:700;color:${shipReserveNet>=0?'var(--sage2)':'var(--coral)'}">Net reserve: ${shipReserveNet>=0?'+':''}${fmt(shipReserveNet)}</div></td>
       <td>${fmt(shipActual)}<div style="font-size:9px;color:var(--t3);margin-top:2px">ShipGlobal incl. GST${shipGST>0?' (base ₹'+fmt(shipBase)+' + GST ₹'+fmt(shipGST)+')':''}</div></td>
       <td>${fmtVar(shipVar, true)}</td>
       <td>${shipVar > 50 ? `<span class="rvsa-status-over">⚠ Over</span>` : shipVar < -50 ? `<span class="rvsa-status-ok">✓ Surplus</span>` : `<span class="rvsa-status-ok">✓ OK</span>`}</td>
@@ -5054,7 +4752,7 @@ function renderUnifiedTable(fOrders,fExp){
   const eEntries=fExp.map(e=>({...e,_type:'purchase',_sk:new Date(e.date||0).getTime()}));
   let unified=GF.view==='orders'?oEntries:GF.view==='purchases'?eEntries:[...oEntries,...eEntries];
   const _sort=($i('ord-sort')||{value:'date-desc'}).value;unified.sort((a,b)=>{if(_sort==='date-asc')return a._sk-b._sk;if(_sort==='amt-desc')return(b.totalRev||b.amount||0)-(a.totalRev||a.amount||0);if(_sort==='amt-asc')return(a.totalRev||a.amount||0)-(b.totalRev||b.amount||0);return b._sk-a._sk;});
-  if(!unified.length){c.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3)">No entries for selected filter.</div>';return;}
+  if(!unified.length){c.innerHTML='<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">No entries</div><div class="empty-state-sub">No orders or purchases match the current filter.</div></div>';return;}
 
   const rows=unified.map((e,idx)=>{
     const expId='ute-'+e.id+'-'+idx;
@@ -5259,8 +4957,38 @@ function renderUnifiedTable(fOrders,fExp){
             `}
           </div></div>`:''}
           ${(e.shipcost||0)>0||sgSyncedCost!==null?`<div style="margin-top:8px;padding:10px 14px;background:rgba(76,92,138,0.06);border:1px solid rgba(76,92,138,0.18);border-radius:10px">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--indigo);margin-bottom:8px">🚢 Shipping P&L</div>
-            ${(()=>{const pl=e.items&&e.items[0]?products.find(p=>p.sku===e.items[0].sku):null;const region=(e.region||'india').toLowerCase();const shipAdder=pl?(region==='usa'?(pl.usa||0):region==='world'?(pl.world||0):(pl.india||0)):0;const actualShip=sgSyncedCost!==null?sgSyncedCost:(e.shipcost||0);const etsyOnShip=shipAdder*ETSY_FULL_RATE;const shipPL=shipAdder-actualShip-etsyOnShip;return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px"><div style="text-align:center;padding:6px;background:var(--bg2);border-radius:8px"><div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">Recovered</div><div style="font-weight:700;color:var(--sage)">'+fmt(shipAdder)+'</div></div><div style="text-align:center;padding:6px;background:var(--bg2);border-radius:8px"><div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">ShipGlobal</div><div style="font-weight:700;color:var(--coral)">−'+fmt(actualShip)+'</div></div><div style="text-align:center;padding:6px;background:var(--bg2);border-radius:8px"><div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">Etsy on Ship</div><div style="font-weight:700;color:var(--coral)">−'+fmt(etsyOnShip)+'</div></div><div style="text-align:center;padding:6px;background:'+(shipPL>=0?'rgba(143,191,159,0.12)':'rgba(216,140,140,0.1)')+';border-radius:8px;border:1px solid '+(shipPL>=0?'rgba(143,191,159,0.3)':'rgba(216,140,140,0.3)')+'"><div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">Net Ship</div><div style="font-weight:700;color:'+(shipPL>=0?'#2A7A40':'var(--coral)')+'">'+( shipPL>=0?'+':'')+fmt(shipPL)+'</div></div></div>'+(sgSyncedCost===null?'<div style="font-size:10px;color:var(--t3);margin-top:6px">⚠ ShipGlobal not yet synced — actual cost estimated</div>':'');})()}
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--indigo);margin-bottom:8px">🚢 Shipping Reserve vs Actual</div>
+            ${(()=>{
+              const pl=e.items&&e.items[0]?products.find(p=>p.sku===e.items[0].sku):null;
+              const region=(e.region||'india').toLowerCase();
+              // SG recovery = what was built into listing price to cover SG cost
+              const sgRecov=pl?(region==='usa'?(pl.usSG||0):region==='world'?(pl.woSG||0):(pl.inSG||0)):0;
+              // Buyer also paid delivery on top of the listing price
+              const buyerDel=e.deliveryPaidByBuyer||0;
+              // Total shipping income from buyer
+              const shipIncome=sgRecov+buyerDel;
+              // Etsy fees on shipping income: TX(6.5%)+Proc(5%)+Reg(0.29%) only
+              // ₹25 fixed is per-ORDER not per shipping component — excluded here
+              const etsyOnShip=shipIncome*(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE);
+              const actualShip=sgSyncedCost!==null?sgSyncedCost:(e.shipcost||0);
+              // Reserve = what is left for future loss/damage/reshipment
+              const reserve=shipIncome-etsyOnShip-actualShip;
+              const gc=c=>c>=0?'rgba(143,191,159,0.1)':'rgba(216,140,140,0.08)';
+              const bc=c=>c>=0?'rgba(143,191,159,0.4)':'rgba(216,140,140,0.4)';
+              const tc=c=>c>=0?'#2A7A40':'var(--coral)';
+              const cell=(title,val,sub,hi)=>'<div style="text-align:center;padding:6px;border-radius:8px;background:'+(hi?gc(val):'var(--bg2)')+';border:'+(hi?'1px solid '+bc(val):'none')+'">'
+                +'<div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">'+title+'</div>'
+                +'<div style="font-weight:700;color:'+(hi?tc(val):(val<0?'var(--coral)':'var(--sage)'))+'">'+fmt(val)+'</div>'
+                +'<div style="font-size:9px;color:var(--t3)">'+sub+'</div></div>';
+              return '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:11px">'
+                +cell('SG Recovery',sgRecov,'in price',false)
+                +cell('Buyer Delivery',buyerDel,'from PDF',false)
+                +cell('Etsy on Ship',-etsyOnShip,'TX+Proc+Reg',false)
+                +cell('SG Actual',-actualShip,(sgSyncedCost!==null?'synced':'estimated'),false)
+                +cell('Reserve',reserve,'loss/reship',true)
+                +'</div>'
+                +(sgSyncedCost===null?'<div style="font-size:10px;color:var(--t3);margin-top:6px">⚠ SG cost estimated — import SG Excel to sync actual</div>':'');
+            })()}
           </div>`:''}
       </div>`;
       return `<tr class="ut-tr" ${e._sgFlagRefund?'style="background:rgba(231,194,125,0.08)"':''} onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="ord-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-ord">▲ Order</span>${e._sgFlagRefund?'<span style="font-size:9px;background:rgba(231,194,125,0.2);color:var(--gold2);border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700">⚠ Refund</span>':''}</td><td style="font-weight:700;color:var(--ac)">${esc(e.ordNo)}</td><td>${esc(e.customer||'—')}</td><td>${skus||'—'}</td><td>—</td><td>—</td><td>${revDisplay}</td><td><span class="pill ${stMap[e.status]||'pac'}">${e.status||'—'}</span></td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
@@ -5338,7 +5066,7 @@ function renderUnifiedTable(fOrders,fExp){
             ${e.cancelType==='itemwise'&&e.cancelledItems?`<div style="margin-top:6px"><strong>Cancelled Items:</strong><ul style="margin:4px 0 0 16px">${e.cancelledItems.map(ci=>`<li>${esc(ci.name||ci.sku)} × ${ci.qty} — ${fmt(ci.cancelledAmt||0)}</li>`).join('')}</ul></div>`:''}
           </div></div>`:''}
       </div>`;
-      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:600">${esc(e.title)}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:600">${esc(e.title)}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
 <tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
     }
   }).join('');
@@ -5449,7 +5177,8 @@ function saveExpenseEdit(id){
     qty:parseFloat($i(`eexp-qty-${id}`)?.value)||expenses[idx].qty||1,
     amount:parseFloat($i(`eexp-amount-${id}`)?.value)||expenses[idx].amount,
     notes:($i(`eexp-notes-${id}`)?.value||expenses[idx].notes||''),
-    status:($i(`eexp-status-${id}`)?.value||'Active')
+    status:($i(`eexp-status-${id}`)?.value||'Active'),
+    customerName:($i(`eexp-custname-${id}`)?.value??expenses[idx].customerName??'')
   };
   saveLS();renderOrderDashboard();
   auditEntry('edit','expense',id,expenses[idx].poNo||String(id),'Title: '+expenses[idx].title);
@@ -5552,6 +5281,7 @@ function saveInlineExpenseEdit(id){
     ref:$i(`eexp-ref-${id}`)?.value||'',
     notes:$i(`eexp-notes-${id}`)?.value||'',
     status:$i(`eexp-status-${id}`)?.value||'Active',
+    customerName:$i(`eexp-custname-${id}`)?.value||expenses[idx].customerName||'',
     amount:totalAmount,qty:totalQty,sku:primarySku,gstItems
   };
   saveLS();renderAll();renderOrderDashboard();
@@ -5875,7 +5605,10 @@ function applyCancelPurchase(){
   const id=+$i('cancel-exp-id').value;
   const idx=expenses.findIndex(e=>e.id===id);if(idx<0)return;
   const type=$i('cancel-exp-type').value;
-  const credit=parseFloat($i('cancel-exp-credit').value)||0;
+  const _rawCredit=parseFloat($i('cancel-exp-credit').value)||0;
+  const _maxCredit=expenses[idx]?(expenses[idx].amount||0):_rawCredit;
+  const credit=Math.min(_rawCredit,_maxCredit); // cap at actual expense amount
+  if(_rawCredit>_maxCredit) showToast('⚠ Credit capped at actual expense amount ₹'+fmt(_maxCredit),'var(--gold2)',3000);
   const reason=$i('cancel-exp-reason').value.trim();
   if(type==='itemwise'){
     const e=expenses[idx];
@@ -6288,14 +6021,16 @@ function findDuplicateOrder(ordNo, excludeId) {
 }
 
 // Async wrapper: resolves true if we should BLOCK the save, false if we should proceed.
-async function checkDuplicateOrderAsync(ordNo, excludeId) {
+function checkDuplicateOrderAsync(ordNo, excludeId) {
   const dup=findDuplicateOrder(ordNo,excludeId);
-  if(!dup) return false; // no duplicate — proceed
-  return new Promise(resolve=>{
-    const revStr='₹'+(dup.totalRev!=null?Number(dup.totalRev).toFixed(2):'?');
-    const ok=window.confirm(`Order #${ordNo} already exists with revenue ${revStr}.\n\nSave anyway as a separate entry?`);
-    resolve(!ok); // true = block (user said No), false = allow (user said Yes)
-  });
+  if(!dup) return Promise.resolve(false); // no duplicate — proceed
+  // Hard block — duplicates are never allowed
+  const revStr='₹'+(dup.totalRev!=null?Number(dup.totalRev).toFixed(2):'?');
+  showToast(
+    '🚫 Duplicate: Order #'+ordNo+' already exists ('+revStr+' on '+dup.date+'). Edit it instead.',
+    'var(--coral)', 5000
+  );
+  return Promise.resolve(true); // always block
 }
 
 // ── Stock helpers ──────────────────────────────
@@ -6367,7 +6102,7 @@ function openEditOrderModal(id){
       const hidEl=$i('eoi-sku-'+i);if(hidEl)hidEl.value=item.sku;
       const inpEl=$i('eoi-sku-inp-'+i);if(inpEl){inpEl.value=item.sku;inpEl.classList.add('has-value');}
       const p=products.find(x=>x.sku===item.sku);
-      const region=o.region||'india';
+      const region=normaliseRegion(o.region);
       const listPrice=item.listPrice||getRegionPrice(p,region)||item.price||0;
       const le=$i('eoi-list-'+i);if(le)le.value=listPrice.toFixed(2);
       const pe=$i('eoi-price-'+i);if(pe)pe.value=item.price;
@@ -6613,7 +6348,9 @@ function generatePONumber(dateStr){
   const prefix='PO/'+yy+'/';
   // Count how many existing expenses already have a poNo for this year
   const count=expenses.filter(e=>e.poNo&&e.poNo.startsWith(prefix)).length;
-  return prefix+String(count+1).padStart(4,'0');
+  // Add last 3 digits of ms timestamp to prevent collision across concurrent tabs
+  const ts=String(Date.now()).slice(-3);
+  return prefix+String(count+1).padStart(4,'0')+'-'+ts;
 }
 function refreshExpPOPreview(){
   const el=$i('ex_po_display');
@@ -6642,7 +6379,42 @@ function lookupSKU(val){
   }
 }
 
+function checkDuplicateExpense(){
+  // Check by: vendor + ref (invoice number) — most reliable signal
+  const vendor=($i('ex_vendor').value||'').trim().toLowerCase();
+  const ref   =($i('ex_ref').value||'').trim();
+  const date  = $i('ex_date').value||'';
+  const amount= parseFloat($i('ex_amount')?.value)||calcExpTotal()||0;
+  const cat   = $i('ex_cat').value||'';
+  if(vendor && ref){
+    const dup=expenses.find(e=>
+      !e.cancelled &&
+      (e.vendor||'').trim().toLowerCase()===vendor &&
+      (e.ref||'').trim()===ref
+    );
+    if(dup){
+      showToast('🚫 Duplicate: '+dup.vendor+' invoice "'+ref+'" already recorded on '+dup.date+'. Open it to edit.','var(--coral)',5000);
+      return true;
+    }
+  }
+  // Secondary check: same vendor + same date + same amount (accidental re-entry)
+  if(vendor && date && amount>0){
+    const dup2=expenses.find(e=>
+      !e.cancelled &&
+      (e.vendor||'').trim().toLowerCase()===vendor &&
+      e.date===date &&
+      Math.abs((e.amount||0)-amount)<1
+    );
+    if(dup2){
+      showToast('🚫 Possible duplicate: '+dup2.vendor+' already has an entry for ₹'+amount.toFixed(0)+' on '+date+'. Check before saving.','var(--gold2)',5000);
+      return true;
+    }
+  }
+  return false;
+}
+
 function saveExpense(){
+  if(checkDuplicateExpense()) return; // hard block
   const gstItems=getExpItems();
   // Auto-generate title from items or category
   let title=$i('ex_title').value.trim();
@@ -7101,7 +6873,7 @@ function parsePDFOrders(text){
       const revenue=parseNum(subtotalM2?.[1])||items.reduce((s,i)=>s+i.price*i.qty,0);
       if(!revenue)return;
       const etsyFB=calcEtsyFees(revenue, 0, 0);
-      orders.push({ordNo,date:parsedDate,subTotal:revenue,itemTotal:0,discount:0,discPct:0,tax:0,delivery:0,etsyFees:etsyFB.total,items,status:'Processing',customer:'',shipNo:'',region:'india'});
+      orders.push({ordNo,date:parsedDate,subTotal:revenue,itemTotal:0,discount:0,discPct:0,tax:0,delivery:0,etsyFees:etsyFB.total,items,status:'Processing',customer:'',shipNo:'',region:normaliseRegion(region)});
     });
   }
 
@@ -7204,19 +6976,19 @@ function psoCalc(idx){
   // expectedSGCost from pricelist for accurate P&L preview in staging
   const firstPSOItem=(o.items||[])[0];
   const plPSO=firstPSOItem?products.find(p=>p.sku===firstPSOItem.sku):null;
-  const psoRegion=(o.committedRegion||o.region||'india').toLowerCase();
+  const psoRegion=normaliseRegion(o.committedRegion||o.region);
   const expectedSGCostPSO=plPSO?(psoRegion==='usa'?plPSO.usSG||0:psoRegion==='world'?plPSO.woSG||0:plPSO.inSG||0):0;
   const profit=grossRevStaging-etsy-stagingCogs-expectedSGCostPSO;
   const el=$i(`pso-calc-${idx}`);
   if(!el)return;
   let html=`<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">`;
-  if(itemTotal>0)html+=`<span>Item Total: <strong>${fmt(itemTotal)}</strong></span>`;
-  if(disc>0)html+=`<span>Shop Discount: <strong style="color:var(--coral)">−${fmt(disc)}</strong> ${discPct>0?`<span style="background:rgba(216,140,140,0.12);color:var(--coral);border-radius:20px;padding:1px 6px;font-size:10px">${discPct}%</span>`:''}</span>`;
-  html+=`<span>Revenue (Subtotal+Delivery): <strong style="color:var(--sage)">${fmt(grossRevStaging)}</strong></span>`;
-  if(expectedSGCostPSO>0)html+=`<span style="font-size:10px;color:var(--t3)">Est. SG Shipping: −${fmt(expectedSGCostPSO)} (from price list)</span>`;
-  html+=`<span>Etsy Fees (6.5%+5%+0.29%+₹25): <strong style="color:var(--coral)">−${fmt(etsy)}</strong></span>`;
-  if(del>0)html+=`<span>Delivery: <strong>−${fmt(del)}</strong></span>`;
-  html+=`<span>Est. Profit: <strong style="color:${profit>=0?'var(--indigo)':'var(--coral)'}">${fmt(profit)}</strong></span>`;
+  if(itemTotal>0)html+=`<span style="font-size:10px;color:var(--t3)">Item Total: ${fmt(itemTotal)}</span>`;
+  if(disc>0)html+=`<span style="font-size:10px">Discount: <strong style="color:var(--coral)">−${fmt(disc)}</strong>${discPct>0?` <span style="background:rgba(216,140,140,0.12);color:var(--coral);border-radius:20px;padding:1px 6px;font-size:9px">${discPct}%</span>`:''}</span>`;
+  html+=`<span>Buyer Paid: <strong style="color:var(--sage)">+${fmt(rev)} subtotal ${del>0?`+ ${fmt(del)} delivery`:''} = ${fmt(grossRevStaging)}</strong></span>`;
+  html+=`<span>Etsy Fees: <strong style="color:var(--coral)">−${fmt(etsy)}</strong> <span style="font-size:9px;color:var(--t3)">(6.5%+5%+₹25+0.29%)</span></span>`;
+  html+=`<span>COGS: <strong style="color:var(--coral)">−${fmt(stagingCogs)}</strong></span>`;
+  if(expectedSGCostPSO>0)html+=`<span>Est. SG Shipping: <strong style="color:var(--coral)">−${fmt(expectedSGCostPSO)}</strong> <span style="font-size:9px;color:var(--t3)">(pricelist)</span></span>`;
+  html+=`<span style="border-left:2px solid var(--brd);padding-left:10px">Est. Profit: <strong style="font-size:13px;color:${profit>=0?'var(--indigo)':'var(--coral)'}">${fmt(profit)}</strong></span>`;
   html+=`</div>`;
   el.innerHTML=html;
 }
@@ -7245,9 +7017,9 @@ async function commitPDFImport(){
     const existingDup=findDuplicateOrder(o.ordNo,null);
     if(existingDup){
       const revStr='₹'+Number(existingDup.totalRev||0).toFixed(2);
-      const ok=window.confirm(`Order #${o.ordNo} already exists with revenue ${revStr}.\n\nSave anyway as a separate entry?`);
-      if(!ok){dupSkipped++;continue;}
-      dupConfirmed++;
+      // Hard block — duplicate orders are never allowed
+      showToast('🚫 Skipped: Order #'+o.ordNo+' already exists ('+revStr+' on '+existingDup.date+'). Edit existing or import SG to update status.','var(--gold2)',4000);
+      dupSkipped++;continue;
     }
     const skuCount=(o.items||[]).length||1;
     // CORRECTED: pass tax and delivery for proper processing fee base
@@ -7265,7 +7037,7 @@ async function commitPDFImport(){
       };
     });
     // Use the region selected/confirmed in the staging UI
-    const committedRegion = $i(`pso-region-${idx}`)?.value || o.region || 'india';
+    const committedRegion = normaliseRegion($i(`pso-region-${idx}`)?.value || o.region);
     // Ensure each item has all needed fields for order rendering
     const items=(o.items||[]).map(it=>({
       name:it.name||'Unknown Item',
@@ -7284,14 +7056,23 @@ async function commitPDFImport(){
       items,
       totalRev:(o.subTotal||0)+(o.delivery||0), // subTotal + delivery = total buyer payment = your revenue
       totalEtsy:etsy,totalCost:0,
-      shipcost:o.delivery||0,
-      // What buyer paid for shipping (from PDF). Actual SG cost synced later.
-      // expectedSGCost = pricelist SG recovery (inSG/usSG/woSG) based on region
+      // shipcost = your actual shipping cost to SG (estimate from pricelist until SG Excel imported)
+      // delivery (buyer-paid) is already captured in totalRev above
+      shipcost:(()=>{
+        const firstItem=(o.items||[])[0];
+        const pl=firstItem?products.find(p=>p.sku===firstItem.sku):null;
+        if(!pl)return o.delivery||0; // fallback to buyer delivery if no pricelist match
+        const reg=committedRegion.toLowerCase();
+        if(reg==='usa')   return pl.usSG||0;
+        if(reg==='world') return pl.woSG||0;
+        return pl.inSG||0; // india
+      })(),
+      deliveryPaidByBuyer:o.delivery||0, // store separately for reference / RVSA reconciliation
       expectedSGCost:(()=>{
         const firstItem=(o.items||[])[0];
         const pl=firstItem?products.find(p=>p.sku===firstItem.sku):null;
         if(!pl)return 0;
-        const reg=(o.committedRegion||o.region||'india').toLowerCase();
+        const reg=normaliseRegion(o.committedRegion||o.region);
         if(reg==='usa')return pl.usSG||0;
         if(reg==='world')return pl.woSG||0;
         return pl.inSG||0;
@@ -7299,16 +7080,21 @@ async function commitPDFImport(){
       tax:o.tax||0,
       refund:0,
       profit:(()=>{
-        // delivery = buyer-paid shipping = your revenue (not a cost)
-        // actual SG cost is recorded via expense entries separately
-        let c=0;
+        // grossRev = subTotal + delivery (buyer paid both)
+        // cost = COGS (pp + pack + courier from pricelist)
+        // SG shipping cost = pricelist inSG/usSG/woSG (what you pay SG, not buyer's delivery)
+        let cogs=0, sgCost=0;
         (o.items||[]).forEach(it=>{
           if(!it.sku)return;
           const pl=products.find(p=>p.sku===it.sku);
-          if(pl) c+=(pl.pp||0)+(pl.pack||0)+(pl.courier||0);
+          if(pl){
+            cogs+=(pl.pp||0)+(pl.pack||0)+(pl.courier||0);
+            const reg=committedRegion.toLowerCase();
+            sgCost+=(reg==='usa'?pl.usSG||0:reg==='world'?pl.woSG||0:pl.inSG||0);
+          }
         });
         const grossRev=(o.subTotal||0)+(o.delivery||0);
-        return grossRev-etsy-c;
+        return grossRev-etsy-cogs-sgCost; // deduct SG cost (not buyer delivery — that's revenue)
       })(),
       nm:(()=>{
         let c=0;
@@ -7323,7 +7109,7 @@ async function commitPDFImport(){
       itemTotal:o.itemTotal||0,discount:o.discount||0,discPct:o.discPct||0,
       itemCosts
     });
-    adjustStock(items,-1);
+    adjustStock(items,-1); // only reaches here after duplicate check passed
     imported++;
   }
   $i('pdf-mo').classList.remove('open');renderOrderDashboard();saveLS();
@@ -7584,6 +7370,17 @@ async function commitSGImport(){
             firstName:row.firstName,lastName:row.lastName,email:row.email,
             mobile:row.mobile,country:row.country,city:row.city,postcode:row.postcode
           };
+          // Auto-correct order region from actual shipping country (SG = ground truth)
+          if(row.country){
+            const detectedRegion=normaliseRegion(row.country);
+            if(detectedRegion!==orders[row.ordIdx].region){
+              const oldRegion=orders[row.ordIdx].region;
+              orders[row.ordIdx].region=detectedRegion;
+              orders[row.ordIdx].updatedAt=new Date().toISOString();
+              auditEntry('edit','order',orders[row.ordIdx].id,
+                orders[row.ordIdx].ordNo,'Region auto-corrected: '+oldRegion+' → '+detectedRegion+' (from SG country: '+row.country+')');
+            }
+          }
         }
         // Add ShipGlobal tracking URL to order
         if(row.tracking&&row.tracking.toUpperCase().startsWith('SG')){
@@ -7614,6 +7411,17 @@ async function commitSGImport(){
           firstName:row.firstName,lastName:row.lastName,email:row.email,
           mobile:row.mobile,country:row.country,city:row.city,postcode:row.postcode
         };
+        // Auto-correct region from actual shipping country
+        if(row.country){
+          const detectedRegion=normaliseRegion(row.country);
+          if(detectedRegion!==orders[row.ordIdx].region){
+            const oldRegion=orders[row.ordIdx].region;
+            orders[row.ordIdx].region=detectedRegion;
+            orders[row.ordIdx].updatedAt=new Date().toISOString();
+            auditEntry('edit','order',orders[row.ordIdx].id,
+              orders[row.ordIdx].ordNo,'Region auto-corrected: '+oldRegion+' → '+detectedRegion+' (from SG country: '+row.country+')');
+          }
+        }
       }
       if(row.isRefunded)orders[row.ordIdx].notes=(orders[row.ordIdx].notes||'')+' [SG: Refunded]';
       if(row.shipCost>0){
@@ -7662,29 +7470,33 @@ async function commitSGImport(){
 
   // RECALCULATE profit for all orders where ShipGlobal cost was matched and committed
   let profitUpdated=0;
-  // Build skuMap locally — it's not in global scope
-  const sgSkuMap=new Map(products.map(p=>[p.sku,p]));
   orders.forEach((o,idx)=>{
     if(!o.sgActualShip||o.sgProfitRecalculated)return;
-    const grossRev=o.totalRev||0;
-    const etsyFees=calcEtsyFees(grossRev, o.tax||0, o.sgActualShip);
-    const itemCosts=o.itemCosts||{};
+    const grossRev = o.totalRev||0; // subTotal + delivery (what buyer paid)
+    // For Etsy fee calc: delivery = what buyer paid for shipping (not what we paid SG)
+    // deliveryPaidByBuyer is stored on PDF-imported orders; fallback to shipcost pre-SG
+    const buyerDelivery = o.deliveryPaidByBuyer||0;
+    // subTotal = grossRev - buyerDelivery
+    const subTotal = grossRev - buyerDelivery;
+    const etsyFees = calcEtsyFees(subTotal, o.tax||0, buyerDelivery);
+    const itemCosts = o.itemCosts||{};
     let cogs=0;
     (o.items||[]).forEach(item=>{
-      const pl=sgSkuMap.get(item.sku);
+      const pl=skuMap.get(item.sku);
       const cc=itemCosts[item.sku]||{};
       const qty=item.qty||1;
       cogs+=(cc.purchaseCost!==undefined?cc.purchaseCost:(pl?pl.pp:0))*qty;
       cogs+=(cc.localShip!==undefined?cc.localShip:(pl?pl.courier||0:0))*qty;
-      cogs+=(cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))*qty; // SG-1 fix: include packing
+      cogs+=(cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))*qty;
     });
-    const newProfit=grossRev-etsyFees.total-cogs-o.sgActualShip-(o.customerRefund||0);
+    // Profit = total buyer payment - etsy fees - COGS - what we actually paid SG
+    const newProfit = grossRev - etsyFees.total - cogs - o.sgActualShip - (o.customerRefund||0);
     orders[idx]={...orders[idx],
-      shipcost:o.sgActualShip,
-      totalEtsy:etsyFees.total,
-      profit:newProfit,
-      nm:netMarginPct(newProfit,grossRev),
-      sgProfitRecalculated:true
+      shipcost:    o.sgActualShip,   // now locked to actual SG cost
+      totalEtsy:   etsyFees.total,
+      profit:      newProfit,
+      nm:          netMarginPct(newProfit, grossRev),
+      sgProfitRecalculated: true
     };
     profitUpdated++;
   });
@@ -7825,8 +7637,13 @@ function downloadImg(mode){if(!prodImgs.length){showToast('Upload an image first
     if(!pinLocked || overlay.style.display==='none') return;
     const changeWrap=document.getElementById('pin-change-wrap');
     if(changeWrap.classList.contains('open')) return;
+    // Focus trap — prevent Tab from escaping the PIN overlay
+    if(e.key==='Tab'){e.preventDefault();return;}
+    // Block all non-PIN keys from reaching the app underneath
+    e.stopPropagation();
     if(e.key>='0'&&e.key<='9') pinKey(e.key);
     else if(e.key==='Backspace') pinDel();
+    else if(e.key==='Enter'||e.key===' ') {/* ignore */}
   });
 
   // App-level keyboard shortcuts (when unlocked, not in an input)
@@ -7958,7 +7775,7 @@ function setFYPeriod(p){
 
 function _syncOrdersFilter(){
   // Map dashboard period to Orders tab GF.dur for consistency
-  const map={'today':'today','yesterday':'yesterday','7d':'7d','month':'30d','lmonth':'lmonth','year':'year','fy':'all','custom':'custom'};
+  const map={'today':'today','yesterday':'yesterday','7d':'7d','month':'30d','lmonth':'lmonth','year':'year','fy':'fy','custom':'custom'};
   const mapped=map[_fyPeriod]||'all';
   const durEl=$i('ord-dur');if(durEl&&durEl.value!==mapped){durEl.value=mapped;}
   if(_fyPeriod==='custom'){
@@ -8040,7 +7857,7 @@ function renderCustomers(){
     const key=name.toLowerCase();
     if(!custMap[key]){
       custMap[key]={
-        name,
+        name:name.trim(), // normalized display name
         orders:[],
         totalRev:0,
         totalProfit:0,
@@ -8053,7 +7870,7 @@ function renderCustomers(){
     c.orders.push(o);
     c.totalRev+=effRev(o); c.totalProfit+=(o.profit||0);
     if(o.date&&(!c.lastOrderDate||o.date>c.lastOrderDate)) c.lastOrderDate=o.date;
-    if(o.region) c.regions.add(o.region);
+    if(o.region) c.regions.add(normaliseRegion(o.region));
     (o.items||[]).forEach(i=>{if(i.sku)c.skus.add(i.sku);});
   });
 
@@ -8281,6 +8098,8 @@ document.addEventListener('mousedown',function(e){
 // ══════════════════════════════════════════════
 async function fetchPIRate(){
   const el=$i('pi_rate');if(!el)return;
+  const btn=document.querySelector('[onclick="fetchPIRate()"]');
+  if(btn){btn.textContent='⏳';btn.disabled=true;}
   el.value='…';
   try{
     // Read from Tax panel FX input if available (id=fx_usd, not fx-usd-rate)
@@ -8291,7 +8110,9 @@ async function fetchPIRate(){
       return;
     }
     // Fallback: fetch live rate
-    const resp=await fetch('https://open.er-api.com/v6/latest/USD');
+    const _ac=new AbortController();const _fetchTimer=setTimeout(()=>_ac.abort(),8000);
+    const resp=await fetch('https://open.er-api.com/v6/latest/USD',{signal:_ac.signal});
+    clearTimeout(_fetchTimer);
     const data=await resp.json();
     if(data.rates&&data.rates.INR){
       el.value=data.rates.INR.toFixed(2);
@@ -8390,6 +8211,7 @@ function saveSettings() {
     instagram:  $i('set-instagram')?.value||'Inaarat_jewels3',
     website:    $i('set-website')?.value||'www.pinkcityhub.in',
     whatsapp:   $i('set-whatsapp')?.value||'',
+    apiKey:     ($i('set-api-key')?.value||'').trim(),
     gstin:      $i('set-gstin')?.value||'',
     pan:        $i('set-pan')?.value||'',
     hsn:        $i('set-hsn')?.value||'7117',
@@ -8403,6 +8225,7 @@ function saveSettings() {
     targetMonth:$i('set-target-month')?.value||'',
     payoutDays: parseInt($i('set-payout-days')?.value)||14,
     adsBudget:  parseFloat($i('set-ads-budget')?.value)||0,
+    apiKey:     $i('set-api-key')?.value?.trim()||'',
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   invalidateSettingsCache(); // clear cache so next getSettings() reads fresh
@@ -8433,12 +8256,19 @@ function renderSettings() {
   set('set-target-month', s.targetMonth||'');
   set('set-payout-days',  s.payoutDays||14);
   set('set-ads-budget',   s.adsBudget||0);
+  set('set-api-key',      s.apiKey||'');
 }
 
 // Use settings.deadDays in isDeadStock
 function isDeadStockDays(sku) {
   const days = getSettings().deadDays||60;
   const now=new Date(), cutoff=new Date(now.getTime()-days*86400000);
+  // A product added or updated within the cutoff window is NOT dead stock
+  const prod=products.find(p=>p.sku===sku);
+  if(prod){
+    const addedAt=new Date(prod.addedAt||prod.updatedAt||'2020-01-01');
+    if(addedAt>=cutoff) return false; // product is newer than the dead stock window
+  }
   const recentSale=orders.filter(o=>!(o.cancelled&&o.cancelType==='full')&&o.date&&new Date(o.date+'T00:00:00')>=cutoff)
     .some(o=>(o.items||[]).some(i=>i.sku===sku));
   return !recentSale;
@@ -8674,7 +8504,7 @@ async function init(){
   }
   recalcAll();
   if(products.length===0){
-    const sD={pp:250,margin:50,courier:50,pack:50,addcost:0,list:0,payment:0,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:1731.25,world:1535.44,disc:25,shippingOn:true};
+    const sD={pp:250,margin:50,courier:50,pack:50,addcost:0,list:18,payment:0,etsyad:100,ai:30,plus:18,social:35,gift:50,india:0,usa:1731.25,world:1535.44,disc:25,shippingOn:true};
     products.push({...sD,...calcPricing(sD),id:1,name:'Black CZ Necklace & Earrings Set',sku:'IJ-001',color:'Black',stock:5,vendor:'KC Jewels',cat:'Necklace Set',img:null});
     skuCtr=2;await saveLS();
   }
