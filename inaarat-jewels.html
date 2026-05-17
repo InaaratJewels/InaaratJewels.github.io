@@ -892,18 +892,18 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <div id="bd-content"></div>
   </div>
   <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap">
-    <!-- Actions -->
+    <!-- 1. Actions -->
     <button class="btn bp bsm" onclick="openAddProductModal()">+ Add Product</button>
     <button class="btn bt bsm" onclick="handleProductExport()">⬇ CSV</button>
     <button class="btn bpu bsm" onclick="$i('csv-upload').click()">⬆ Restore CSV</button>
     <input id="csv-upload" type="file" accept=".csv" style="display:none" onchange="importCSV(event)"/>
     <div class="tb-div"></div>
-    <!-- Bulk selection -->
+    <!-- 2. Bulk selection -->
     <button class="btn bo bsm" onclick="toggleBulk()">⚙ Bulk</button>
     <button class="btn bo bxs" onclick="selectAll()">☑ All</button>
     <button class="btn bo bxs" onclick="deselectAll()">☐ None</button>
     <div class="tb-div"></div>
-    <!-- Search + Filters -->
+    <!-- 3. Search + Filters -->
     <input id="pl-q" type="text" style="flex:1;min-width:160px;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 12px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif" placeholder="Search name, SKU, vendor…" oninput="renderPL()"/>
     <select id="pl-fv" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Vendors</option></select>
     <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>
@@ -946,7 +946,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <input id="history-import-input" type="file" accept=".json" style="display:none" onchange="handleHistoryImport(event)"/>
       <!-- Import group -->
       <button class="btn bt bsm" onclick="openPDFImporter()">📄 Etsy PDF</button>
-      <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy CSV</button>
+      <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy Pay CSV</button>
       <button class="btn bpu bsm" onclick="openSGModal()">📦 ShipGlobal</button>
       <div class="tb-div"></div>
       <!-- History group -->
