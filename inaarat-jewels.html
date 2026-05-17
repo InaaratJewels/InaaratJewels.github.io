@@ -934,9 +934,15 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
   <div class="ord-header toolbar">
     <span style="font-size:12px;font-weight:700;color:var(--t2);font-family:'Poppins',sans-serif;white-space:nowrap">📊 Dashboard</span>
     <select id="ord-dur" onchange="applyGF()" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:6px 10px;color:var(--tx);font-size:12px;outline:none;font-family:'Inter',sans-serif">
-      <option value="30d">Last 30 Days</option><option value="today">Today</option>
-      <option value="7d">Last 7 Days</option><option value="year">This Year</option>
-      <option value="all">All Time</option><option value="custom">Custom Range</option>
+      <option value="today">Today</option>
+      <option value="7d">Last 7 Days</option>
+      <option value="30d">Last 30 Days</option>
+      <option value="month">This Month</option>
+      <option value="lmonth">Last Month</option>
+      <option value="year">This Year</option>
+      <option value="fy">FY Apr–Mar</option>
+      <option value="all">All Time</option>
+      <option value="custom">Custom Range</option>
     </select>
     <div id="ord-custom-wrap" style="display:none;gap:5px;align-items:center">
       <input type="date" id="ord-from" onchange="applyGF()" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:5px 8px;color:var(--tx);font-size:11px;outline:none"/>
@@ -947,6 +953,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <input id="orders-csv-import" type="file" accept=".csv" style="display:none" onchange="handleOrdersCSVImport(event)"/>
       <input id="expenses-csv-import" type="file" accept=".csv" style="display:none" onchange="handleExpensesCSVImport(event)"/>
       <button class="btn bt bsm" onclick="openPDFImporter()">📄 Etsy PDF</button>
+      <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy Pay CSV</button>
       <input id="pdf-file-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="handlePDFFile(event)"/>
       <button class="btn bpu bsm" onclick="openSGModal()">📦 ShipGlobal</button>
       <input id="sg-file-input" type="file" accept=".xlsx,.xls" style="display:none" onchange="handleSGFile(event)"/>
@@ -1033,8 +1040,10 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
     <button class="btn bp" onclick="openAddOrderModal()" title="Shortcut: N">+ Add Order</button>
-    <button class="btn bo bsm" onclick="handleOrderExport()" title="Export orders to CSV">⬇ Export CSV</button>
-    <label for="bulk-status-sel" style="font-size:11px;color:var(--t2);white-space:nowrap">Status:</label>
+    <button class="btn ba" onclick="openAddExpenseModal()">💸 Add Purchase</button>
+    <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);cursor:pointer;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:5px 10px">
+      <input type="checkbox" id="ord-chk-all" onchange="toggleAllOrderChk(this.checked)"/> Select All
+    </label>
     <select id="bulk-status-sel" aria-label="Bulk order status" style="padding:5px 9px;border-radius:8px;font-size:11px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2)">
       <option value="">Bulk Status…</option>
       <option value="Processing">Processing</option>
@@ -1044,12 +1053,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <option value="Refunded">Refunded</option>
       <option value="Cancelled">Cancelled</option>
     </select>
-    <button class="btn ba bsm" onclick="applyBulkOrderStatus()" title="Apply status to selected orders">✓ Apply</button>
-    <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);cursor:pointer">
-      <input type="checkbox" id="ord-chk-all" onchange="toggleAllOrderChk(this.checked)"/> All
-    </label>
-    <button class="btn ba" onclick="openAddExpenseModal()">💸 Add Purchase</button>
-    <button class="btn bo bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile Etsy payment statements">📊 Etsy CSV</button>
+    <button class="btn ba bsm" onclick="applyBulkOrderStatus()" title="Apply bulk status to selected orders (orders only)">✓ Apply</button>
+    <button class="btn bdr bsm" onclick="deleteSelectedEntries()" title="Delete all selected entries (orders + purchases)">🗑 Delete Selected</button>
     <select id="ord-sort" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="date-desc">Date ↓ Newest</option><option value="date-asc">Date ↑ Oldest</option><option value="amt-desc">Amount ↓ High</option><option value="amt-asc">Amount ↑ Low</option></select>     <select id="ord-status-filter" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif">
       <option value="">All Statuses</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Returned</option><option>Refunded</option><option>Cancelled</option>
     </select>
@@ -1248,14 +1253,32 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     </div>
   </div>
 
-  <!-- ── CHARTS + BREAKDOWNS ── -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+  <!-- ── CHARTS ROW ── -->
+  <div style="margin-bottom:14px">
     <div class="card">
       <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
         <span>📈 Monthly Revenue Trend</span>
         <span style="font-size:9px;color:var(--t3);text-transform:none;letter-spacing:0">Last 6 months</span>
       </div>
       <div id="dash-sparkline-wrap"></div>
+    </div>
+  </div>
+
+  <!-- ── FULL P&L ACCORDION ── -->
+  <div id="orders-dash-wrap" style="margin-bottom:14px"></div>
+
+  <!-- ── BOTTOM ROW: Quick Actions + Region ── -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px">
+    <div class="card">
+      <div class="ct">⚡ Quick Actions</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button class="btn bp" style="justify-content:flex-start" onclick="sbNav('orders');openAddOrderModal()">+ New Order</button>
+        <button class="btn ba" style="justify-content:flex-start" onclick="sbNav('pl');openAddProductModal()">+ Add Product</button>
+        <button class="btn bt" style="justify-content:flex-start" onclick="sbNav('sourcing')">🔬 Sourcing Lab</button>
+        <button class="btn bo" style="justify-content:flex-start" onclick="sbNav('img')">📸 Photo Studio</button>
+        <button class="btn bpu" style="justify-content:flex-start" onclick="sbNav('customers')">👥 Customers</button>
+        <button class="btn bdr" style="justify-content:flex-start" onclick="sbNav('deadstock')">⚠ Dead Stock</button>
+      </div>
     </div>
     <div class="card">
       <div class="ct">🌍 Revenue by Region</div>
@@ -1265,36 +1288,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     </div>
   </div>
 
-  <!-- ── FULL P&L ACCORDION (moved from tab-pnl) ── -->
-  <div id="orders-dash-wrap" style="margin-bottom:14px"></div>
-
-  <!-- ── BOTTOM ROW ── -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-    <div class="card">
-      <div class="ct">🏆 Top Products</div>
-      <div id="dash-top-products"></div>
-    </div>
-    <div class="card">
-      <div class="ct">📦 Stock Alerts</div>
-      <div id="dash-stock-alerts">
-        <div style="font-size:11px;color:var(--t3);padding:20px;text-align:center">No stock alerts</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ct">⚡ Quick Actions</div>
-      <div style="display:flex;flex-direction:column;gap:7px">
-        <button class="btn bp" style="width:100%;justify-content:flex-start" onclick="sbNav('orders');openAddOrderModal()">+ New Etsy Order</button>
-        <button class="btn ba" style="width:100%;justify-content:flex-start" onclick="sbNav('pl');openAddProductModal()">+ Add Product</button>
-        <button class="btn bt" style="width:100%;justify-content:flex-start" onclick="sbNav('sourcing')">🔬 Sourcing Lab</button>
-        <button class="btn bo" style="width:100%;justify-content:flex-start" onclick="sbNav('img')">📸 Photo Studio</button>
-        <button class="btn bpu" style="width:100%;justify-content:flex-start" onclick="sbNav('customers')">👥 Customers</button>
-        <button class="btn bdr" style="width:100%;justify-content:flex-start" onclick="sbNav('deadstock')">⚠ Dead Stock</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ── BUSINESS INTELLIGENCE ROW ── -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
     <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.07),#fff)">
       <div class="ct">💳 Expected Payout</div>
       <div class="mv" id="kpi-payout" style="color:var(--ac);font-family:'Playfair Display',serif;font-size:18px">₹0</div>
@@ -1305,15 +1300,15 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="mv" id="kpi-sold-total" style="color:var(--sage);font-family:'Playfair Display',serif;font-size:18px">0/1000</div>
       <div class="ml" id="kpi-velocity" style="margin-top:4px">orders/mo needed</div>
     </div>
-    <div class="card" style="background:linear-gradient(135deg,rgba(76,92,138,0.07),#fff)">
-      <div class="ct">⭐ Star Seller Rate</div>
-      <div class="mv" id="kpi-dispatch-rate" style="color:var(--indigo);font-family:'Playfair Display',serif;font-size:18px">—%</div>
-      <div class="ml" id="kpi-ss-need" style="margin-top:4px">dispatch rate (12mo)</div>
-    </div>
     <div class="card" style="background:linear-gradient(135deg,rgba(231,194,125,0.07),#fff)">
+      <div class="ct">🏆 Star Seller</div>
+      <div class="mv" id="kpi-dispatch-rate" style="color:var(--gold2);font-family:'Playfair Display',serif;font-size:18px">—</div>
+      <div class="ml" id="kpi-dispatch-lbl" style="margin-top:4px">Dispatch rate</div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(76,92,138,0.07),#fff)">
       <div class="ct">📣 Ads ROAS</div>
-      <div class="mv" id="kpi-roas" style="color:var(--gold2);font-family:'Playfair Display',serif;font-size:18px">—</div>
-      <div class="ml" style="margin-top:4px">Return on Ad Spend</div>
+      <div class="mv" id="kpi-roas" style="color:var(--indigo);font-family:'Playfair Display',serif;font-size:18px">—</div>
+      <div class="ml" id="kpi-roas-lbl" style="margin-top:4px">Return on ad spend</div>
     </div>
   </div>
 
@@ -1378,7 +1373,23 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <div class="ct">🎯 Goals & Tracking</div>
       <div class="f"><label>Annual Sales Target (orders)</label><input id="set-sales-target" type="number" placeholder="1000"/></div>
       <div class="f"><label>Target Month (to reach goal)</label><input id="set-target-month" type="month" /></div>
-      <div class="f"><label>Etsy Payout Cycle (days)</label><input id="set-payout-days" type="number" value="14" min="1" max="30"/></div>
+      <div class="f">
+  <label>Etsy Payout Schedule</label>
+  <select id="set-payout-schedule" onchange="updatePayoutSettingsUI()">
+    <option value="weekly-mon">Weekly — Every Monday</option>
+    <option value="weekly-tue">Weekly — Every Tuesday</option>
+    <option value="weekly-wed">Weekly — Every Wednesday</option>
+    <option value="weekly-thu">Weekly — Every Thursday</option>
+    <option value="weekly-fri">Weekly — Every Friday</option>
+    <option value="biweekly">Every 2 Weeks</option>
+    <option value="monthly">Monthly</option>
+    <option value="daily">Daily (Etsy Plus)</option>
+  </select>
+  <div style="font-size:10px;color:var(--t3);margin-top:4px" id="set-payout-hint">
+    Etsy transfers your balance every Monday. Orders placed up to the previous Monday are included.
+  </div>
+</div>
+<input id="set-payout-days" type="hidden" value="7"/>
       <div class="f"><label>Etsy Ads Monthly Budget ₹</label><input id="set-ads-budget" type="number" placeholder="5000"/></div>
     </div>
   </div>
@@ -1603,19 +1614,22 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 
 <!-- ETSY PAYMENTS CSV IMPORTER -->
 <div class="mo" id="etsy-csv-mo">
-  <div class="mod" role="dialog" aria-modal="true" style="max-width:680px">
-    <h3>📊 Import Etsy Payments CSV</h3>
+  <div class="mod" role="dialog" aria-modal="true" style="max-width:780px">
+    <h3>📊 Etsy Payments Reconciliation</h3>
     <div class="info-row" style="margin-bottom:12px">
-      Download from <strong>Etsy → Finances → Payment Account → Download CSV</strong>. This reconciles what Etsy actually deposited vs what the app calculated.
+      Upload your <strong>EtsyDirectCheckoutPayments_YYYY.csv</strong> — download from
+      <strong>Etsy → Finances → Payment Account → Download CSV</strong>. Upload monthly.
+      This shows what Etsy <em>actually</em> deposited vs what the app calculated, flags mismatches, and updates actual payout dates.
     </div>
     <div class="dz" id="etsy-csv-dz" style="margin-bottom:12px;position:relative">
-      📂 Drop Etsy Payments CSV here or click to upload
+      📂 Drop EtsyDirectCheckoutPayments CSV here or click to upload
       <input type="file" accept=".csv" onchange="handleEtsyCSV(this.files[0])"/>
     </div>
     <div id="etsy-csv-status" style="display:none;margin-bottom:10px;font-size:12px;color:var(--t2)"></div>
     <div id="etsy-csv-summary" style="display:none"></div>
     <div class="mod-act">
-      <button class="btn bo" onclick="$i('etsy-csv-mo').classList.remove('open')">Close</button>
+      <button class="btn bo" onclick="_etsyCSVStaged=null;$i('etsy-csv-commit')&&($i('etsy-csv-commit').style.display='none');$i('etsy-csv-status')&&($i('etsy-csv-status').style.display='none');$i('etsy-csv-summary')&&($i('etsy-csv-summary').style.display='none');$i('etsy-csv-mo').classList.remove('open')">Cancel</button>
+      <button class="btn bp" id="etsy-csv-commit" style="display:none" onclick="commitEtsyCSV()">✓ Apply &amp; Save</button>
     </div>
   </div>
 </div>
@@ -2272,7 +2286,7 @@ function renderDashboard() {
       cogs+=(cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))*qty; // use snapshot
     });
   });
-  const totalEtsy = allOrders.reduce((s,o)=>s+(o.refundIsCancellation?0:(o.totalEtsy||0)),0);
+  const totalEtsy = allOrders.reduce((s,o)=>s+effEtsy(o),0); // uses actual (Gross−Net) if reconciled, formula if not
   // BUG-4 fix: use period-filtered expenses for netProfit (not all-time)
   // Build period filter here before netProfit calculation
   const totalExpNonPurchaseForProfit = _pef.filter(e=>e.cat!=='purchase').reduce((s,e)=>s+effExp(e),0);
@@ -2290,14 +2304,79 @@ function renderDashboard() {
   const marginLbl=$i('kpi-margin-lbl');if(marginLbl)marginLbl.textContent=netMargin.toFixed(1)+'% net margin';
   if(kpiOrders) kpiOrders.textContent=allOrders.length;
   if(kpiInv) kpiInv.textContent=fmt(totalInv);
-  if(kpiEtsy) kpiEtsy.textContent=fmt(totalEtsy);
+  if(kpiEtsy){
+    kpiEtsy.textContent=fmt(totalEtsy);
+    // Show indicator if any orders in period are reconciled (using actuals)
+    const reconciledCount=allOrders.filter(o=>o.etsyReconciled).length;
+    const kpiEtsySub=$i('kpi-etsy-sub');
+    if(kpiEtsySub){
+      if(reconciledCount>0){
+        kpiEtsySub.textContent=reconciledCount+' orders use actual fees';
+        kpiEtsySub.style.color='var(--sage2)';
+      } else {
+        kpiEtsySub.textContent='formula estimate';
+        kpiEtsySub.style.color='var(--t3)';
+      }
+    }
+  }
   // Payout tracker: orders dispatched in last payoutDays not yet settled
   const settings=getSettings();
-  const payoutDays=Math.max(1,settings.payoutDays||14);
-  const payoutCutoff=new Date(new Date().getTime()-payoutDays*86400000);
-  const inFlight=orders.filter(o=>!o.cancelled&&!o.refundIsCancellation&&o.date&&new Date(o.date+'T00:00:00')>=payoutCutoff).reduce((s,o)=>s+(effRev(o)||0)*(1-ETSY_FULL_RATE),0);
+  // ── Payout tracker — schedule-aware ─────────────────────────────
+  const payoutSchedule=settings.payoutSchedule||'weekly-mon';
+  const now=new Date();
+  const todayDow=now.getDay(); // 0=Sun,1=Mon,...,6=Sat
+
+  // Find the most recent past payout day (orders before this are already paid)
+  // Find the upcoming next payout day (orders before this = in-flight / pending)
+  let payoutDow=1; // default Monday
+  const dowMap={'weekly-mon':1,'weekly-tue':2,'weekly-wed':3,'weekly-thu':4,'weekly-fri':5};
+  if(dowMap[payoutSchedule]!=null) payoutDow=dowMap[payoutSchedule];
+
+  let lastPayout, nextPayout;
+  if(payoutSchedule.startsWith('weekly')){
+    // Last payout = most recent past occurrence of payoutDow
+    let daysBack=(todayDow-payoutDow+7)%7;
+    if(daysBack===0) daysBack=7; // if today is payout day, last payout was 7 days ago
+    lastPayout=new Date(now.getTime()-daysBack*86400000);
+    lastPayout.setHours(0,0,0,0);
+    nextPayout=new Date(lastPayout.getTime()+7*86400000);
+  } else if(payoutSchedule==='biweekly'){
+    lastPayout=new Date(now.getTime()-14*86400000);lastPayout.setHours(0,0,0,0);
+    nextPayout=new Date(now.getTime()+7*86400000);
+  } else if(payoutSchedule==='monthly'){
+    lastPayout=new Date(now.getFullYear(),now.getMonth(),1);
+    nextPayout=new Date(now.getFullYear(),now.getMonth()+1,1);
+  } else { // daily
+    lastPayout=new Date(now.getTime()-3*86400000);lastPayout.setHours(0,0,0,0);
+    nextPayout=new Date(now.getTime()+1*86400000);
+  }
+
+  // In-flight = orders placed after last payout, not yet in next payout
+  // If order has fundsAvailableDate from CSV, use that as ground truth
+  const inFlight=orders.filter(o=>{
+    if(o.cancelled||o.refundIsCancellation) return false;
+    if(!o.date) return false;
+    // If reconciled with actual funds date — check if not yet paid
+    if(o.fundsAvailableDate){
+      const fd=new Date(o.fundsAvailableDate);
+      return fd>=now; // still in future = not yet paid
+    }
+    // Otherwise use schedule-based window
+    const od=new Date(o.date+'T00:00:00');
+    return od>=lastPayout && od<nextPayout;
+  }).reduce((s,o)=>{
+    // Use actual net if reconciled, otherwise estimate
+    if(o.etsyReconciled && o.etsyActualNet) return s+(o.etsyActualNet||0);
+    return s+(effRev(o)||0)*(1-ETSY_FULL_RATE);
+  },0);
+
   const payoutEl=$i('kpi-payout');
-  if(payoutEl){payoutEl.textContent=fmt(inFlight);$i('kpi-payout-days')&&($i('kpi-payout-days').textContent='~'+payoutDays+'-day cycle');}
+  if(payoutEl){
+    payoutEl.textContent=fmt(inFlight);
+    const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const nextStr=nextPayout?`Next: ${dayNames[nextPayout.getDay()]} ${nextPayout.getDate()}/${nextPayout.getMonth()+1}`:'';
+    $i('kpi-payout-days')&&($i('kpi-payout-days').textContent=nextStr);
+  }
   // Sales velocity to goal
   const salesTarget=settings.salesTarget||1000;
   const targetMonth=settings.targetMonth||'';
@@ -2309,16 +2388,7 @@ function renderDashboard() {
   const velEl=$i('kpi-velocity');
   if(velEl){velEl.textContent=velocity?velocity+'/mo needed':remaining+' to go';}
   const soldEl=$i('kpi-sold-total');if(soldEl)soldEl.textContent=totalSold+'/'+salesTarget;
-  // Star Seller stats
-  const ss=getStarSellerStats();
-  const ssEl=$i('kpi-dispatch-rate');
-  if(ssEl)ssEl.textContent=ss.dispatchRate+'%';
-  const ssNeedEl=$i('kpi-ss-need');
-  if(ssNeedEl)ssNeedEl.textContent=ss.needsMore>0?ss.needsMore+' more to 300':'✓ 300+';
-  // Ads ROAS
-  const roas=getAdsROAS(allOrders,_pef);
-  const roasEl=$i('kpi-roas');
-  if(roasEl)roasEl.textContent=roas.roas?roas.roas+'x ROAS':'No ads data';
+
   const invSubs=$i('kpi-inv-skus');if(invSubs)invSubs.textContent=products.length;
   const cntLbl=$i('dash-order-count-lbl');if(cntLbl)cntLbl.textContent=allOrders.length+' orders in period';
 
@@ -2349,60 +2419,43 @@ function renderDashboard() {
     sparkWrap.innerHTML=`<div style="display:flex;align-items:flex-end;gap:6px;height:70px;padding:6px 0">${months.map(m=>{const h=Math.max(4,Math.round((m.rev/maxRev)*60));return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div title="${fmt(m.rev)}" style="width:100%;height:${h}px;background:linear-gradient(to top,var(--ac),var(--ac3));border-radius:4px 4px 0 0;cursor:pointer"></div><div style="font-size:9px;color:var(--t3);white-space:nowrap">${m.label}</div></div>`;}).join('')}</div>`;
   }
 
-  // Top products
-  const topProds=$i('dash-top-products');
-  if(topProds){
-    const withRev=products.map(p=>{
-      // Revenue attributed by item price proportion (not equal split)
-      const rev=allOrders.reduce((s,o)=>{
-        const grossRev=(o.items||[]).reduce((t,i)=>t+(i.price||0)*(i.qty||1),0)||o.totalRev||1;
-        return s+(o.items||[]).filter(i=>i.sku===p.sku).reduce((q,i)=>q+((i.price||0)*(i.qty||1)/grossRev)*(o.totalRev||0),0);
-      },0);
-      return{...p,rev};
-    }).sort((a,b)=>b.rev-a.rev).slice(0,5);
-    if(withRev.length===0){topProds.innerHTML='<div style="color:var(--t3);font-size:11px;padding:10px">No sales data yet</div>';}
-    else{topProds.innerHTML=withRev.map((p,i)=>`<div class="srow" style="margin-bottom:4px"><span class="sl2"><strong style="color:var(--ac)">#${i+1}</strong> ${esc(p.name)}</span><span class="sv">${fmt(p.rev)}</span></div>`).join('');}
-  }
-
-  // Region breakdown
+  // Region breakdown — trust normaliseRegion, show all regions with revenue
   const regionWrap=$i('dash-region-wrap');
-  if(regionWrap&&allOrders.length>0){
+  if(regionWrap){
     const regions={india:0,usa:0,world:0};
-    allOrders.forEach(o=>{const r=normaliseRegion(o.region);regions[r]+=(o.totalRev||0);});
-    const total=Object.values(regions).reduce((a,b)=>a+b,1);
-    regionWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px">
-      ${[['🇮🇳 India',regions.india,'#c9903a'],['🇺🇸 USA',regions.usa,'#4a7fa5'],['🌍 World',regions.world,'var(--sage)']].map(([l,v,c])=>`<div><div style="display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px"><span style="color:var(--t2)">${l}</span><strong style="color:${c}">${fmt(v)}</strong></div><div style="height:5px;background:var(--bg2);border-radius:3px"><div style="height:100%;width:${(v/total*100).toFixed(0)}%;background:${c};border-radius:3px"></div></div></div>`).join('')}
-    </div>`;
-  }
-
-  // Stock Alerts — out of stock, low stock, dead stock
-  const stockWrap=$i('dash-stock-alerts');
-  if(stockWrap){
-    const lowStock=products.filter(p=>p.stock>0&&p.stock<=3).sort((a,b)=>a.stock-b.stock);
-    const outOfStock=products.filter(p=>p.stock===0);
-    const deadCount=products.filter(p=>isDeadStock(p.sku)).length;
-    if(!lowStock.length&&!outOfStock.length&&!deadCount){
-      stockWrap.innerHTML='<div style="font-size:11px;color:var(--sage);padding:10px 0">✓ All stock levels healthy</div>';
+    allOrders.forEach(o=>{
+      if(o.cancelled&&o.cancelType==='full') return;
+      if(o.refundIsCancellation) return;
+      const r=normaliseRegion(o.region);
+      regions[r]+=(o.totalRev||0);
+    });
+    const total=Math.max(1,Object.values(regions).reduce((a,b)=>a+b,0));
+    const nonZero=[['🇮🇳 India',regions.india,'#c9903a'],['🇺🇸 USA',regions.usa,'#4a7fa5'],['🌍 World',regions.world,'var(--sage)']].filter(([,v])=>v>0);
+    if(!nonZero.length){
+      regionWrap.innerHTML='<div style="font-size:11px;color:var(--t3);padding:10px 0">No orders yet</div>';
     } else {
-      let html='';
-      if(outOfStock.length) html+=`<div class="srow" style="margin-bottom:4px;border-left:3px solid var(--coral)"><span class="sl2" style="color:var(--coral)">🔴 Out of stock</span><span class="sv" style="color:var(--coral)">${outOfStock.length} SKU${outOfStock.length>1?'s':''}</span></div>`;
-      if(lowStock.length) html+=`<div class="srow" style="margin-bottom:4px;border-left:3px solid var(--gold2)"><span class="sl2" style="color:var(--gold2)">🟡 Low stock (≤3)</span><span class="sv" style="color:var(--gold2)">${lowStock.length} SKU${lowStock.length>1?'s':''}</span></div>`;
-      if(deadCount) html+=`<div class="srow" style="margin-bottom:4px;border-left:3px solid var(--orange)"><span class="sl2" style="color:var(--orange)">⚠ Dead stock 60d+</span><span class="sv">${deadCount} SKU${deadCount>1?'s':''}</span></div>`;
-      // Show top 3 critical SKUs
-      const critical=[...outOfStock,...lowStock].slice(0,3);
-      if(critical.length) html+=`<div style="margin-top:6px;font-size:10px;color:var(--t3)">Critical: ${critical.map(p=>`<span class="sku-b">${esc(p.sku)}</span>`).join(' ')}</div>`;
-      stockWrap.innerHTML=html;
+      regionWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px">
+        ${nonZero.map(([l,v,c])=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px">
+              <span style="color:var(--t2)">${l}</span>
+              <strong style="color:${c}">${fmt(v)}</strong>
+            </div>
+            <div style="height:5px;background:var(--bg2);border-radius:3px">
+              <div style="height:100%;width:${(v/total*100).toFixed(0)}%;background:${c};border-radius:3px"></div>
+            </div>
+          </div>`).join('')}
+      </div>`;
     }
   }
 
-  // Dead badge (guard — element may not exist)
+  // Dead badge on More menu
   const deadCountBadge=products.filter(p=>isDeadStock(p.sku)).length;
   const badge=$i('dead-badge');
   if(badge){badge.textContent=deadCountBadge;badge.style.display=deadCountBadge>0?'':'none';}
 }
 
-// ══════════════════════════════════════════════
-//  DEAD STOCK
+
 // ══════════════════════════════════════════════
 function renderDeadStock(){
   const deadDays = getSettings().deadDays||60;
@@ -4215,7 +4268,7 @@ function getMonthlyStats(numMonths){
     const rev=mOrds.reduce((s,o)=>s+(o.cancelled&&o.cancelType==='full'?0:o.refundIsCancellation?0:(o.totalRev||0)),0);
     const refunds=mOrds.reduce((s,o)=>{if(o.cancelled)return s;const ref=o.customerRefund||0;if(!ref||o.refundIsCancellation)return s;return s+Math.max(0,ref-(o.insuranceTotalRecovered||0));},0);
     const netRev=rev-refunds;
-    const etsy=mOrds.reduce((s,o)=>s+(o.cancelled&&o.cancelType==='full'?0:o.refundIsCancellation?0:(o.totalEtsy||0)),0);
+    const etsy=mOrds.reduce((s,o)=>s+effEtsy(o),0); // actual if reconciled
     let cogsProd=0,cogsPack=0,cogsCour=0;
     mOrds.forEach(o=>{if(o.cancelled&&o.cancelType==='full')return;const ic=o.itemCosts||{};(o.items||[]).forEach(item=>{const pl=products.find(p=>p.sku===item.sku);const cc=ic[item.sku]||{};const qty=item.qty||1;cogsProd+=(cc.purchaseCost!==undefined?cc.purchaseCost:(pl?pl.pp:0))*qty;cogsPack+=(ic[item.sku]?.packCost!==undefined?ic[item.sku].packCost:(pl?pl.pack||0:0))*qty;cogsCour+=(cc.localShip!==undefined?cc.localShip:(pl?pl.courier||0:0))*qty;});});
     const shipping=mExp.filter(e=>e.vendor==='ShipGlobal'&&e.cat==='shipping').reduce((s,e)=>s+effExp(e),0);
@@ -4354,6 +4407,20 @@ function effExp(e){
   return Math.max(0,(e.amount||0)-(e.vendorCredit||0));
 }
 
+// ── Effective Etsy fee per order ─────────────────────────────────────
+// If order reconciled via Etsy Pay CSV → uses Gross−Net (exact amount Etsy kept)
+// Otherwise → uses totalEtsy (formula estimate)
+// Both values preserved — formula stored in totalEtsyFormula for audit
+function effEtsy(o){
+  if(!o) return 0;
+  if(o.cancelled && o.cancelType==='full') return 0;
+  if(o.refundIsCancellation) return 0;
+  if(o.etsyReconciled && o.etsyGrossReceived!=null && o.etsyActualNet!=null){
+    return Math.max(0,(o.etsyGrossReceived||0)-(o.etsyActualNet||0));
+  }
+  return o.totalEtsy||0;
+}
+
 // ══════════════════════════════════════════════
 //  ORDER DASHBOARD — E2 Fix: No double-count
 // ══════════════════════════════════════════════
@@ -4388,7 +4455,7 @@ function renderOrderDashboard(){
   const totalInsuranceRecovered=fOrders.reduce((s,o)=>s+(o.insuranceTotalRecovered||0),0);
   const netRev=rev-totalCustRefunds;
   // Exclude fully-cancelled AND not-dispatched refunds (Etsy refunds all fees in both cases)
-  const totalEtsy=fOrders.reduce((s,o)=>s+(o.cancelled&&o.cancelType==='full'?0:o.refundIsCancellation?0:(o.totalEtsy||0)),0);
+  const totalEtsy=fOrders.reduce((s,o)=>s+effEtsy(o),0); // actual if reconciled
   const returnOrders=fOrders.filter(o=>o.status==='Returned'||o.status==='Refunded');
   const cancelledOrders=fOrders.filter(o=>o.cancelled);
   const cancelledOrderRefunds=cancelledOrders.reduce((s,o)=>s+(o.cancellationRefund||0),0);
@@ -4507,7 +4574,7 @@ function renderOrderDashboard(){
       fOrders.filter(o=>!(o.cancelled&&o.cancelType==='full')&&!o.refundIsCancellation).forEach(o=>{
         const key=normaliseRegion(o.region);
         rBreak[key].rev+=(o.totalRev||0);
-        rBreak[key].etsy+=(o.totalEtsy||0);
+        rBreak[key].etsy+=effEtsy(o); // actual if reconciled
         const ic=o.itemCosts||{};
         (o.items||[]).forEach(item=>{const pl=skuMap.get(item.sku);const cc=ic[item.sku]||{};const qty=item.qty||1;rBreak[key].cogs+=((cc.purchaseCost!==undefined?cc.purchaseCost:(pl?pl.pp:0))+(cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))+(cc.localShip!==undefined?cc.localShip:(pl?pl.courier||0:0)))*qty;});
       });
@@ -4787,7 +4854,7 @@ function renderUnifiedTable(fOrders,fExp){
       const totalLocalShip=itemsWithCost.reduce((s,i)=>s+(i.localShip*i.qty),0);
       const totalActualShip=itemsWithCost.length>0?itemsWithCost[0].actualShip:e.shipcost||0;
       const adjRev2=effRev(e);
-      const etsyFee=e.totalEtsy||0;
+      const etsyFee=effEtsy(e); // actual if reconciled, formula if not
       const grossPL=adjRev2-etsyFee-totalPurchaseCost-totalLocalShip-totalActualShip-(e.refund||0);
       const nmPct=adjRev2>0?(grossPL/adjRev2*100):0;
       // Find SG-synced shipping expense
@@ -4864,7 +4931,7 @@ function renderUnifiedTable(fOrders,fExp){
                   <div class="oexp-pl-row oexp-cost"><span class="oexp-pl-lbl">Product Cost</span><span class="oexp-pl-val" style="color:var(--gold2)">− ${fmt(totalPurchaseCost)}</span></div>
                   <div class="oexp-pl-row oexp-cost"><span class="oexp-pl-lbl">Local Shipping</span><span class="oexp-pl-val" style="color:var(--gold2)">− ${fmt(totalLocalShip)}</span></div>
                   <div class="oexp-pl-row oexp-cost"><span class="oexp-pl-lbl">Actual Ship</span><span class="oexp-pl-val" style="color:var(--gold2)">− ${fmt(totalActualShip)}</span></div>
-                  <div class="oexp-pl-row"><span class="oexp-pl-lbl">Etsy Fees (6.5% TX + 5% Proc + 0.29% Reg + ₹25)</span><span class="oexp-pl-val" style="color:var(--coral)">− ${fmt(etsyFee)}</span></div>
+                  <div class="oexp-pl-row"><span class="oexp-pl-lbl">${e.etsyReconciled?'Etsy Fees <span style="font-size:9px;background:rgba(143,191,159,0.15);color:var(--sage2);border-radius:4px;padding:0 5px;font-weight:700">✓ actual</span>':'Etsy Fees (6.5% TX + 5% Proc + 0.29% Reg + ₹25) <span style="font-size:9px;color:var(--t3)">est.</span>'}</span><span class="oexp-pl-val" style="color:var(--coral)">− ${fmt(etsyFee)}${e.etsyReconciled&&e.totalEtsyFormula?'<span style="font-size:9px;color:var(--t3);margin-left:4px">(formula was −'+fmt(e.totalEtsyFormula)+')</span>':''}</span></div>
                   <div class="oexp-pl-row ${grossPL>=0?'oexp-tot':'oexp-neg'}"><span class="oexp-pl-lbl" style="font-weight:700">NET P&L</span><span class="oexp-pl-val" style="color:${grossPL>=0?'#2A7A40':'var(--coral)'};font-size:13px">${fmt(grossPL)}</span></div>
                   <div class="oexp-pl-row oexp-hi"><span class="oexp-pl-lbl">Net Margin</span><span class="oexp-pl-val" style="color:${nmPct>=0?'var(--indigo)':'var(--coral)'}">${nmPct.toFixed(1)}%</span></div>
                 </div>
@@ -5066,7 +5133,7 @@ function renderUnifiedTable(fOrders,fExp){
             ${e.cancelType==='itemwise'&&e.cancelledItems?`<div style="margin-top:6px"><strong>Cancelled Items:</strong><ul style="margin:4px 0 0 16px">${e.cancelledItems.map(ci=>`<li>${esc(ci.name||ci.sku)} × ${ci.qty} — ${fmt(ci.cancelledAmt||0)}</li>`).join('')}</ul></div>`:''}
           </div></div>`:''}
       </div>`;
-      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:600">${esc(e.title)}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="pur-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:700;color:var(--tx)">${esc(e.title)}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
 <tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
     }
   }).join('');
@@ -6177,7 +6244,7 @@ function recalcOrderExpand(id){
 
   // FIX 2.3: Zero out fees for fully cancelled orders in expanded view
   const isCancelledFull = o.cancelled && o.cancelType==='full';
-  const etsyFee = isCancelledFull ? 0 : (o.totalEtsy||0);
+  const etsyFee = isCancelledFull ? 0 : effEtsy(o); // actual if reconciled
   const cogsAmt = isCancelledFull ? 0 : (totalPP+totalLS);
 
   const grossPL=isCancelledFull ? 0 : (rev-etsyFee-cogsAmt-ship-refund);
@@ -7970,89 +8037,215 @@ function renderCustomers(){
 // ══════════════════════════════════════════════
 //  ETSY PAYMENTS CSV RECONCILIATION
 // ══════════════════════════════════════════════
+// Staged results — parsed but NOT yet written to orders
+let _etsyCSVStaged = null;
+
 function handleEtsyCSV(file){
   if(!file)return;
   const statusEl=$i('etsy-csv-status');
   const summaryEl=$i('etsy-csv-summary');
-  if(statusEl){statusEl.style.display='block';statusEl.textContent='⏳ Reading CSV…';}
+  // Reset staged data and commit button
+  _etsyCSVStaged=null;
+  const commitBtn=$i('etsy-csv-commit');
+  if(commitBtn) commitBtn.style.display='none';
+  if(statusEl){statusEl.style.display='block';statusEl.style.color='var(--t2)';statusEl.textContent='⏳ Reading CSV…';}
   if(summaryEl)summaryEl.style.display='none';
 
   const reader=new FileReader();
-  reader.onload=function(e){
+  reader.onload=function(ev){
     try{
-      const text=e.target.result;
+      const text=ev.target.result;
       const lines=text.split(/\r?\n/).filter(l=>l.trim());
-      if(!lines.length){throw new Error('Empty file');}
+      if(!lines.length) throw new Error('Empty file');
 
-      // Parse header to find column indices
-      const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
-      const findCol=(...names)=>{for(const n of names){const i=headers.findIndex(h=>h.includes(n));if(i>=0)return i;}return -1;};
+      // Parse headers (handle BOM, quotes, whitespace)
+      const rawHeaders=parseCSVLine(lines[0]).map(h=>h.replace(/^\uFEFF/,'').trim());
+      const col=name=>{const n=name.toLowerCase();const i=rawHeaders.findIndex(h=>h.toLowerCase()===n);return i>=0?i:-1;};
 
-      const colDate=findCol('date','time','created');
-      const colType=findCol('type','transaction type');
-      const colTitle=findCol('title','description','order');
-      const colAmount=findCol('amount','net','total','value');
-      const colFee=findCol('fee','fees');
-      const colOrderId=findCol('order id','order no','orderid');
+      const cOrdId=col('Order ID'),cGross=col('Gross Amount'),cFees=col('Fees'),cNet=col('Net Amount');
+      const cListAmt=col('Listing Amount'),cStatus=col('Status'),cFundsDate=col('Funds Available');
+      const cRefund=col('Refund Amount'),cBuyer=col('Buyer Name'),cCurrency=col('Currency'),cOrdDate=col('Order Date');
 
-      if(colAmount<0)throw new Error('Cannot find Amount column. Headers: '+headers.slice(0,8).join(', '));
+      if(cOrdId<0||cNet<0) throw new Error('Not an Etsy Direct Checkout Payments CSV. Expected: Order ID, Net Amount.');
 
-      let totalDeposited=0,totalFees=0,totalSales=0;
-      let lineCount=0,feeCount=0,depositCount=0;
-      const orderFees={};  // orderId → total fees charged by Etsy
-
+      // Parse all rows — NO writes to orders yet
+      let csvRows=[];
       for(let i=1;i<lines.length;i++){
-        // Handle quoted CSV properly
         const cols=parseCSVLine(lines[i]);
-        if(!cols||cols.length<2)continue;
-        const type=(cols[colType]||'').toLowerCase().trim();
-        const rawAmt=parseFloat((cols[colAmount]||'0').replace(/[₹$,\s]/g,'').replace(/[()]/g,m=>m==='('?'-':''))||0;
-        const rawFee=colFee>=0?parseFloat((cols[colFee]||'0').replace(/[₹$,\s]/g,''))||0:0;
-        const ordId=colOrderId>=0?(cols[colOrderId]||'').replace(/"/g,'').trim():'';
+        if(!cols||!cols[cOrdId]) continue;
+        const ordId=(cols[cOrdId]||'').trim();
+        if(!ordId||ordId==='Order ID') continue;
+        const n=v=>parseFloat((cols[v]||'0').replace(/[,\s]/g,''))||0;
+        csvRows.push({
+          ordId, gross:n(cGross), fees:n(cFees), net:n(cNet),
+          listAmt:cListAmt>=0?n(cListAmt):0, refund:cRefund>=0?n(cRefund):0,
+          status:cStatus>=0?(cols[cStatus]||'').trim():'',
+          fundsDate:cFundsDate>=0?(cols[cFundsDate]||'').trim():'',
+          buyer:cBuyer>=0?(cols[cBuyer]||'').trim():'',
+          currency:cCurrency>=0?(cols[cCurrency]||'INR').trim():'INR',
+          ordDate:cOrdDate>=0?(cols[cOrdDate]||'').trim():'',
+        });
+      }
+      if(!csvRows.length) throw new Error('No data rows found. Check file format.');
 
-        if(type.includes('deposit')||type.includes('transfer')){depositCount++;totalDeposited+=Math.abs(rawAmt);}
-        else if(type.includes('sale')||type.includes('listing sale')){lineCount++;totalSales+=Math.abs(rawAmt);}
-        if(rawFee>0){feeCount++;totalFees+=rawFee;if(ordId)orderFees[ordId]=(orderFees[ordId]||0)+rawFee;}
-        if(type.includes('fee')||type.includes('transaction fee')){totalFees+=Math.abs(rawAmt);}
+      // ── Reconcile (READ-ONLY — build preview, no writes) ──────────
+      let matched=0, unmatched=[];
+      let csvTotalGross=0, csvTotalFees=0, csvTotalNet=0, csvTotalRefund=0;
+      const matchedRows=[], mismatches=[];
+
+      csvRows.forEach(row=>{
+        csvTotalGross+=row.gross; csvTotalFees+=row.fees;
+        csvTotalNet+=row.net; csvTotalRefund+=row.refund;
+        const appOrd=orders.find(o=>String(o.ordNo)===String(row.ordId));
+        if(!appOrd){unmatched.push(row.ordId);return;}
+        matched++;
+        matchedRows.push({row, appOrd});
+        const appFees=appOrd.totalEtsy||0;
+        const diff=row.fees-appFees;
+        if(Math.abs(diff)>100) mismatches.push({ordId:row.ordId,appFees,csvFees:row.fees,diff,rev:appOrd.totalRev||0});
+      });
+
+      // Stage results for commit
+      _etsyCSVStaged={matchedRows, csvRows, matched, unmatched, mismatches,
+        csvTotalGross, csvTotalFees, csvTotalNet, csvTotalRefund};
+
+      // App totals for comparison
+      const appTotalFees=orders.reduce((s,o)=>s+(o.totalEtsy||0),0);
+      const appTotalRev=orders.reduce((s,o)=>s+(o.totalRev||0),0);
+      const feeDiff=csvTotalFees-appTotalFees, revDiff=csvTotalGross-appTotalRev;
+
+      if(statusEl){
+        statusEl.textContent=`✅ Preview ready — ${csvRows.length} rows parsed, ${matched} matched, ${unmatched.length} not in app. Review below then click Apply & Save.`;
+        statusEl.style.color='var(--sage)';
       }
 
-      // Compare against app's calculated fees
-      const appCalcFees=orders.reduce((s,o)=>s+(o.totalEtsy||0),0);
-      const appCalcRev=orders.reduce((s,o)=>s+(o.totalRev||0),0);
-      const feeDiff=totalFees-appCalcFees;
-      const revDiff=totalSales-appCalcRev;
+      // ── Build preview UI (no data written yet) ────────────────────
+      const mismatchNote=`<div style="font-size:10px;color:var(--t3);margin-bottom:8px">
+        Etsy's CSV <strong>Fees</strong> column shows only the transaction fee component. It does not include processing fees (5% + ₹25) which Etsy deducts separately in your payment account statement. This difference is normal and expected — it does not mean our formula is wrong.
+      </div>`;
 
-      if(statusEl){statusEl.textContent='✅ Parsed '+lineCount+' sale lines, '+depositCount+' deposits, '+feeCount+' fee entries.';}
+      const mismatchHTML=mismatches.length?`
+        <div class="card" style="margin-top:10px;border-color:rgba(216,140,140,0.4)">
+          <div class="ct" style="color:var(--coral)">⚠ Fee Column Differences (>₹100) — ${mismatches.length} order(s)</div>
+          ${mismatchNote}
+          <div style="max-height:200px;overflow-y:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <tr style="color:var(--t3);font-weight:700;border-bottom:1px solid var(--brd);position:sticky;top:0;background:var(--card)">
+              <td style="padding:4px 6px">Order ID</td><td style="padding:4px 6px;text-align:right">Revenue</td><td style="padding:4px 6px;text-align:right">App Fees</td><td style="padding:4px 6px;text-align:right">CSV Fees</td><td style="padding:4px 6px;text-align:right">Diff</td>
+            </tr>
+            ${mismatches.map(m=>`<tr style="border-bottom:1px solid var(--brd)">
+              <td style="padding:4px 6px;color:var(--ac);font-weight:600">${m.ordId}</td>
+              <td style="padding:4px 6px;text-align:right">${fmt(m.rev)}</td>
+              <td style="padding:4px 6px;text-align:right">${fmt(m.appFees)}</td>
+              <td style="padding:4px 6px;text-align:right;color:var(--coral)">${fmt(m.csvFees)}</td>
+              <td style="padding:4px 6px;text-align:right;color:${m.diff>0?'var(--coral)':'var(--sage)'};font-weight:700">${m.diff>0?'+':''}${fmt(m.diff)}</td>
+            </tr>`).join('')}
+          </table></div>
+        </div>`:'<div style="font-size:11px;color:var(--sage);margin-top:6px">✓ All matched orders: fee column differences within ₹100</div>';
+
+      const unmatchedHTML=unmatched.length?`
+        <div style="margin-top:8px;font-size:11px;color:var(--gold2)">
+          ⚠ ${unmatched.length} CSV order(s) not found in app (import their PDF first):
+          <span style="color:var(--t3)">${unmatched.slice(0,8).join(', ')}${unmatched.length>8?' …+more':''}</span>
+        </div>`:'';
+
       if(summaryEl){
         summaryEl.style.display='block';
-        summaryEl.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-          <div class="card">
-            <div class="ct">Revenue Reconciliation</div>
-            <div class="srow"><span class="sl2">CSV: Total Sales</span><span class="sv">${fmt(totalSales)}</span></div>
-            <div class="srow"><span class="sl2">App: Calculated Revenue</span><span class="sv">${fmt(appCalcRev)}</span></div>
-            <div class="srow ${Math.abs(revDiff)<100?'stot':'shigh'}"><span class="sl2">Difference</span><span class="sv" style="color:${Math.abs(revDiff)<100?'var(--sage)':'var(--coral)'}">${revDiff>=0?'+':''}${fmt(revDiff)}</span></div>
-            ${Math.abs(revDiff)<100?'<div style="font-size:10px;color:var(--sage);margin-top:6px">✓ Revenue matches within ₹100</div>':'<div style="font-size:10px;color:var(--coral);margin-top:6px">⚠ Gap may be from missing orders — add them in the Orders tab</div>'}
+        summaryEl.innerHTML=`
+          <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--t2)">
+            📋 <strong>Preview only</strong> — no data has been written yet. Review the summary below, then click <strong>Apply & Save</strong> to commit changes to ${matched} matched orders, or <strong>Cancel</strong> to discard.
           </div>
-          <div class="card">
-            <div class="ct">Fee Reconciliation</div>
-            <div class="srow"><span class="sl2">CSV: Total Fees Charged</span><span class="sv" style="color:var(--coral)">${fmt(totalFees)}</span></div>
-            <div class="srow"><span class="sl2">App: Calculated Fees</span><span class="sv">${fmt(appCalcFees)}</span></div>
-            <div class="srow ${Math.abs(feeDiff)<50?'stot':'shigh'}"><span class="sl2">Difference</span><span class="sv" style="color:${Math.abs(feeDiff)<50?'var(--sage)':'var(--coral)'}">${feeDiff>=0?'+':''}${fmt(feeDiff)}</span></div>
-            ${Math.abs(feeDiff)<50?'<div style="font-size:10px;color:var(--sage);margin-top:6px">✓ Fees match within ₹50</div>':'<div style="font-size:10px;color:var(--coral);margin-top:6px">⚠ Check fee rate — ensure 11.79% is applied to all orders</div>'}
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
+            <div class="card" style="text-align:center">
+              <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Etsy Gross Received</div>
+              <div style="font-size:18px;font-weight:700;color:var(--tx)">${fmt(csvTotalGross)}</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">App calculated: ${fmt(appTotalRev)}</div>
+              <div style="font-size:10px;font-weight:700;margin-top:2px;color:${Math.abs(revDiff)<500?'var(--sage)':'var(--gold2)'}">${revDiff>=0?'+':''}${fmt(revDiff)} diff</div>
+            </div>
+            <div class="card" style="text-align:center">
+              <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Etsy Fees (CSV column)</div>
+              <div style="font-size:18px;font-weight:700;color:var(--coral)">${fmt(csvTotalFees)}</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">App calculated: ${fmt(appTotalFees)}</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px;font-style:italic">CSV shows TX fee only, not processing fees</div>
+            </div>
+            <div class="card" style="text-align:center;background:rgba(143,191,159,0.08);border-color:rgba(143,191,159,0.3)">
+              <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Net to Your Bank</div>
+              <div style="font-size:18px;font-weight:700;color:var(--sage2)">${fmt(csvTotalNet)}</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">Gross − Fees (Etsy actual)</div>
+              ${csvTotalRefund>0?`<div style="font-size:10px;color:var(--coral);margin-top:2px">Refunds: ${fmt(csvTotalRefund)}</div>`:''}
+            </div>
           </div>
-          <div class="card" style="grid-column:1/-1">
-            <div class="ct">Deposits</div>
-            <div class="srow shigh"><span class="sl2">Total Actually Deposited by Etsy</span><span class="sv" style="color:var(--sage)">${fmt(totalDeposited)}</span></div>
-            <div class="srow"><span class="sl2">Net (Deposited − Fees)</span><span class="sv">${fmt(totalDeposited-totalFees)}</span></div>
-            <div style="font-size:10px;color:var(--t3);margin-top:6px">This is your actual cash received. Compare to bank statement to confirm full reconciliation.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="card">
+              <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">Match Summary</div>
+              <div class="srow"><span class="sl2">CSV rows</span><span class="sv">${csvRows.length}</span></div>
+              <div class="srow"><span class="sl2">Matched in app</span><span class="sv" style="color:var(--sage)">${matched}</span></div>
+              <div class="srow"><span class="sl2">Not in app</span><span class="sv" style="color:${unmatched.length?'var(--gold2)':'var(--sage)'}">${unmatched.length}</span></div>
+              <div class="srow"><span class="sl2">Fee column diffs</span><span class="sv" style="color:${mismatches.length?'var(--gold2)':'var(--sage)'}">${mismatches.length} <span style="font-size:9px;color:var(--t3)">(expected)</span></span></div>
+            </div>
+            <div class="card">
+              <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">Will be written on Apply</div>
+              <div style="font-size:11px;color:var(--t3);line-height:1.7">
+                ✓ Actual Etsy net payout per order<br>
+                ✓ Funds Available date (exact payout day)<br>
+                ✓ Refund amount from Etsy<br>
+                ✓ SETTLED status confirmed<br>
+                ✓ Gross received from Etsy
+              </div>
+            </div>
           </div>
-        </div>`;
+          ${mismatchHTML}
+          ${unmatchedHTML}`;
       }
+
+      // Show commit button
+      if(commitBtn){commitBtn.style.display='inline-flex';commitBtn.textContent='✓ Apply & Save ('+matched+' orders)';}
+
     }catch(err){
       if(statusEl){statusEl.textContent='❌ Error: '+err.message;statusEl.style.color='var(--coral)';}
+      _etsyCSVStaged=null;
     }
   };
   reader.readAsText(file);
+}
+
+function commitEtsyCSV(){
+  if(!_etsyCSVStaged){showToast('No staged data — upload CSV first','var(--coral)');return;}
+  const {matchedRows, matched, unmatched} = _etsyCSVStaged;
+  // Write to orders
+  matchedRows.forEach(({row, appOrd})=>{
+    // Preserve original formula fee for audit — never delete it
+    if(appOrd.totalEtsyFormula==null) appOrd.totalEtsyFormula = appOrd.totalEtsy||0;
+    const actualEtsyKept = Math.max(0,(row.gross||0)-(row.net||0)); // Gross−Net = what Etsy actually kept
+    auditEntry('edit','order',appOrd.id,appOrd.ordNo,
+      'Etsy fee reconciled: formula ₹'+(appOrd.totalEtsyFormula||0).toFixed(0)+
+      ' → actual ₹'+actualEtsyKept.toFixed(0)+
+      ' (Gross ₹'+row.gross+' − Net ₹'+row.net+')');
+    appOrd.etsyActualFees    = row.fees;       // CSV fees column (TX component only)
+    appOrd.etsyActualNet     = row.net;        // exact net payout
+    appOrd.etsyGrossReceived = row.gross;      // gross received by Etsy
+    appOrd.etsyActualKept    = actualEtsyKept; // Gross−Net = true Etsy cost
+    appOrd.fundsAvailableDate= row.fundsDate;
+    appOrd.etsyRefundAmount  = row.refund;
+    appOrd.etsySettled       = row.status==='SETTLED';
+    appOrd.etsyReconciled    = true;           // flag: P&L now uses actual, not formula
+    appOrd.updatedAt         = new Date().toISOString();
+  });
+  saveLS();
+  auditEntry('import','etsy_csv',Date.now(),'EtsyPaymentsCSV',`Applied ${matched} orders — fundsDate + actualNet written`);
+  _etsyCSVStaged=null;
+  // Close modal and reset UI cleanly
+  $i('etsy-csv-mo').classList.remove('open');
+  const statusEl=$i('etsy-csv-status');
+  const summaryEl=$i('etsy-csv-summary');
+  const commitBtn=$i('etsy-csv-commit');
+  if(statusEl){statusEl.style.display='none';statusEl.textContent='';}
+  if(summaryEl){summaryEl.style.display='none';summaryEl.innerHTML='';}
+  if(commitBtn){commitBtn.style.display='none';}
+  // Reset file input so same file can be re-uploaded next month
+  const dz=$i('etsy-csv-dz');
+  if(dz){const inp=dz.querySelector('input[type=file]');if(inp)inp.value='';}
+  showToast(`✅ Etsy CSV applied — ${matched} orders updated, ${unmatched.length} unmatched skipped`,'var(--sage)',5000);
 }
 
 function parseCSVLine(line){
@@ -8197,6 +8390,27 @@ function printGSTSummary(){const _s=getSettings();
 const SETTINGS_KEY = 'ij_settings';
 let _settingsCache = null; // cached to avoid repeated JSON.parse on every render
 
+function updatePayoutSettingsUI(){
+  const sel=$i('set-payout-schedule');
+  const hint=$i('set-payout-hint');
+  if(!sel||!hint) return;
+  const v=sel.value;
+  const hints={
+    'weekly-mon': 'Etsy pays every Monday. Orders placed before last Monday are included.',
+    'weekly-tue': 'Etsy pays every Tuesday. Orders placed before last Tuesday are included.',
+    'weekly-wed': 'Etsy pays every Wednesday. Orders placed before last Wednesday are included.',
+    'weekly-thu': 'Etsy pays every Thursday. Orders placed before last Thursday are included.',
+    'weekly-fri': 'Etsy pays every Friday. Orders placed before last Friday are included.',
+    'biweekly':   'Etsy pays every 2 weeks. Orders in the past 14 days are in-flight.',
+    'monthly':    'Etsy pays monthly. Orders in the past 30 days are in-flight.',
+    'daily':      'Etsy Plus daily payout. Orders from the past 3 days are in-flight.',
+  };
+  hint.textContent=hints[v]||hints['weekly-mon'];
+  const dayMap={'weekly-mon':7,'weekly-tue':7,'weekly-wed':7,'weekly-thu':7,'weekly-fri':7,'biweekly':14,'monthly':30,'daily':3};
+  const inp=$i('set-payout-days');
+  if(inp) inp.value=dayMap[v]||7;
+}
+
 function getSettings() {
   if (_settingsCache) return _settingsCache;
   try { _settingsCache = JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'); return _settingsCache; }
@@ -8223,7 +8437,8 @@ function saveSettings() {
     discDefault:parseFloat($i('set-disc-default')?.value)||25,
     salesTarget:parseInt($i('set-sales-target')?.value)||1000,
     targetMonth:$i('set-target-month')?.value||'',
-    payoutDays: parseInt($i('set-payout-days')?.value)||14,
+    payoutDays:     parseInt($i('set-payout-days')?.value)||7,
+    payoutSchedule: $i('set-payout-schedule')?.value||'weekly-mon',
     adsBudget:  parseFloat($i('set-ads-budget')?.value)||0,
     apiKey:     $i('set-api-key')?.value?.trim()||'',
   };
@@ -8254,7 +8469,11 @@ function renderSettings() {
   set('set-disc-default', s.discDefault||25);
   set('set-sales-target', s.salesTarget||1000);
   set('set-target-month', s.targetMonth||'');
-  set('set-payout-days',  s.payoutDays||14);
+  // Payout schedule
+  const sel=$i('set-payout-schedule');
+  if(sel) sel.value=s.payoutSchedule||'weekly-mon';
+  set('set-payout-days', s.payoutDays||7);
+  updatePayoutSettingsUI();
   set('set-ads-budget',   s.adsBudget||0);
   set('set-api-key',      s.apiKey||'');
 }
@@ -8278,14 +8497,47 @@ function isDeadStockDays(sku) {
 //  BULK ORDER STATUS UPDATE
 // ══════════════════════════════════════════════
 function toggleAllOrderChk(checked) {
-  document.querySelectorAll('.ord-chk').forEach(c=>c.checked=checked);
+  // Select both order checkboxes and purchase checkboxes
+  document.querySelectorAll('.ord-chk,.pur-chk').forEach(c=>c.checked=checked);
+}
+
+function deleteSelectedEntries() {
+  // Collect checked orders and purchases
+  const ordIds = [...document.querySelectorAll('.ord-chk:checked')].map(c=>String(c.dataset.id));
+  const purIds = [...document.querySelectorAll('.pur-chk:checked')].map(c=>String(c.dataset.id));
+  const total  = ordIds.length + purIds.length;
+  if(!total){ showToast('Select at least one entry to delete','var(--coral)'); return; }
+  confAction(
+    `Delete ${total} selected entr${total===1?'y':'ies'}?`,
+    `${ordIds.length} order(s) + ${purIds.length} purchase(s). Cannot be undone.`,
+    ()=>{
+      // Delete orders
+      ordIds.forEach(id=>{
+        const o=orders.find(o=>String(o.id)===id);
+        if(!o) return;
+        adjustStock(o.items||[],+1,false);
+        auditEntry('delete','order',o.id,o.ordNo,'Bulk delete');
+      });
+      orders   = orders.filter(o=>!ordIds.includes(String(o.id)));
+      // Delete purchases/expenses
+      purIds.forEach(id=>{
+        const e=expenses.find(e=>String(e.id)===id);
+        if(e) auditEntry('delete','expense',e.id,e.poNo||String(e.id),'Bulk delete');
+      });
+      expenses = expenses.filter(e=>!purIds.includes(String(e.id)));
+      saveLS(); renderOrderDashboard();
+      $i('ord-chk-all')&&($i('ord-chk-all').checked=false);
+      showToast(`✓ Deleted ${ordIds.length} order(s) + ${purIds.length} purchase(s)`,'var(--sage)');
+    }
+  );
 }
 
 function applyBulkOrderStatus() {
   const newStatus = $i('bulk-status-sel')?.value;
   if(!newStatus){ showToast('Select a status first','var(--coral)'); return; }
+  // Bulk status applies to orders only
   const checked = [...document.querySelectorAll('.ord-chk:checked')].map(c=>c.dataset.id);
-  if(!checked.length){ showToast('Select at least one order','var(--coral)'); return; }
+  if(!checked.length){ showToast('Select at least one order for status update','var(--coral)'); return; }
   confAction(`Update ${checked.length} order(s) to "${newStatus}"?`, 'This cannot be undone.', ()=>{
     let updated=0;
     checked.forEach(id=>{
