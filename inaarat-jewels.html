@@ -892,33 +892,22 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <div id="bd-content"></div>
   </div>
   <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap">
-    <button class="btn bo bsm" onclick="toggleBulk()">⚙ Bulk</button>
-    <button class="btn bo bxs" onclick="selectAll()">☑ All</button>
-    <button class="btn bo bxs" onclick="deselectAll()">☐ None</button>
+    <!-- Actions -->
     <button class="btn bp bsm" onclick="openAddProductModal()">+ Add Product</button>
     <button class="btn bt bsm" onclick="handleProductExport()">⬇ CSV</button>
     <button class="btn bpu bsm" onclick="$i('csv-upload').click()">⬆ Restore CSV</button>
     <input id="csv-upload" type="file" accept=".csv" style="display:none" onchange="importCSV(event)"/>
-  </div>
-  <div class="bulk-bar" id="bulk-bar">
-    <div class="ct" style="margin-bottom:8px;color:var(--ac)">Apply to Selected</div>
-    <div class="g4">
-      <div class="f pfx"><label>Courier</label><span class="ps">₹</span><input id="b_courier" type="number" placeholder="Skip"/></div>
-      <div class="f"><label>Discount %</label><input id="b_disc" type="number" placeholder="Skip"/></div>
-      <div class="f pfx"><label>India Ship</label><span class="ps">₹</span><input id="b_india" type="number" placeholder="Skip"/></div>
-      <div class="f pfx"><label>USA Ship</label><span class="ps">₹</span><input id="b_usa" type="number" placeholder="Skip"/></div>
-      <div class="f pfx"><label>World Ship</label><span class="ps">₹</span><input id="b_world" type="number" placeholder="Skip"/></div>
-      <div class="f pfx"><label>Etsy Ads</label><span class="ps">₹</span><input id="b_etsyad" type="number" placeholder="Skip"/></div>
-    </div>
-    <div class="btns" style="margin-top:8px">
-      <button class="btn bp bsm" onclick="applyBulk()">✓ Apply</button>
-      <button class="btn bo bsm" onclick="toggleBulk()">Cancel</button>
-    </div>
-  </div>
-  <div class="btns" style="margin-bottom:12px">
-    <input id="pl-q" type="text" style="flex:1;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 12px;color:var(--tx);font-size:12px;outline:none;min-width:130px;font-family:Inter,sans-serif" placeholder="Search name, SKU, vendor…" oninput="renderPL()"/>
+    <div class="tb-div"></div>
+    <!-- Bulk selection -->
+    <button class="btn bo bsm" onclick="toggleBulk()">⚙ Bulk</button>
+    <button class="btn bo bxs" onclick="selectAll()">☑ All</button>
+    <button class="btn bo bxs" onclick="deselectAll()">☐ None</button>
+    <div class="tb-div"></div>
+    <!-- Search + Filters -->
+    <input id="pl-q" type="text" style="flex:1;min-width:160px;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 12px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif" placeholder="Search name, SKU, vendor…" oninput="renderPL()"/>
     <select id="pl-fv" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Vendors</option></select>
-    <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>     <select id="pl-sort" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="sku">SKU ↑</option><option value="name">Name A-Z</option><option value="price-desc">Price ↓ High</option><option value="price-asc">Price ↑ Low</option><option value="profit-desc">Profit ↓ High</option><option value="profit-asc">Profit ↑ Low</option><option value="stock-desc">Stock ↓ High</option><option value="stock-asc">Stock ↑ Low</option><option value="sold-desc">Most Sold ↓</option><option value="sold-asc">Least Sold ↑</option></select>
+    <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>
+    <select id="pl-sort" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="sku">SKU ↑</option><option value="name">Name A-Z</option><option value="price-desc">Price ↓ High</option><option value="price-asc">Price ↑ Low</option><option value="profit-desc">Profit ↓ High</option><option value="profit-asc">Profit ↑ Low</option><option value="stock-desc">Stock ↓ High</option><option value="stock-asc">Stock ↑ Low</option><option value="sold-desc">Most Sold ↓</option><option value="sold-asc">Least Sold ↑</option></select>
   </div>
   <div class="pl-wrapper">
     <div class="pl-header">
@@ -952,14 +941,17 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <input id="orders-csv-import" type="file" accept=".csv" style="display:none" onchange="handleOrdersCSVImport(event)"/>
       <input id="expenses-csv-import" type="file" accept=".csv" style="display:none" onchange="handleExpensesCSVImport(event)"/>
-      <button class="btn bt bsm" onclick="openPDFImporter()">📄 Etsy PDF</button>
-      <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy Pay CSV</button>
       <input id="pdf-file-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="handlePDFFile(event)"/>
-      <button class="btn bpu bsm" onclick="openSGModal()">📦 ShipGlobal</button>
       <input id="sg-file-input" type="file" accept=".xlsx,.xls" style="display:none" onchange="handleSGFile(event)"/>
-      <button class="btn ba bsm" onclick="openExportMenu()">📤 Export History</button>
-      <button class="btn bo bsm" onclick="openImportMenu()">📥 Import History</button>
       <input id="history-import-input" type="file" accept=".json" style="display:none" onchange="handleHistoryImport(event)"/>
+      <!-- Import group -->
+      <button class="btn bt bsm" onclick="openPDFImporter()">📄 Etsy PDF</button>
+      <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy CSV</button>
+      <button class="btn bpu bsm" onclick="openSGModal()">📦 ShipGlobal</button>
+      <div class="tb-div"></div>
+      <!-- History group -->
+      <button class="btn ba bsm" onclick="openExportMenu()">📤 Export</button>
+      <button class="btn bo bsm" onclick="openImportMenu()">📥 Import</button>
     </div>
   </div>
 
@@ -1039,8 +1031,24 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <input id="ord-search" type="text" placeholder="Search Order ID, Customer, SKU, Notes…" oninput="applyGF()" style="width:100%;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:8px 14px;color:var(--tx);font-size:12px;outline:none;font-family:'Inter',sans-serif;box-shadow:var(--sh2)"/>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <!-- 1. Actions -->
     <button class="btn bp" onclick="openAddOrderModal()" title="Shortcut: N">+ Add Order</button>
     <button class="btn ba" onclick="openAddExpenseModal()">💸 Add Purchase</button>
+    <!-- 2. Divider -->
+    <div class="tb-div"></div>
+    <!-- 3. Filters & View -->
+    <select id="ord-sort" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="date-desc">Date ↓ Newest</option><option value="date-asc">Date ↑ Oldest</option><option value="amt-desc">Amount ↓ High</option><option value="amt-asc">Amount ↑ Low</option></select>
+    <select id="ord-status-filter" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif">
+      <option value="">All Statuses</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Returned</option><option>Refunded</option><option>Cancelled</option>
+    </select>
+    <div style="display:flex;background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:3px;gap:2px">
+      <button id="vf-all" class="vf-btn vfa" onclick="setVF('all')">All Entries</button>
+      <button id="vf-orders" class="vf-btn" onclick="setVF('orders')">Orders</button>
+      <button id="vf-purchases" class="vf-btn" onclick="setVF('purchases')">Purchases</button>
+    </div>
+    <!-- 4. Divider -->
+    <div class="tb-div"></div>
+    <!-- 5. Selection & Bulk actions -->
     <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);cursor:pointer;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:5px 10px">
       <input type="checkbox" id="ord-chk-all" onchange="toggleAllOrderChk(this.checked)"/> Select All
     </label>
@@ -1053,16 +1061,8 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <option value="Refunded">Refunded</option>
       <option value="Cancelled">Cancelled</option>
     </select>
-    <button class="btn ba bsm" onclick="applyBulkOrderStatus()" title="Apply bulk status to selected orders (orders only)">✓ Apply</button>
-    <button class="btn bdr bsm" onclick="deleteSelectedEntries()" title="Delete all selected entries (orders + purchases)">🗑 Delete Selected</button>
-    <select id="ord-sort" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="date-desc">Date ↓ Newest</option><option value="date-asc">Date ↑ Oldest</option><option value="amt-desc">Amount ↓ High</option><option value="amt-asc">Amount ↑ Low</option></select>     <select id="ord-status-filter" onchange="applyGF()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif">
-      <option value="">All Statuses</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Returned</option><option>Refunded</option><option>Cancelled</option>
-    </select>
-    <div style="margin-left:auto;display:flex;background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:3px;gap:2px">
-      <button id="vf-all" class="vf-btn vfa" onclick="setVF('all')">All Entries</button>
-      <button id="vf-orders" class="vf-btn" onclick="setVF('orders')">Orders</button>
-      <button id="vf-purchases" class="vf-btn" onclick="setVF('purchases')">Purchases</button>
-    </div>
+    <button class="btn ba bsm" onclick="applyBulkOrderStatus()" title="Apply bulk status to selected orders">✓ Apply</button>
+    <button class="btn bdr bsm" onclick="deleteSelectedEntries()" title="Delete selected entries">🗑 Delete</button>
   </div>
   <div id="unified-table"></div>
 
