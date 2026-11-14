@@ -549,6 +549,17 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
 .ord-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px}
 
 </style>
+<style>
+/* responsive: let the wide item grids scroll instead of breaking on phones */
+@media(max-width:860px){
+  .order-items-wrap,#exp-item-rows,#edit-exp-item-rows{overflow-x:auto}
+  .order-items-wrap>div,.order-items-wrap #order-item-rows>div,.order-items-wrap #eorder-item-rows>div{min-width:780px}
+  #exp-mo .exp-item-row,#edit-exp-mo .exp-item-row{min-width:760px}
+  #exp-mo .mod,#edit-exp-mo .mod{overflow-x:auto}
+  .mod{max-width:96vw!important}
+  .oexp-item-tbl{min-width:640px}
+}
+</style>
 </head>
 <body>
 
@@ -1837,7 +1848,7 @@ window.addEventListener('focus', () => {
   <div id="pdf-dropzone" style="border:2px dashed var(--ac);border-radius:14px;padding:28px;text-align:center;background:rgba(197,160,89,0.04);cursor:pointer;margin-bottom:14px" onclick="$i('pdf-file-input').click()">
     <div style="font-size:34px;margin-bottom:8px">📄</div>
     <div style="font-size:13px;font-weight:700;color:var(--ac)">Drop Etsy PDF or click to upload</div>
-    <div style="font-size:11px;color:var(--t3);margin-top:4px">Supports single & merged multi-order PDFs · Processed offline in your browser</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">Supports single & merged multi-order PDFs · Processed in your browser (needs internet once to load the PDF reader)</div>
     <div id="pdf-status-msg" style="margin-top:10px;font-size:12px;font-weight:600;color:var(--t2);display:none"></div>
   </div>
   <div id="pdf-error-box" style="display:none;background:rgba(216,140,140,0.1);border:1px solid rgba(216,140,140,0.35);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--coral);font-weight:600;margin-bottom:12px"></div>
@@ -2134,13 +2145,13 @@ function triggerDownload(content, filename, mime='text/csv') {
 //  ETSY FEE CONSTANTS  ← single source of truth
 //  Verified against real Etsy CSV statements
 // ══════════════════════════════════════════════
-const ETSY_TX_RATE     = 0.065;   // 6.5% transaction fee on subtotal (your revenue)
-const ETSY_PAY_RATE    = 0.05;    // 5.0% processing fee on FULL buyer payment (subtotal+tax+delivery)
-const ETSY_PAY_FIXED   = 25;      // ₹25 fixed per order (verified from Etsy statements — NOT ₹30)
-const ETSY_REG_OP_RATE = 0.0029;  // 0.29% regulatory operating fee on subtotal
+let ETSY_TX_RATE = 0.065;   // 6.5% transaction fee on subtotal (your revenue)
+let ETSY_PAY_RATE = 0.05;    // 5.0% processing fee on FULL buyer payment (subtotal+tax+delivery)
+let ETSY_PAY_FIXED = 25;      // ₹25 fixed per order (verified from Etsy statements — NOT ₹30)
+let ETSY_REG_OP_RATE = 0.0029;  // 0.29% regulatory operating fee on subtotal
 const ETSY_LIST_FEE    = 18;      // ₹18 listing fee — NOT charged per sale, only on listing/relist
                                   // → used only in pricing calc amortisation, never in calcEtsyFees()
-const ETSY_FULL_RATE   = ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE; // 11.79%
+let ETSY_FULL_RATE = ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE; // 11.79%
 
 // Shared net margin helper — single formula used everywhere
 function netMarginPct(profit, grossRev) {
@@ -4855,7 +4866,7 @@ function renderUnifiedTable(fOrders,fExp){
       const sgShipExp=expenses.find(ex=>ex.vendor==='ShipGlobal'&&ex.trackingId&&e.shipNo&&ex.trackingId===e.shipNo);
       const sgSyncedCost=sgShipExp?(sgShipExp.amount||0):null;
       const itemRowsHTML=itemsWithCost.map((item,ii)=>{
-        const plBadge=item.pl?`<span class="pl-badge pl-badge-matched">📦 ${esc(item.sku)}</span>`:`<span class="pl-badge pl-badge-custom">✏ Custom</span>`;
+        const plBadge=(item.pl?`<span class="pl-badge pl-badge-matched">📦 ${esc(item.sku)}</span>`:`<span class="pl-badge pl-badge-custom">✏ ${item.sku?esc(item.sku)+' (manual)':'Custom · no SKU'}</span>`)+` <a href="#" onclick="setInlineOrderItemSku(${e.id},${ii});return false" style="font-size:10px;color:var(--ac);font-weight:700;text-decoration:none">✎ ${item.sku?'change':'set'} SKU</a>`;
         return`<tr>
           <td><strong>${esc(item.name||item.sku)}</strong><br/>${plBadge}</td>
           <td style="text-align:center">${item.qty}</td>
@@ -4865,6 +4876,7 @@ function renderUnifiedTable(fOrders,fExp){
           <td><input type="number" id="oi-pp-${e.id}-${esc(item.sku)}" value="${item.purchaseCost}" placeholder="₹0" oninput="recalcOrderExpand(${e.id})" style="width:80px"/></td>
           <td><input type="number" id="oi-ls-${e.id}-${esc(item.sku)}" value="${item.localShip}" placeholder="₹0" oninput="recalcOrderExpand(${e.id})" style="width:70px"/></td>
           <td style="text-align:right;font-weight:700;color:var(--sage)">${fmt((item.price-(item.purchaseCost+item.localShip))*item.qty)}</td>
+          <td style="text-align:center"><button class="btn bdr bxs" title="Remove this item from the order" onclick="removeInlineOrderItem(${e.id},${ii})">✕</button></td>
         </tr>`;
       }).join('');
       const expandedHTML=`<div class="exp-inner">
@@ -4940,7 +4952,7 @@ function renderUnifiedTable(fOrders,fExp){
             <table class="oexp-item-tbl">
               <thead><tr>
                 <th>Product</th><th style="text-align:center">Qty</th><th style="text-align:right">Sale Price</th>
-                <th>Color</th><th>Size</th><th>Purchase Cost ₹</th><th>Local Ship ₹</th><th style="text-align:right">Gross Margin</th>
+                <th>Color</th><th>Size</th><th>Purchase Cost ₹</th><th>Local Ship ₹</th><th style="text-align:right">Gross Margin</th><th style="width:34px"></th>
               </tr></thead>
               <tbody id="oexp-items-${e.id}">${itemRowsHTML}</tbody>
             </table>
@@ -5157,6 +5169,7 @@ function addInlineOrderItem(ordId){
   tr.dataset.uid=uid;
   tr.innerHTML=`
     <td colspan="2">${skuACHtml(`noi-sku-inp-${uid}`,`noi-sku-${uid}`)}
+      <input type="text" class="noi-name" placeholder="Item name (auto from SKU, or type)" style="width:100%;margin-top:4px;background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:4px 6px;font-size:11px;outline:none"/>
       <script>
         (function(){
           const hid=document.getElementById('noi-sku-${uid}');
@@ -5194,26 +5207,77 @@ function prefillInlineOrderItemByUID(uid,ordId){
   if(priceEl)priceEl.value=(p.inF||p.inL||0).toFixed(2);
   if(ppEl)ppEl.value=p.pp;
   if(lsEl)lsEl.value=p.courier||0;
+  const nmEl=row.querySelector('.noi-name');if(nmEl)nmEl.value=p.name||'';
 }
-function commitInlineOrderItem(btn,ordId){
+async function commitInlineOrderItem(btn,ordId){
   const row=btn.closest('tr');
   const uid=row.dataset.uid||'';
   const hidEl=uid?document.getElementById('noi-sku-'+uid):null;
-  const sku=hidEl?hidEl.value:(row.querySelector('input[type=hidden]')?.value||'');
-  if(!sku){showToast('Select a SKU first');return;}
+  const typed=(row.querySelector('.sku-ac-input')?.value||'').trim();
+  const sku=((hidEl?hidEl.value:'')||typed).trim();   // manual SKU allowed
+  const nameIn=(row.querySelector('.noi-name')?.value||'').trim();
+  if(!sku&&!nameIn){showToast('Enter a SKU or an item name','var(--coral)');return;}
   const qty=parseInt(row.querySelector('.noi-qty').value)||1;
   const price=parseFloat(row.querySelector('.noi-price').value)||0;
   const pp=parseFloat(row.querySelector('.noi-pp').value)||0;
   const ls=parseFloat(row.querySelector('.noi-ls').value)||0;
   const p=products.find(x=>x.sku===sku);
-  const idx=orders.findIndex(o=>o.id===ordId);
-  if(idx<0)return;
-  orders[idx].items=orders[idx].items||[];
-  orders[idx].items.push({sku,qty,price,name:p?.name||sku,listPrice:price});
-  if(!orders[idx].itemCosts)orders[idx].itemCosts={};
-  orders[idx].itemCosts[sku]={purchaseCost:pp,localShip:ls};
-  saveLS();renderOrderDashboard();
-  showToast('✓ Item added!');
+  const o=orders.find(x=>x.id===ordId);if(!o)return;
+  const oldItems=(o.items||[]).map(i=>({...i}));
+  o.items=o.items||[];
+  o.items.push({sku,qty,price,name:p?.name||nameIn||sku,listPrice:price,listingPrice:price,soldPrice:price});
+  if(!o.itemCosts)o.itemCosts={};
+  o.itemCosts[sku]={purchaseCost:pp,localShip:ls};
+  const synced=ordSyncRevAfterItemChange(o,oldItems);
+  await ijStock([{sku,qty}],-1,'item added to order');
+  ijRecalcStored(o);saveLS();renderOrderDashboard();
+  auditEntry('edit','order',o.id,o.ordNo||String(o.id),'Item added: '+(sku||nameIn)+' ×'+qty);
+  showToast(synced?'✓ Item added — order revenue updated':'✓ Item added — check order revenue','var(--sage)');
+}
+// Keep order revenue in step with its items — only when revenue was derived from the items (within ₹1)
+function ordSyncRevAfterItemChange(o,oldItems){
+  const sum=a=>(a||[]).reduce((s,i)=>s+(+i.price||0)*(+i.qty||1),0);
+  const oldSum=sum(oldItems),newSum=sum(o.items);
+  if(Math.abs((o.totalRev||0)-oldSum)<=1){
+    o.totalRev=+newSum.toFixed(2);
+    if(o.revTarget!==undefined&&Math.abs((o.revTarget||0)-oldSum)<=1)o.revTarget=o.totalRev;
+    o.updatedAt=new Date().toISOString();
+    return true;
+  }
+  return false;
+}
+async function removeInlineOrderItem(ordId,ii){
+  const o=orders.find(x=>x.id===ordId);if(!o)return;
+  const it=(o.items||[])[ii];if(!it)return;
+  const label=(it.name||it.sku||'This item')+(it.qty>1?' × '+it.qty:'');
+  if(!await ijConfirm(label+' will be removed from order #'+(o.ordNo||'')+'.'+(o.items.length===1?'\nThis is the only item in the order.':'')+'\nA snapshot is saved first (Backups).','Remove','Remove item?'))return;
+  await ijSnap('Before removing item from #'+(o.ordNo||''));
+  const oldItems=o.items.map(i=>({...i}));
+  o.items.splice(ii,1);
+  if(o.itemCosts&&!o.items.some(x=>x.sku===it.sku))delete o.itemCosts[it.sku];
+  const synced=ordSyncRevAfterItemChange(o,oldItems);
+  await ijStock([it],+1,'item removed from order');
+  ijRecalcStored(o);saveLS();renderOrderDashboard();
+  auditEntry('edit','order',o.id,o.ordNo||String(o.id),'Item removed: '+(it.sku||it.name)+' ×'+(it.qty||1));
+  showToast(synced?'🗑 Item removed — order revenue updated':'🗑 Item removed — check order revenue','var(--gold2)');
+}
+async function setInlineOrderItemSku(ordId,ii){
+  const o=orders.find(x=>x.id===ordId);if(!o)return;
+  const it=(o.items||[])[ii];if(!it)return;
+  stgFillDL();
+  const r=await ijDialog({title:'Set SKU',msg:(it.name||'Item'),fields:[{label:'SKU (price-list SKU or any manual SKU)',value:it.sku||'',list:'stg-sku-dl',ph:'e.g. IJ-012'}],ok:'Save'});
+  if(!r)return;
+  const sku=r[0].trim();
+  const p=products.find(x=>(x.sku||'').toLowerCase()===sku.toLowerCase());
+  const finalSku=p?p.sku:sku,old=it.sku||'';
+  if(!o.itemCosts)o.itemCosts={};
+  const prev=o.itemCosts[old];
+  it.sku=finalSku;if(p&&!it.name)it.name=p.name;
+  if(prev&&!o.items.some((x,k)=>k!==ii&&x.sku===old))delete o.itemCosts[old];
+  o.itemCosts[finalSku]=(prev&&!(p&&!prev.purchaseCost&&!prev.localShip))?prev:{purchaseCost:p?(p.pp||0):0,localShip:p?(p.courier||0):0,packCost:p?(p.pack||0):0};
+  ijRecalcStored(o);saveLS();renderOrderDashboard();
+  auditEntry('edit','order',o.id,o.ordNo||String(o.id),'SKU set: '+(old||'—')+' → '+(finalSku||'—'));
+  showToast(finalSku?(p?'✓ SKU linked to price list':'✓ Manual SKU saved'):'SKU cleared','var(--sage)');
 }
 
 // E1: inline order status update
@@ -5724,7 +5788,7 @@ function skuACRenderDD(inputId,hiddenId,q){
   const dd=document.getElementById(inputId+'-dd');
   if(!dd)return;
   const matches=skuACGetProducts(q);
-  if(!matches.length){dd.innerHTML='<div class="sku-ac-empty">No SKUs found</div>';dd.classList.add('open');return;}
+  if(!matches.length){dd.innerHTML='<div class="sku-ac-empty">No match in price list — press Enter / Tab to use what you typed as a manual SKU</div>';dd.classList.add('open');return;}
   dd.innerHTML=matches.map((p,i)=>`<div class="sku-ac-item" data-sku="${esc(p.sku)}" data-name="${esc(p.name||'')}" onmousedown="skuACSelect('${inputId}','${hiddenId}','${esc(p.sku)}','${esc((p.name||'').replace(/'/g,"\\'"))}')">
     <span class="sku-ac-sku">${skuACHighlight(p.sku,q)}</span>
     <span class="sku-ac-name">${skuACHighlight(p.name||'',q)}</span>
@@ -5809,7 +5873,7 @@ function skuACKey(e,inputId,hiddenId){
   let cur=Array.from(items).findIndex(el=>el.classList.contains('active'));
   if(e.key==='ArrowDown'){e.preventDefault();if(cur<items.length-1)cur++;else cur=0;items.forEach((el,i)=>el.classList.toggle('active',i===cur));items[cur]&&items[cur].scrollIntoView({block:'nearest'});}
   else if(e.key==='ArrowUp'){e.preventDefault();if(cur>0)cur--;else cur=items.length-1;items.forEach((el,i)=>el.classList.toggle('active',i===cur));items[cur]&&items[cur].scrollIntoView({block:'nearest'});}
-  else if(e.key==='Enter'){e.preventDefault();const active=dd.querySelector('.sku-ac-item.active')||items[0];if(active){const sku=active.dataset.sku,name=active.dataset.name;skuACSelect(inputId,hiddenId,sku,name);}}
+  else if(e.key==='Enter'){e.preventDefault();const active=dd.querySelector('.sku-ac-item.active')||items[0];if(active){const sku=active.dataset.sku,name=active.dataset.name;skuACSelect(inputId,hiddenId,sku,name);}else{dd.classList.remove('open');const _i=document.getElementById(inputId);if(_i)_i.blur();}}
   else if(e.key==='Escape'){dd.classList.remove('open');}
 }
 // Close dropdowns when clicking outside (works with position:fixed dropdowns)
@@ -6010,7 +6074,7 @@ function fillItemBySku(pfx,idx,sku){
   if(pfx==='eoi')calcEOrderTotal();
 }
 function getItems(pfx){const items=[];document.querySelectorAll(`[id^="${pfx}-row-"]`).forEach(row=>{const idx=row.id.split('-').pop();const sku=$i(pfx+'-sku-'+idx)?.value;const qty=parseFloat($i(pfx+'-qty-'+idx)?.value)||1;const price=parseFloat($i(pfx+'-price-'+idx)?.value)||0;const listPrice=parseFloat($i(pfx+'-list-'+idx)?.value)||price;const discPct=parseFloat($i(pfx+'-discpct-'+idx)?.value)||0;const etsyPct=price*ETSY_FULL_RATE;const etsyEl=$i(pfx+'-etsy-'+idx);if(etsyEl)etsyEl.value=etsyPct.toFixed(2);if(sku){const p=products.find(x=>x.sku===sku);// COGS = purchase price + packaging + local courier (matches dashboard P&L)
-const cogs=p?(p.pp||0)+(p.pack||0)+(p.courier||0):0;items.push({sku,name:p?.name||sku,qty,price,listPrice,discPct,etsy:etsyPct,cost:cogs,disc:discPct});}});return items;}
+const cogs=p?(p.pp||0)+(p.pack||0)+(p.courier||0):0;items.push({sku,name:p?.name||(($i(pfx+'-name-'+idx)?.value||'').trim())||sku,qty,price,listPrice,discPct,etsy:etsyPct,cost:cogs,disc:discPct});}});return items;}
 function calcOrderTotal(){
   const items=getItems('oi'),rev=gn('o_rev'),ship=gn('o_shipcost'),tax=gn('o_tax'),refund=gn('o_refund');
   let profit,etsy,cost,nm,grossRev;
@@ -6174,7 +6238,7 @@ function openEditOrderModal(id){
       const qe=$i('eoi-qty-'+i);if(qe)qe.value=item.qty;
       const ee=$i('eoi-etsy-'+i);if(ee)ee.value=(item.etsy||item.price*ETSY_FULL_RATE).toFixed(2);
       // Fill name, color, size
-      const nameEl=$i('eoi-name-'+i);if(nameEl)nameEl.value=p?.name||item.name||'';
+      const nameEl=$i('eoi-name-'+i);if(nameEl){nameEl.value=p?.name||item.name||'';if(!p){nameEl.readOnly=false;nameEl.style.background='var(--bg2)';}}
       const colorEl=$i('eoi-color-'+i);if(colorEl)colorEl.value=p?.color||'—';
       const sizeEl=$i('eoi-size-'+i);if(sizeEl)sizeEl.value=p?.size||'—';
     },50);
@@ -6204,9 +6268,9 @@ function saveEditOrder(){
   orders=orders.map(o=>{if(o.id!==id)return o;return{...o,ordNo:$i('eo_no').value,customer:$i('eo_customer').value,date:$i('eo_date').value,status:$i('eo_status').value,items,totalRev:grossRev,totalEtsy:etsy,totalCost:cost,shipcost:ship,tax,refund,profit,nm,shipNo:$i('eo_shipno').value,notes:$i('eo_notes').value,itemCosts,discPct:editDiscPct};}); // discPct preserved
   $i('eord-mo').classList.remove('open');renderOrderDashboard();saveLS();
   auditEntry('edit','order',id,$i('eo_no').value,'Rev: ₹'+rev+' | Status: '+$i('eo_status').value);
-  showToast('Order updated! ⚠ Stock not auto-adjusted on edit — update manually if qty changed.','var(--gold2)');
+  showToast('Order updated!','var(--gold2)');
 }
-function delOrder(id){confAction('Delete order?','Cannot be undone.',()=>{
+function delOrder(id){confAction('Delete order?','A snapshot is saved first (Backups), so you can undo.',async()=>{await ijSnap('Before deleting order');
   const o=orders.find(x=>x.id===id);
   if(o) adjustStock(o.items||[],+1,false); // persist=false — delOrder saves below
   orders=orders.filter(o=>o.id!==id);renderOrderDashboard();saveLS();
@@ -6704,7 +6768,7 @@ function handlePDFFile(e){
       $i('pdf-staging-panel').style.display='block';
       $i('pdf-save-btn').style.display='inline-flex';
     }catch(err){
-      $i('pdf-error-box').style.display='block';$i('pdf-error-box').textContent='Error: '+err.message;$i('pdf-status-msg').style.display='none';
+      $i('pdf-error-box').style.display='block';$i('pdf-error-box').textContent='Error: '+((err&&err.message)||'Could not load the PDF reader — check your internet connection and try again');$i('pdf-status-msg').style.display='none';
     }
   })();
   e.target.value='';
@@ -9102,7 +9166,7 @@ function handlePDFFile(e){
     pdfStagedOrders=all;renderPDFStaging();
     st.textContent=`✅ Found ${all.length} order(s) with ${all.reduce((s,o)=>s+o.items.length,0)} item(s). Customer, address & products auto-filled — review and commit.`;
     $i('pdf-staging-panel').style.display='block';$i('pdf-save-btn').style.display='inline-flex';
-  }catch(err){$i('pdf-error-box').style.display='block';$i('pdf-error-box').textContent='Error: '+err.message;st.style.display='none';}})();
+  }catch(err){$i('pdf-error-box').style.display='block';$i('pdf-error-box').textContent='Error: '+((err&&err.message)||'Could not load the PDF reader — check your internet connection and try again');st.style.display='none';}})();
   e.target.value='';
 }
 (function(){const f=$i('pdf-file-input');if(f)f.multiple=true;})();
@@ -9112,14 +9176,14 @@ const _x6rps=renderPDFStaging;renderPDFStaging=function(){_x6rps.apply(this,argu
   if(t)t.outerHTML='<div class="stg-items" id="stg-it-'+i+'" style="overflow-x:auto">'+stgItems(i)+'</div>';
   else if(!b.querySelector('.stg-items'))b.insertAdjacentHTML('beforeend','<div class="stg-items" id="stg-it-'+i+'">'+stgItems(i)+'</div>');
 });}catch(e){console.warn(e);}};
-function stgItems(i){const o=pdfStagedOrders[i];if(!o)return '';const sum=o.items.reduce((s,x)=>s+x.price*x.qty,0),diff=sum-o.subTotal;let emb=0;
+function stgItems(i){const o=pdfStagedOrders[i];if(!o)return '';try{stgFillDL();}catch(e){}const sum=o.items.reduce((s,x)=>s+x.price*x.qty,0),diff=sum-o.subTotal;let emb=0;
   const inp=(j,k,v)=>`<input type="number" step="any" value="${+(+v).toFixed(2)}" onchange="stgEdit(${i},${j},'${k}',this.value)" style="width:76px;text-align:right;padding:3px;border:1px solid ${o.items[j].manual?'var(--sage)':'var(--brd)'};border-radius:6px"/>`;
   let mg=[];try{mg=oplCalc({ordNo:o.ordNo,date:o.date,items:o.items,revTarget:o.subTotal,deliveryPaidByBuyer:o.delivery||0,tax:o.tax||0,etsyFees:o.etsyFees||0}).items;}catch(err){console.warn('margin calc',err);}
   const rows=o.items.map((x,j)=>{const pl=products.find(p=>p.sku===x.sku),e=(pl&&x.listingPrice>pl.listingPrice)?(x.listingPrice-pl.listingPrice)*(x.price/x.listingPrice)*x.qty:0;emb+=e;
     const im=pl&&pl.img?`<img src="${esc(pl.img)}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;display:block;margin:auto"/>`:'<div style="width:48px;height:48px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:auto">💎</div>';
     const m=mg[j],mp=m&&m.revD>0?m.profit/m.revD*100:null,mc=mp===null?'var(--t3)':mp>=30?'var(--sage)':mp>=15?'var(--gold2)':'var(--coral)';
-    return `<tr style="text-align:right;border-top:1px solid var(--brd);${(mp!==null&&mp<stgLM())?'background:rgba(216,140,140,0.12)':''}"><td style="text-align:center">${j+1}</td><td style="padding:4px 6px">${im}</td><td style="text-align:left;padding:5px 8px">${esc(x.name)}</td><td style="text-align:left;font-family:'Courier New',monospace;font-size:10px">${esc(x.sku)}${pl?'':' ⚠ not in price list'}</td><td>${x.qty}</td><td>${fmt(x.listingPrice)}</td><td style="white-space:nowrap">${inp(j,'disc',x.disc)} %</td><td>${inp(j,'price',x.price)}</td><td>${e?fmt(e):'—'}</td><td style="padding-right:8px;white-space:nowrap">${mp===null?'—':`<b style="color:${mc}">${mp<stgLM()?'⚠ ':''}${mp.toFixed(1)}%</b><div style="font-size:10px;color:var(--t3)">${fmt(m.profit)}</div>`}</td></tr>`;}).join('');
-  return `<div style="font-size:11px;margin-bottom:5px;color:var(--coral)">🏷 Order average discount ${o.discPct}% — set each item's own <b>Disc %</b> or <b>Sold ₹</b> below</div><table style="width:100%;font-size:11px;margin-bottom:6px;border:1px solid var(--brd)"><tr style="background:var(--bg2);color:var(--t2)"><th style="padding:5px 6px">Sr. No.</th><th>Product image</th><th style="text-align:left;padding:5px 8px">Product name</th><th style="text-align:left">SKU</th><th>Qty</th><th>Listing ₹</th><th>Disc %</th><th>Unit sold rate ₹</th><th>Ship in price</th><th style="padding-right:8px">Item margin</th></tr>${rows}</table>${stgSummary(mg,i,o)}<div style="font-size:11px">Enter <b>Disc %</b> or <b>Sold ₹</b> per item (they update each other; other items rebalance to keep ${fmt(o.subTotal)}). ${Math.abs(diff)>1?`<b style="color:var(--coral)">Off by ${fmt(diff)}</b>`:'✓ total matches Etsy'} · delivery ${fmt(o.delivery)} + shipping in prices ${fmt(emb)} = <b>${fmt(o.delivery+emb)}</b> recovered · <a href="#" onclick="stgReset(${i});return false">↺ reset</a></div>`;}
+    return `<tr style="text-align:right;border-top:1px solid var(--brd);${(mp!==null&&mp<stgLM())?'background:rgba(216,140,140,0.12)':''}"><td style="text-align:center">${j+1}</td><td style="padding:4px 6px">${im}</td><td style="text-align:left;padding:5px 8px">${esc(x.name)}</td><td style="text-align:left;white-space:nowrap;padding:3px 4px"><input type="text" list="stg-sku-dl" value="${esc(x.sku||'')}" placeholder="Enter SKU" title="Type a SKU manually or pick from the price list" onchange="stgSetSku(${i},${j},this.value)" style="width:108px;font-family:'Courier New',monospace;font-size:10px;padding:3px 5px;border-radius:6px;text-align:left;border:1px solid ${x.sku?(pl?'var(--brd)':'var(--gold2)'):'var(--coral)'};background:${x.sku?'var(--bg2)':'rgba(216,140,140,0.12)'}"/>${!x.sku?'<div style="font-size:9px;color:var(--coral);font-weight:700">⚠ SKU missing — enter manually</div>':(pl?'':'<div style="font-size:9px;color:var(--gold2);font-weight:700">⚠ not in price list (manual SKU)</div>')}</td><td>${x.qty}</td><td>${fmt(x.listingPrice)}</td><td style="white-space:nowrap">${inp(j,'disc',x.disc)} %</td><td>${inp(j,'price',x.price)}</td><td>${e?fmt(e):'—'}</td><td style="padding-right:8px;white-space:nowrap">${mp===null?'—':`<b style="color:${mc}">${mp<stgLM()?'⚠ ':''}${mp.toFixed(1)}%</b><div style="font-size:10px;color:var(--t3)">${fmt(m.profit)}</div>`}</td><td style="padding:0 6px"><button class="btn bdr bxs" title="Remove item" onclick="stgRemoveItem(${i},${j})">✕</button></td></tr>`;}).join('');
+  return `<div style="font-size:11px;margin-bottom:5px;color:var(--coral)">🏷 Order average discount ${o.discPct}% — set each item's own <b>Disc %</b> or <b>Sold ₹</b> below</div><table style="width:100%;font-size:11px;margin-bottom:6px;border:1px solid var(--brd)"><tr style="background:var(--bg2);color:var(--t2)"><th style="padding:5px 6px">Sr. No.</th><th>Product image</th><th style="text-align:left;padding:5px 8px">Product name</th><th style="text-align:left">SKU</th><th>Qty</th><th>Listing ₹</th><th>Disc %</th><th>Unit sold rate ₹</th><th>Ship in price</th><th style="padding-right:8px">Item margin</th><th></th></tr>${rows}</table>${stgSummary(mg,i,o)}<div style="font-size:11px">Enter <b>Disc %</b> or <b>Sold ₹</b> per item (they update each other; other items rebalance to keep ${fmt(o.subTotal)}). ${Math.abs(diff)>1?`<b style="color:var(--coral)">Off by ${fmt(diff)}</b>`:'✓ total matches Etsy'} · delivery ${fmt(o.delivery)} + shipping in prices ${fmt(emb)} = <b>${fmt(o.delivery+emb)}</b> recovered · <a href="#" onclick="stgReset(${i});return false">↺ reset</a></div>`;}
 function stgEdit(i,j,k,v){const o=pdfStagedOrders[i];if(o&&dscEdit(o.items,j,k,v,o.subTotal)){const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);}}
 function stgReset(i){const o=pdfStagedOrders[i];if(o){dscReset(o.items,o.subTotal);const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);}}
 // keep address / delivery on the committed order
@@ -9262,7 +9326,7 @@ const _x6st=switchTab;switchTab=function(t){_x6st.apply(this,arguments);if(t==='
   const _st=showToast;showToast=function(m){if(/session expired|please reconnect/i.test(String(m))&&!/reconnected/i.test(String(m)))return;return _st.apply(this,arguments);};
 })();
 
-init();
+setTimeout(()=>ijBoot(),0);
 </script>
 <script>
 // ═══════════ ORDER ISSUES: refund / return / cancel / reship (full order, particular item, missing item, repair) ═══════════
@@ -9446,7 +9510,7 @@ function issRepRender(){const k=$i('issrep-dur').value,all=issAllEntries(),L=all
 // ---- 7. Automatic snapshots + undo ----
 async function ijSnap(label){try{let L=(await idbGet('ij_snaps'))||[];
   L.unshift({ts:Date.now(),label,counts:{o:orders.length,e:expenses.length},data:JSON.parse(JSON.stringify({orders,expenses,stock:products.map(p=>({id:p.id,stock:p.stock}))}))});
-  await idbPut('ij_snaps',L.slice(0,5));return true;}catch(e){console.warn('snapshot failed',e);return false;}}
+  await idbPut('ij_snaps',L.slice(0,10));return true;}catch(e){console.warn('snapshot failed',e);return false;}}
 async function ijSnapNow(){const ok=await ijSnap('Manual snapshot');showToast(ok?'📸 Snapshot saved':'Could not save snapshot',ok?'var(--sage)':'var(--coral)');openBackups();}
 async function openBackups(){$i('bak-mo').classList.add('open');const box=$i('bak-body');box.innerHTML='Loading…';
   let L=[];try{L=(await idbGet('ij_snaps'))||[];}catch(e){}
@@ -9464,6 +9528,219 @@ async function ijRestore(i){const L=(await idbGet('ij_snaps'))||[],x=L[i];if(!x)
 function ijBadges(){const u=sgUnmatched().length,o=issAllEntries().filter(x=>issIsOpen(x.en)).length,a=$i('sgunm-badge'),b=$i('issrep-badge');
   if(a){a.textContent=u;a.style.display=u?'':'none';}if(b){b.textContent=o;b.style.display=o?'':'none';}}
 (function(){const f=renderOrderDashboard;renderOrderDashboard=function(){const r=f.apply(this,arguments);try{ijBadges();}catch(e){}return r;};setTimeout(()=>{try{ijBadges();}catch(e){}},1500);})();
+
+// ═══════════ Manual SKU support (PDF import, order rows, autocomplete) ═══════════
+function stgFillDL(){
+  let dl=document.getElementById('stg-sku-dl');
+  if(!dl){dl=document.createElement('datalist');dl.id='stg-sku-dl';document.body.appendChild(dl);}
+  dl.innerHTML=products.map(p=>`<option value="${esc(p.sku)}">${esc(p.name||'')}</option>`).join('');
+}
+function stgSetSku(i,j,v){
+  const o=pdfStagedOrders[i];if(!o||!o.items[j])return;
+  v=(v||'').trim();
+  const p=products.find(x=>(x.sku||'').toLowerCase()===v.toLowerCase());
+  o.items[j].sku=p?p.sku:v;
+  const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);
+  try{psoCalc(i);}catch(e){}
+  showToast(v?(p?'✓ SKU matched to price list':'✓ Manual SKU set — not in price list, COGS will be ₹0'):'SKU cleared',v&&!p?'var(--gold2)':'var(--sage)');
+}
+// autocomplete: whatever is typed and not picked from the list becomes a manual SKU
+document.addEventListener('focusout',function(e){
+  const el=e.target;if(!el||!el.classList||!el.classList.contains('sku-ac-input'))return;
+  setTimeout(function(){
+    const hid=el.parentElement&&el.parentElement.querySelector('input[type=hidden]');if(!hid)return;
+    const v=(el.value||'').trim();
+    if(!v){hid.value='';el.classList.remove('has-value');return;}
+    if(hid.value===v&&products.some(p=>p.sku===v))return;            // already a price-list pick
+    const m=products.find(p=>(p.sku||'').toLowerCase()===v.toLowerCase());
+    if(m){skuACSelect(el.id,hid.id,m.sku,m.name||'');return;}         // exact match → treat as a pick
+    hid.value=v;el.classList.add('has-value');                        // manual SKU
+    const mm=hid.id.match(/^(oi|eoi)-sku-(\d+)$/);
+    if(mm){const n=$i(mm[1]+'-name-'+mm[2]);if(n&&n.readOnly){n.readOnly=false;n.style.background='var(--bg2)';n.placeholder='Item name';}
+      try{syncRevFromItems(mm[1]);mm[1]==='eoi'?calcEOrderTotal():calcOrderTotal();}catch(err){}}
+  },160);
+});
+
+// ═══════════ Round 2: rules, dialogs, relink, backups, safety nets ═══════════
+function ijRulesGet(){try{return JSON.parse(localStorage.getItem('ij_settings')||'{}').rules||{};}catch(e){return{};}}
+function ijRulesSet(o){let s={};try{s=JSON.parse(localStorage.getItem('ij_settings')||'{}');}catch(e){}s.rules={...(s.rules||{}),...o};localStorage.setItem('ij_settings',JSON.stringify(s));try{queueDriveBackup();}catch(e){}}
+function ijApplyFees(){const c=ijRulesGet().fees;if(!c)return;const was=Math.abs(ETSY_FULL_RATE-(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE))<1e-9;
+  if(isFinite(c.tx))ETSY_TX_RATE=c.tx;if(isFinite(c.pay))ETSY_PAY_RATE=c.pay;if(isFinite(c.fix))ETSY_PAY_FIXED=c.fix;if(isFinite(c.reg))ETSY_REG_OP_RATE=c.reg;
+  if(was)ETSY_FULL_RATE=ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE;}
+ijApplyFees();
+
+// in-app dialog (replaces prompt/confirm)
+function ijDialog(o){return new Promise(res=>{
+  const d=document.createElement('div');d.className='mo open';d.style.zIndex=100000;
+  const f=(o.fields||[]).map((x,i)=>`<div class="f"><label>${esc(x.label)}</label>${x.type==='select'?`<select id="ijd-${i}" style="width:100%">${x.options.map(([v,l])=>`<option value="${esc(v)}" ${v==x.value?'selected':''}>${esc(l)}</option>`).join('')}</select>`:`<input id="ijd-${i}" type="${x.type||'text'}" step="any" value="${esc(String(x.value??''))}" ${x.list?`list="${x.list}"`:''} placeholder="${esc(x.ph||'')}"/>`}</div>`).join('');
+  d.innerHTML=`<div class="mod" role="dialog" aria-modal="true" style="max-width:${o.width||440}px"><h3>${esc(o.title||'')}</h3><div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px;white-space:pre-line">${o.html||esc(o.msg||'')}</div>${f}<div class="mod-act">${o.noCancel?'':`<button class="btn bo" id="ijd-c">${esc(o.cancel||'Cancel')}</button>`}<button class="btn bp" id="ijd-o">${esc(o.ok||'OK')}</button></div></div>`;
+  document.body.appendChild(d);
+  const done=v=>{d.remove();res(v)};
+  const c=d.querySelector('#ijd-c');if(c)c.onclick=()=>done(null);
+  d.querySelector('#ijd-o').onclick=()=>done((o.fields||[]).map((x,i)=>d.querySelector('#ijd-'+i).value));
+  d.onkeydown=e=>{if(e.key==='Escape')done(null);else if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();d.querySelector('#ijd-o').click();}};
+  setTimeout(()=>{const x=d.querySelector('input,select');if(x)x.focus();},30);});}
+const ijConfirm=(msg,ok,title)=>ijDialog({title:title||'Please confirm',msg,ok:ok||'Yes'}).then(v=>v!==null);
+
+// one stock rule: ask | auto | off  (Rules dialog)
+function ijStockMode(){return ijRulesGet().stock||'ask';}
+async function ijStock(items,delta,why){
+  const its=(items||[]).filter(i=>i&&i.sku&&products.find(p=>p.sku===i.sku));if(!its.length)return;
+  const m=ijStockMode();if(m==='off')return;
+  const txt=its.map(i=>i.sku+' ×'+(i.qty||1)).join(', ');
+  if(m==='ask'&&!await ijConfirm((delta>0?'Add back to stock: ':'Deduct from stock: ')+txt+'?\n('+why+')',delta>0?'Add to stock':'Deduct'))return;
+  adjustStock(its,delta,false);saveLS();
+}
+function ijStockDelta(oldI,newI){
+  const q=a=>{const m={};(a||[]).forEach(i=>{if(i.sku)m[i.sku]=(m[i.sku]||0)+(+i.qty||1);});return m;};
+  const o=q(oldI),n=q(newI),restore=[],deduct=[];
+  new Set([...Object.keys(o),...Object.keys(n)]).forEach(s=>{const d=(o[s]||0)-(n[s]||0);if(d>0)restore.push({sku:s,qty:d});else if(d<0)deduct.push({sku:s,qty:-d});});
+  return{restore,deduct};
+}
+(function(){const f=saveEditOrder;saveEditOrder=function(){
+  const id=+$i('eord-id').value,old=((orders.find(o=>o.id===id)||{}).items||[]).map(i=>({sku:i.sku,qty:i.qty}));
+  const r=f.apply(this,arguments);
+  (async()=>{const o=orders.find(x=>x.id===id);if(!o)return;const d=ijStockDelta(old,o.items);
+    await ijStock(d.restore,+1,'order edited');await ijStock(d.deduct,-1,'order edited');ijRecalcStored(o);saveLS();})();
+  return r;};})();
+
+// stored profit / margin recomputed from the same numbers the details panel shows
+function ijRecalcStored(o){try{
+  const ic=o.itemCosts||{};let pp=0,ls=0;
+  (o.items||[]).forEach(i=>{const pl=skuMap.get(i.sku),c=ic[i.sku]||{},q=i.qty||1;
+    pp+=(c.purchaseCost!==undefined?c.purchaseCost:(pl?pl.pp:0))*q;ls+=(c.localShip!==undefined?c.localShip:(pl?(pl.courier||0):0))*q;});
+  const rev=effRev(o);o.totalCost=pp+ls;o.profit=rev-effEtsy(o)-pp-ls-(o.shipcost||0)-(o.refund||0);o.nm=netMarginPct(o.profit,rev);
+}catch(e){console.warn('recalcStored',e);}}
+['saveOrderInlineEdit','saveOrderCostOverrides'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;
+  window[n]=function(id){const r=f.apply(this,arguments);const o=orders.find(x=>x.id===id);if(o){ijRecalcStored(o);saveLS();}return r;};});
+
+// relink: fill missing / zero costs on order items once the SKU exists in the price list (never overwrites real costs)
+function ijRelink(){let n=0;orders.forEach(o=>{if(o.cancelled&&o.cancelType==='full')return;
+  (o.items||[]).forEach(i=>{const pl=i.sku&&skuMap.get(i.sku);if(!pl)return;o.itemCosts=o.itemCosts||{};const c=o.itemCosts[i.sku];
+    if(!c||(!c.purchaseCost&&!c.localShip&&!c.packCost)){o.itemCosts[i.sku]={purchaseCost:pl.pp||0,localShip:pl.courier||0,packCost:pl.pack||0};n++;}});
+  ijRecalcStored(o);});if(n)saveLS();return n;}
+function ijUnmatched(){const m={};orders.forEach(o=>(o.items||[]).forEach(i=>{if(!i.sku||!skuMap.get(i.sku)){const k=i.sku||'(no SKU)';(m[k]=m[k]||new Set()).add(o.ordNo);}}));return m;}
+async function ijRelinkReport(){
+  const n=ijRelink();if(n)try{renderOrderDashboard();}catch(e){}
+  const um=ijUnmatched(),keys=Object.keys(um);
+  const list=keys.length?keys.map(k=>{const a=[...um[k]];return `<div style="padding:3px 0"><b>${esc(k)}</b> — ${a.slice(0,4).map(esc).join(', ')}${a.length>4?' +'+(a.length-4)+' more':''}</div>`;}).join(''):'<div>🎉 Every order item is linked to the price list.</div>';
+  await ijDialog({title:'🔗 Relink costs',width:520,noCancel:true,ok:'Close',html:`<b>${n}</b> item(s) got their cost filled from the price list.<div style="margin:10px 0 4px;font-weight:700">Still unmatched (${keys.length}):</div><div style="max-height:220px;overflow:auto;border:1px solid var(--brd);border-radius:8px;padding:6px 10px">${list}</div><div style="margin-top:8px;font-size:11px;color:var(--t3)">Fix an item: open the order → ✎ set SKU. Add missing products to the price list, then run this again.</div>`});
+}
+['addProductDirect','saveEdit'].forEach(nm=>{const f=window[nm];if(typeof f!=='function')return;window[nm]=function(){
+  const id=nm==='saveEdit'?+$i('edit-id').value:0,old=nm==='saveEdit'?(products.find(p=>p.id===id)||{}).sku:null;
+  const r=f.apply(this,arguments);
+  try{if(old){const np=products.find(p=>p.id===id);if(np&&np.sku&&np.sku!==old)ijRenameSku(old,np.sku);}
+    const n=ijRelink();if(n){renderOrderDashboard();showToast('🔗 '+n+' order item(s) relinked to the price list','var(--indigo)',3500);}}catch(e){console.warn(e);}
+  return r;};});
+// SKU renamed in price list → follow it everywhere (orders, order costs, purchases)
+function ijRenameSku(a,b){let n=0;const fix=arr=>(arr||[]).forEach(i=>{if(i&&i.sku===a){i.sku=b;n++;}});
+  orders.forEach(o=>{Object.keys(o).forEach(k=>{if(Array.isArray(o[k]))fix(o[k]);});if(o.itemCosts&&a in o.itemCosts){o.itemCosts[b]=o.itemCosts[a];delete o.itemCosts[a];}});
+  expenses.forEach(e=>{if(e.sku===a){e.sku=b;n++;}Object.keys(e).forEach(k=>{if(Array.isArray(e[k]))fix(e[k]);});});
+  if(n){saveLS();try{renderOrderDashboard();}catch(e){}showToast('✎ SKU renamed in '+n+' order/purchase line(s)','var(--indigo)',3500);}}
+
+// backups: export JSON + stale-backup reminder
+function ijExportBackup(){const d={app:'inaarat-jewels',exportedAt:new Date().toISOString(),skuCtr,products,orders,expenses,auditLog};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'}));
+  a.download='inaarat-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();
+  showToast('💾 Backup downloaded','var(--sage)');}
+// Rules dialog (stock rule + Etsy fee rates) and self-test
+async function ijRules(){
+  const r=await ijDialog({title:'⚙ Rules',width:460,ok:'Save',msg:'Stock on order add / remove / edit, and Etsy fee rates (used by all P&L calculations).',
+    fields:[{label:'Stock changes when order items change',type:'select',value:ijStockMode(),options:[['ask','Ask me each time'],['auto','Adjust automatically'],['off','Never adjust']]},
+      {label:'Transaction fee %',type:'number',value:+(ETSY_TX_RATE*100).toFixed(4)},{label:'Payment processing %',type:'number',value:+(ETSY_PAY_RATE*100).toFixed(4)},
+      {label:'Payment processing fixed ₹',type:'number',value:ETSY_PAY_FIXED},{label:'Regulatory operating fee %',type:'number',value:+(ETSY_REG_OP_RATE*100).toFixed(4)}]});
+  if(!r)return;
+  ijRulesSet({stock:r[0]});
+  const was=Math.abs(ETSY_FULL_RATE-(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE))<1e-9,v=r.slice(1).map(parseFloat);
+  if(v.every(isFinite)){ETSY_TX_RATE=v[0]/100;ETSY_PAY_RATE=v[1]/100;ETSY_PAY_FIXED=v[2];ETSY_REG_OP_RATE=v[3]/100;if(was)ETSY_FULL_RATE=ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE;
+    ijRulesSet({fees:{tx:ETSY_TX_RATE,pay:ETSY_PAY_RATE,fix:ETSY_PAY_FIXED,reg:ETSY_REG_OP_RATE}});
+    try{renderAll();renderOrderDashboard();}catch(e){}}
+  showToast('⚙ Rules saved','var(--sage)');}
+function ijSelfTest(){const R=[],ok=(n,c)=>R.push({test:n,pass:!!c});
+  const f=calcEtsyFees(1000,0,0);ok('fees: total = parts',Math.abs(f.total-(f.txFee+f.procFee+f.regOpFee))<1e-9);
+  ok('fees: formula',Math.abs(f.total-(1000*ETSY_TX_RATE+1000*ETSY_PAY_RATE+ETSY_PAY_FIXED+1000*ETSY_REG_OP_RATE))<1e-9);
+  ok('fees: tax+delivery raise processing fee only',calcEtsyFees(1000,100,50).procFee>f.procFee&&Math.abs(calcEtsyFees(1000,100,50).txFee-f.txFee)<1e-9);
+  const d=ijStockDelta([{sku:'A',qty:2},{sku:'B',qty:1}],[{sku:'A',qty:1},{sku:'C',qty:3}]);
+  ok('stock delta: restore',d.restore.length===2&&d.restore.some(x=>x.sku==='A'&&x.qty===1)&&d.restore.some(x=>x.sku==='B'&&x.qty===1));
+  ok('stock delta: deduct',d.deduct.length===1&&d.deduct[0].sku==='C'&&d.deduct[0].qty===3);
+  const o={totalRev:300,revTarget:300,items:[{price:100,qty:1},{price:200,qty:1}]},old=o.items.map(i=>({...i}));o.items.pop();
+  ok('rev sync follows items',ordSyncRevAfterItemChange(o,old)&&o.totalRev===100&&o.revTarget===100);
+  const o2={totalRev:999,items:[{price:100,qty:1}]},old2=o2.items.map(i=>({...i}));o2.items=[];
+  ok('rev sync leaves hand-set revenue alone',!ordSyncRevAfterItemChange(o2,old2)&&o2.totalRev===999);
+  console.table(R);const bad=R.filter(x=>!x.pass).length;showToast(bad?('🧪 '+bad+' test(s) FAILED — see console'):('🧪 All '+R.length+' tests passed'),bad?'var(--coral)':'var(--sage)',3500);return!bad;}
+if(/[?&]selftest/.test(location.search))setTimeout(ijSelfTest,1500);
+
+// toolbar on the Orders tab
+(function(){const s=$i('ord-search');if(!s||!s.parentElement)return;
+  s.parentElement.insertAdjacentHTML('beforebegin',`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="btn bo bxs" onclick="ijRelinkReport()">🔗 Relink costs / unmatched SKUs</button><button class="btn bo bxs" onclick="ijExportBackup()">💾 Export backup</button><button class="btn bo bxs" onclick="ijRules()">⚙ Rules</button><button class="btn bo bxs" onclick="ijSelfTest()">🧪 Self-test</button><button class="btn bo bxs" onclick="ijSignOutDevice()">🚪 Sign out this device</button></div>`);})();
+
+// PDF staging: warn about missing SKUs (dialog) + add / remove items
+(function(){const f=commitPDFImport;commitPDFImport=async function(){
+  const sel=[...document.querySelectorAll('.pdf-stg-chk:checked')].map(c=>pdfStagedOrders[+c.dataset.idx]).filter(Boolean);
+  const miss=sel.reduce((s,o)=>s+(o.items||[]).filter(x=>!(x.sku||'').trim()).length,0);
+  if(miss&&!await ijConfirm(miss+' item(s) have no SKU. They import without cost data (COGS ₹0). You can set the SKU later from the order details.','Import anyway','Missing SKUs'))return;
+  return f.apply(this,arguments);};})();
+(function(){const f=stgItems;stgItems=function(i){return f(i)+`<div style="margin-top:6px"><button class="btn bo bxs" onclick="stgAddItem(${i})">＋ Add item</button></div>`;};})();
+function stgRefresh(i){const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);try{psoCalc(i);}catch(e){}}
+function stgRemoveItem(i,j){const o=pdfStagedOrders[i];if(!o||!o.items[j])return;o.items.splice(j,1);if(o.items.length)try{dscReset(o.items,o.subTotal);}catch(e){}stgRefresh(i);showToast('🗑 Item removed from staged order');}
+async function stgAddItem(i){const o=pdfStagedOrders[i];if(!o)return;stgFillDL();
+  const r=await ijDialog({title:'Add item to order '+o.ordNo,fields:[{label:'SKU (optional)',list:'stg-sku-dl'},{label:'Item name',ph:'e.g. Gold hoop earrings'},{label:'Qty',type:'number',value:1},{label:'Listing price ₹',type:'number',value:0}],ok:'Add'});
+  if(!r)return;const sku=r[0].trim(),p=products.find(x=>(x.sku||'').toLowerCase()===sku.toLowerCase()),name=r[1].trim()||(p&&p.name)||sku;
+  if(!name){showToast('Enter a name or SKU','var(--coral)');return;}
+  const qty=Math.max(1,parseInt(r[2])||1),lp=parseFloat(r[3])||(p?(p.inL||p.inF||0):0);
+  o.items.push({name,sku:p?p.sku:sku,qty,listingPrice:lp,price:lp,rate:lp,soldPrice:lp,disc:0});
+  try{dscReset(o.items,o.subTotal);}catch(e){}stgRefresh(i);}
+
+// ═══════════ Drive-first mode: Drive is the source of truth (laptop + phone, same Google account) ═══════════
+function ijOverlay(html){let o=$i('ij-gate');if(!o){o=document.createElement('div');o.id='ij-gate';o.style.cssText='position:fixed;inset:0;z-index:200000;background:var(--bg,#fff);display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;font-family:Inter,sans-serif';document.body.appendChild(o);}
+  o.innerHTML='<div style="max-width:360px">'+html+'</div>';return o;}
+const ijOverlayOff=()=>{const o=$i('ij-gate');if(o)o.remove();};
+const ijTok=()=>{try{const s=JSON.parse(localStorage.getItem('ij_gd_tok')||'null');return s&&s.exp-Date.now()>120000?s:null;}catch(e){return null;}};
+async function ijGate(){
+  let s=ijTok();if(s)_gdToken=s.t;
+  if(!s){ijOverlay('<div style="font-size:34px">☁</div><h3>Connecting to Google Drive…</h3>');try{await gdRefresh(true);}catch(e){}s=ijTok();}
+  while(!s){
+    await new Promise(res=>{ijOverlay('<div style="font-size:34px">☁</div><h3>Inaarat Jewels</h3><p style="font-size:13px;color:var(--t2)">Your data is stored in your Google Drive. Sign in to load it.</p><button class="btn bp" id="ij-signin">Sign in with Google</button>');
+      $i('ij-signin').onclick=async()=>{await gDriveSignIn();res();};});
+    s=ijTok();}
+  _gdToken=s.t;
+  let meta=null;
+  for(;;){try{
+    const r=await fetch("https://www.googleapis.com/drive/v3/files?q=name='"+GD_FILE_NAME+"'&spaces=drive&fields=files(id,modifiedTime)",{headers:{Authorization:'Bearer '+_gdToken}});
+    if(r.status===401){localStorage.removeItem('ij_gd_tok');_gdToken=null;return ijGate();}
+    if(!r.ok)throw new Error(r.status);meta=((await r.json()).files||[])[0]||null;break;
+  }catch(e){await new Promise(res=>{ijOverlay('<h3>Could not reach Google Drive</h3><p style="font-size:13px">Check your connection, then retry.</p><button class="btn bp" id="ij-retry">Retry</button>');$i('ij-retry').onclick=res;});}}
+  window._ijHasDriveFile=!!meta;
+  if(meta){
+    const pending=await idbGet('ij_upload_queued').catch(()=>null),synced=localStorage.getItem('ij_gd_last_synced');
+    if(!pending&&synced){            // nothing unsynced on this device → Drive wins completely (no stale local copy resurrecting deleted items)
+      try{await ijSnap('Before loading from Drive');}catch(e){}
+      ['ij_products','ij_orders','ij_expenses','ij_skuctr','ij_auditlog'].forEach(k=>localStorage.removeItem(k));
+      await idbDel('ij_audit_full').catch(()=>{});_gdLastSyncedAt=null;localStorage.removeItem('ij_gd_last_synced');}
+  }else window._ijLoaded=true;        // first run: nothing on Drive yet
+  ijOverlayOff();
+}
+async function ijBoot(){try{await ijGate();}catch(e){console.warn('gate',e);ijOverlayOff();}init();
+  setTimeout(()=>{if(!window._ijLoaded){const b=document.createElement('div');b.id='ij-notloaded';b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99999;background:#fff;border:1.5px solid var(--coral);border-radius:12px;padding:9px 12px;font-size:12px;display:flex;gap:8px;align-items:center';
+    b.innerHTML='<span>⚠ Drive data not loaded — changes are NOT being saved.</span><button class="btn bp bxs" onclick="gDriveRestoreLatest(false,true).then(()=>{if(window._ijLoaded)this.parentElement.remove()})">Retry</button>';document.body.appendChild(b);}},12000);}
+// never upload before this session has loaded Drive (prevents an empty/sample state overwriting your data)
+(function(){const b=gDriveAutoBackup;gDriveAutoBackup=async function(){if(!window._ijLoaded)return;return b.apply(this,arguments);};
+  const r=gDriveRestoreLatest;gDriveRestoreLatest=async function(){const x=await r.apply(this,arguments);
+    if(!window._ijLoaded&&window._ijHasDriveFile&&products.length>0&&!(products.length===1&&products[0].id===1&&/Black CZ/.test(products[0].name||''))){window._ijLoaded=true;try{ijApplyFees();}catch(e){}const n=$i('ij-notloaded');if(n)n.remove();}
+    return x;};})();
+// phone/laptop: renew sign-in when the app comes back to the foreground; push pending changes when it goes to the background
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){const s=(()=>{try{return JSON.parse(localStorage.getItem('ij_gd_tok')||'null');}catch(e){return null;}})();if(!s||s.exp-Date.now()<300000)try{gdRefresh(true);}catch(e){}}
+  else if(window._ijLoaded&&_gdUploadQueued)gDriveAutoBackup();});
+// sign out and wipe this device (data stays in Drive)
+async function ijSignOutDevice(){
+  if(!window._ijLoaded){showToast('Drive data not loaded yet — not clearing anything','var(--coral)');return;}
+  if(!await ijConfirm('Upload pending changes, then remove all app data from this browser and sign out of Google Drive? Your data stays in Drive.','Sign out & clear','Sign out of this device'))return;
+  try{await gDriveAutoBackup();}catch(e){}
+  try{google.accounts.oauth2.revoke(_gdToken,()=>{});}catch(e){}
+  Object.keys(localStorage).filter(k=>k.indexOf('ij_')===0).forEach(k=>localStorage.removeItem(k));sessionStorage.clear();
+  try{const d=await indexedDB.databases();(d||[]).forEach(x=>indexedDB.deleteDatabase(x.name));}catch(e){}
+  location.reload();}
 </script>
 </body>
 </html>
