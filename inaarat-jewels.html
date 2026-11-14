@@ -9302,7 +9302,7 @@ const _x6st=switchTab;switchTab=function(t){_x6st.apply(this,arguments);if(t==='
     if(ok){banner(false);showToast('☁ Google Drive reconnected','var(--sage)');updateGDStatus();gDriveAutoBackup();startGDPolling();}else showToast('Could not reconnect — allow pop-ups for this site and try again','var(--coral)');};
   window.gdOn401=function(){window._gdWasDown=true;banner(true);updateGDStatus&&updateGDStatus();};
   // sign-in button: GIS popup instead of full-page redirect
-  gDriveSignIn=async function(){const ok=await request('select_account');
+  gDriveSignIn=async function(){if(window._ijRecoveryMode){showToast('Drive sync is paused in recovery mode.','var(--coral)');return;}const ok=await request('select_account');
     if(ok){showToast('Google Drive connected! Auto-backup enabled.','var(--sage)');updateGDStatus();gDriveAutoBackup();startGDPolling();const rb=document.getElementById('gd-restore-btn');if(rb)rb.style.display='';}
     else showToast('Google sign-in was cancelled or blocked (allow pop-ups).','var(--coral)');};
   // every Drive call: renew first if the token is (nearly) expired, and retry once on 401
@@ -9720,7 +9720,16 @@ async function ijGate(){
   }else window._ijLoaded=true;        // first run: nothing on Drive yet
   ijOverlayOff();
 }
-async function ijBoot(){try{await ijGate();}catch(e){console.warn('gate',e);ijOverlayOff();}init();
+async function ijBoot(){
+  // Recovery mode: do not block Home and tabs on Google OAuth.
+  window._ijLoaded=false; window._ijRecoveryMode=true; _gdToken=null;
+  ijOverlayOff();
+  await init();
+  const n=document.createElement('div'); n.id='ij-recovery-notice';
+  n.style.cssText='position:fixed;bottom:12px;left:12px;right:12px;z-index:10000;background:#fff8e9;color:#5b4100;border:1px solid #d9aa47;border-radius:9px;padding:10px 14px;font:12px Arial,sans-serif';
+  n.textContent='RECOVERY MODE: Home and tabs are available. Google Drive sync is paused. Do not enter important new data until sync is repaired.';
+  document.body.appendChild(n);
+
   setTimeout(()=>{if(!window._ijLoaded){const b=document.createElement('div');b.id='ij-notloaded';b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:99999;background:#fff;border:1.5px solid var(--coral);border-radius:12px;padding:9px 12px;font-size:12px;display:flex;gap:8px;align-items:center';
     b.innerHTML='<span>⚠ Drive data not loaded — changes are NOT being saved.</span><button class="btn bp bxs" onclick="gDriveRestoreLatest(false,true).then(()=>{if(window._ijLoaded)this.parentElement.remove()})">Retry</button>';document.body.appendChild(b);}},12000);}
 // never upload before this session has loaded Drive (prevents an empty/sample state overwriting your data)
