@@ -933,6 +933,9 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       <button class="btn bt bsm" onclick="openPDFImporter()">📄 Etsy PDF</button>
       <button class="btn bt bsm" onclick="$i('etsy-csv-mo').classList.add('open')" title="Reconcile monthly Etsy payment CSV">📊 Etsy Pay CSV</button>
       <button class="btn bpu bsm" onclick="openSGModal()">📦 ShipGlobal</button>
+      <button class="btn bo bsm" id="sgunm-btn" onclick="openUnmatchedSG()" title="ShipGlobal costs not linked to any order">🔗 Unmatched shipping <span id="sgunm-badge" class="mi-badge" style="display:none;background:var(--coral);color:#fff;border-radius:20px;padding:0 6px;font-size:9px;font-weight:700;margin-left:3px"></span></button>
+      <button class="btn bo bsm" onclick="openIssueReport()" title="Refund / return / reship analytics & open cases">📈 Issues <span id="issrep-badge" style="display:none;background:var(--orange);color:#fff;border-radius:20px;padding:0 6px;font-size:9px;font-weight:700;margin-left:3px"></span></button>
+      <button class="btn bo bsm" onclick="openBackups()" title="Automatic snapshots before imports — undo here">🛟 Backups</button>
       <div class="tb-div"></div>
       <!-- History group -->
       <button class="btn ba bsm" onclick="openExportMenu()">📤 Export</button>
@@ -1894,6 +1897,55 @@ window.addEventListener('focus', () => {
     <button class="btn bo" onclick="closeSGModal()">Close</button>
     <button class="btn bp" id="sg-save-btn" style="display:none" onclick="commitSGImport()">💾 Commit Import</button>
   </div>
+</div></div>
+
+<!-- ORDER ISSUE MODAL: refund / return / cancel / reship -->
+<div class="mo" id="iss-mo"><div class="mod" role="dialog" aria-modal="true" style="max-width:700px">
+  <h3>⚠ Order Issue — Refund / Return / Cancel / Reship</h3>
+  <input type="hidden" id="iss-id"/>
+  <div id="iss-info" style="font-size:12px;color:var(--t2);margin-bottom:12px;padding:8px 12px;background:rgba(232,146,74,0.07);border:1px solid rgba(232,146,74,0.25);border-radius:9px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="f"><label>Action</label><select id="iss-type" onchange="issRender(event)" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif;width:100%">
+      <option value="refund">💸 Refund (keep item)</option><option value="return">↩️ Return (item comes back)</option>
+      <option value="cancel">🚫 Cancel</option><option value="reship">📦 Reship / Replace / Repair</option></select></div>
+    <div class="f"><label>Applies to</label><select id="iss-scope" onchange="issRender(event)" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif;width:100%"></select></div>
+  </div>
+  <div id="iss-items" style="margin-top:6px"></div>
+  <div id="iss-g-refund" class="f" style="margin-top:8px"><label>Refund to customer ₹ <span style="font-size:10px;color:var(--t3);font-weight:400">(auto-filled — editable)</span></label><input type="number" id="iss-refund" min="0" step="any" oninput="this.dataset.dirty=1" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/><div id="iss-refund-note" style="font-size:10px;color:var(--t3);margin-top:4px"></div></div>
+  <div id="iss-g-return" style="display:none;margin-top:6px"><div class="f"><label>Return shipping cost we paid ₹</label><input type="number" id="iss-retship" min="0" step="any" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
+    <label style="font-size:11px;display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" id="iss-restock" checked style="width:auto"/> Item came back sellable — add back to stock</label></div>
+  <div id="iss-g-reship" style="display:none;margin-top:6px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="f"><label>Extra shipping cost to reship ₹</label><input type="number" id="iss-rsship" min="0" step="any" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
+      <div class="f"><label>Item / repair cost ₹ <span style="font-size:10px;color:var(--t3);font-weight:400" id="iss-rsprod-hint"></span></label><input type="number" id="iss-rsprod" min="0" step="any" oninput="this.dataset.dirty=1" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
+    </div>
+    <div class="f"><label>Reship AWB / tracking (optional)</label><input type="text" id="iss-awb" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
+    <label style="font-size:11px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="iss-deduct" style="width:auto"/> Replacement is taken from stock — deduct from inventory</label>
+  </div>
+  <div class="f" style="margin-top:10px"><label>Remark <span style="color:var(--coral)">* required</span></label><input type="text" id="iss-remark" placeholder="e.g. Earring missing in parcel, customer sent photo / stone fell off, repair at vendor…" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
+  <div class="f" style="margin-top:8px"><label>Case status</label><select id="iss-status" style="background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;width:100%"><option value="open">🔴 Open</option><option value="progress">🟠 In progress</option><option value="sent">🚚 Sent</option><option value="delivered">📬 Delivered</option><option value="resolved">✅ Resolved</option></select></div>
+  <div id="iss-effect" style="font-size:11px;color:var(--t2);padding:8px 12px;background:var(--bg2);border-radius:9px;line-height:1.7"></div>
+  <div class="mod-act"><button class="btn bo" onclick="$i('iss-mo').classList.remove('open')">Close</button><button class="btn bp" onclick="issSave()">✓ Save Issue</button></div>
+</div></div>
+
+<!-- UNMATCHED SHIPPING / ISSUE REPORT / BACKUPS -->
+<div class="mo" id="sgunm-mo"><div class="mod" role="dialog" aria-modal="true" style="max-width:760px">
+  <h3>🔗 Unmatched ShipGlobal Shipping</h3>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:10px">These ShipGlobal charges aren't linked to any order, so they're missing from order profit. Pick the right order (best guess is pre-selected) and link, or ignore to keep as general shipping overhead.</div>
+  <div id="sgunm-body"></div>
+  <div class="mod-act"><button class="btn bo" onclick="$i('sgunm-mo').classList.remove('open')">Close</button></div>
+</div></div>
+<div class="mo" id="issrep-mo"><div class="mod" role="dialog" aria-modal="true" style="max-width:900px">
+  <h3>📈 Issues — Open Cases & Analytics</h3>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><label style="font-size:11px;color:var(--t3)">Period</label><select id="issrep-dur" onchange="issRepRender()" style="padding:6px;border:1px solid var(--brd);border-radius:9px;background:var(--bg2);color:var(--tx)"><option value="all">All time</option><option value="30d">Last 30 days</option><option value="month">This month</option><option value="fy">This FY (Apr–Mar)</option><option value="year">This year</option></select></div>
+  <div id="issrep-body" style="max-height:68vh;overflow:auto"></div>
+  <div class="mod-act"><button class="btn bo" onclick="$i('issrep-mo').classList.remove('open')">Close</button></div>
+</div></div>
+<div class="mo" id="bak-mo"><div class="mod" role="dialog" aria-modal="true" style="max-width:640px">
+  <h3>🛟 Backups & Undo</h3>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:10px">A snapshot of orders, expenses and stock levels is saved automatically before every Etsy PDF and ShipGlobal import (last 5 kept on this device). Restoring replaces current orders, expenses and stock with the snapshot.</div>
+  <div id="bak-body"></div>
+  <div class="mod-act"><button class="btn bo" onclick="ijSnapNow()">📸 Snapshot now</button><button class="btn bo" onclick="$i('bak-mo').classList.remove('open')">Close</button></div>
 </div></div>
 
 <!-- ORDER CANCELLATION MODAL -->
@@ -4935,8 +4987,10 @@ function renderUnifiedTable(fOrders,fExp){
           <button class="btn bp bsm" onclick="saveOrderCostOverrides(${e.id})">💾 Save Cost Overrides</button>
           ${e.cancelled?`<span class="canc-badge">🚫 ${e.cancelType==='full'?'Fully Cancelled':'Partially Cancelled'}</span>`:
             `<button class="btn bdr bsm" onclick="openCancelOrderModal(${e.id})" style="border-color:rgba(216,140,140,0.5)">🚫 Cancel Order</button>`}
+          <button class="btn bdr bsm" onclick="openIssueModal(${e.id})" style="border-color:rgba(232,146,74,0.6)">⚠ Refund / Return / Reship</button>
           <button class="btn bdr bsm" onclick="delOrder(${e.id})">🗑 Delete</button>
         </div>
+        ${issLogHTML(e)}
         ${e.cancelled?`<div class="cancel-box"><div class="cancel-box-title">🚫 Cancellation Record</div>
           <div style="font-size:11px;color:var(--t2);line-height:1.7">
             <div><strong>Type:</strong> ${e.cancelType==='full'?'Full Order':'Item-wise Partial'} Cancellation</div>
@@ -7277,7 +7331,7 @@ function processSGFile(file){
       // D2: expanded log with customer details & GST breakdown
       $i('sg-log-body').innerHTML=sgFilterBar+logRows.map(r=>{
         const badge=r.action==='status_upd'
-          ?'<span class="sg-badge-upd">🔄 Status Update</span>'
+          ?'<span class="sg-badge-upd">🔄 Status / Cost Update</span>'
           :r.action==='upd'?'<span class="sg-badge-upd">Updated</span>'
           :r.action==='unm'?'<span class="sg-badge-unm">No Match</span>'
           :'<span class="sg-badge-new">New Expense</span>';
@@ -7333,7 +7387,7 @@ async function commitSGImport(){
   const selectedIdxs=new Set([...document.querySelectorAll('.sg-row-chk:checked')].map(c=>+c.dataset.idx));
   if(selectedIdxs.size===0){showToast('No rows selected — tick at least one.');return;}
   const totalDupSkipped=document.querySelectorAll('.sg-row-chk[data-isnew="0"]:not(:checked)').length;
-  let committed=0,updatedOrders=0,statusUpdated=0;
+  let committed=0,updatedOrders=0,statusUpdated=0;window._sgRevised=0;
 
   sgPending.forEach((row,idx)=>{
     if(!selectedIdxs.has(idx))return;
@@ -7343,7 +7397,12 @@ async function commitSGImport(){
     if(row.isStatusUpdate){
       // Update the expense entry notes and customer name
       if(row.existingExpIdx!==undefined&&expenses[row.existingExpIdx]){
-        expenses[row.existingExpIdx].notes='Status: '+row.rawStatus;
+        {const _ex=expenses[row.existingExpIdx];_ex.notes='Status: '+row.rawStatus;
+          if(row.shipCost>0&&Math.abs((_ex.amount||0)-row.shipCost)>0.009){const _old=_ex.amount||0;
+            (_ex.costHistory=_ex.costHistory||[]).push({date:ts(),old:_old,new:row.shipCost});
+            _ex.amount=row.shipCost;_ex.notes+=' | Cost revised ₹'+_old+' → ₹'+row.shipCost;window._sgRevised=(window._sgRevised||0)+1;
+            if(!_ex.reship){const _o=orders.find(o=>String(o.ordNo)===String(_ex.orderRef||_ex.invoiceNo||'')||(o.shipNo&&String(o.shipNo).trim()===String(row.tracking).trim()));
+              if(_o){_o.sgActualShip=row.shipCost;_o.sgProfitRecalculated=false;}}}}
         if(fullName&&!expenses[row.existingExpIdx].customerName)
           expenses[row.existingExpIdx].customerName=fullName;
       }
@@ -7508,6 +7567,7 @@ async function commitSGImport(){
 
   let msg=`✓ ShipGlobal: ${committed} expense(s) added, ${updatedOrders} order(s) updated`;
   if(statusUpdated>0) msg+=`, ${statusUpdated} status(es) updated from re-import`;
+  if(window._sgRevised>0) msg+=`, ${window._sgRevised} shipping cost(s) revised`;
   if(profitUpdated>0) msg+=`, ${profitUpdated} profit(s) recalculated`;
   if(totalDupSkipped>0) msg+=` · ${totalDupSkipped} skipped`;
   showToast(msg, 'var(--sage)', 4000);
@@ -9054,8 +9114,12 @@ const _x6rps=renderPDFStaging;renderPDFStaging=function(){_x6rps.apply(this,argu
 });}catch(e){console.warn(e);}};
 function stgItems(i){const o=pdfStagedOrders[i];if(!o)return '';const sum=o.items.reduce((s,x)=>s+x.price*x.qty,0),diff=sum-o.subTotal;let emb=0;
   const inp=(j,k,v)=>`<input type="number" step="any" value="${+(+v).toFixed(2)}" onchange="stgEdit(${i},${j},'${k}',this.value)" style="width:76px;text-align:right;padding:3px;border:1px solid ${o.items[j].manual?'var(--sage)':'var(--brd)'};border-radius:6px"/>`;
-  const rows=o.items.map((x,j)=>{const pl=products.find(p=>p.sku===x.sku),e=(pl&&x.listingPrice>pl.listingPrice)?(x.listingPrice-pl.listingPrice)*(x.price/x.listingPrice)*x.qty:0;emb+=e;return `<tr style="text-align:right;border-top:1px solid var(--brd)"><td style="text-align:left;padding:5px 8px">${esc(x.name)}</td><td style="text-align:left;font-family:'Courier New',monospace;font-size:10px">${esc(x.sku)}${pl?'':' ⚠ not in price list'}</td><td>${x.qty}</td><td>${fmt(x.listingPrice)}</td><td style="white-space:nowrap">${inp(j,'disc',x.disc)} %</td><td>${inp(j,'price',x.price)}</td><td>${e?fmt(e):'—'}</td></tr>`;}).join('');
-  return `<div style="font-size:11px;margin-bottom:5px;color:var(--coral)">🏷 Order average discount ${o.discPct}% — set each item's own <b>Disc %</b> or <b>Sold ₹</b> below</div><table style="width:100%;font-size:11px;margin-bottom:6px;border:1px solid var(--brd)"><tr style="background:var(--bg2);color:var(--t2)"><th style="text-align:left;padding:5px 8px">Name</th><th style="text-align:left">SKU</th><th>Qty</th><th>Listing ₹</th><th>Disc %</th><th>Sold ₹ each</th><th>Ship in price</th></tr>${rows}</table><div style="font-size:11px">Enter <b>Disc %</b> or <b>Sold ₹</b> per item (they update each other; other items rebalance to keep ${fmt(o.subTotal)}). ${Math.abs(diff)>1?`<b style="color:var(--coral)">Off by ${fmt(diff)}</b>`:'✓ total matches Etsy'} · delivery ${fmt(o.delivery)} + shipping in prices ${fmt(emb)} = <b>${fmt(o.delivery+emb)}</b> recovered · <a href="#" onclick="stgReset(${i});return false">↺ reset</a></div>`;}
+  let mg=[];try{mg=oplCalc({ordNo:o.ordNo,date:o.date,items:o.items,revTarget:o.subTotal,deliveryPaidByBuyer:o.delivery||0,tax:o.tax||0,etsyFees:o.etsyFees||0}).items;}catch(err){console.warn('margin calc',err);}
+  const rows=o.items.map((x,j)=>{const pl=products.find(p=>p.sku===x.sku),e=(pl&&x.listingPrice>pl.listingPrice)?(x.listingPrice-pl.listingPrice)*(x.price/x.listingPrice)*x.qty:0;emb+=e;
+    const im=pl&&pl.img?`<img src="${esc(pl.img)}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;display:block;margin:auto"/>`:'<div style="width:48px;height:48px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:20px;margin:auto">💎</div>';
+    const m=mg[j],mp=m&&m.revD>0?m.profit/m.revD*100:null,mc=mp===null?'var(--t3)':mp>=30?'var(--sage)':mp>=15?'var(--gold2)':'var(--coral)';
+    return `<tr style="text-align:right;border-top:1px solid var(--brd);${(mp!==null&&mp<stgLM())?'background:rgba(216,140,140,0.12)':''}"><td style="text-align:center">${j+1}</td><td style="padding:4px 6px">${im}</td><td style="text-align:left;padding:5px 8px">${esc(x.name)}</td><td style="text-align:left;font-family:'Courier New',monospace;font-size:10px">${esc(x.sku)}${pl?'':' ⚠ not in price list'}</td><td>${x.qty}</td><td>${fmt(x.listingPrice)}</td><td style="white-space:nowrap">${inp(j,'disc',x.disc)} %</td><td>${inp(j,'price',x.price)}</td><td>${e?fmt(e):'—'}</td><td style="padding-right:8px;white-space:nowrap">${mp===null?'—':`<b style="color:${mc}">${mp<stgLM()?'⚠ ':''}${mp.toFixed(1)}%</b><div style="font-size:10px;color:var(--t3)">${fmt(m.profit)}</div>`}</td></tr>`;}).join('');
+  return `<div style="font-size:11px;margin-bottom:5px;color:var(--coral)">🏷 Order average discount ${o.discPct}% — set each item's own <b>Disc %</b> or <b>Sold ₹</b> below</div><table style="width:100%;font-size:11px;margin-bottom:6px;border:1px solid var(--brd)"><tr style="background:var(--bg2);color:var(--t2)"><th style="padding:5px 6px">Sr. No.</th><th>Product image</th><th style="text-align:left;padding:5px 8px">Product name</th><th style="text-align:left">SKU</th><th>Qty</th><th>Listing ₹</th><th>Disc %</th><th>Unit sold rate ₹</th><th>Ship in price</th><th style="padding-right:8px">Item margin</th></tr>${rows}</table>${stgSummary(mg,i,o)}<div style="font-size:11px">Enter <b>Disc %</b> or <b>Sold ₹</b> per item (they update each other; other items rebalance to keep ${fmt(o.subTotal)}). ${Math.abs(diff)>1?`<b style="color:var(--coral)">Off by ${fmt(diff)}</b>`:'✓ total matches Etsy'} · delivery ${fmt(o.delivery)} + shipping in prices ${fmt(emb)} = <b>${fmt(o.delivery+emb)}</b> recovered · <a href="#" onclick="stgReset(${i});return false">↺ reset</a></div>`;}
 function stgEdit(i,j,k,v){const o=pdfStagedOrders[i];if(o&&dscEdit(o.items,j,k,v,o.subTotal)){const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);}}
 function stgReset(i){const o=pdfStagedOrders[i];if(o){dscReset(o.items,o.subTotal);const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);}}
 // keep address / delivery on the committed order
@@ -9081,14 +9145,14 @@ function oplCalc(o){
   const deliv=oplHas(act.deliv)?+act.deliv:(o.deliveryPaidByBuyer!==undefined?o.deliveryPaidByBuyer:Math.max(0,(o.totalRev||0)-itemsRev));
   const expLocal=rows.reduce((s,r)=>s+r.ls,0),local=oplHas(act.local)?+act.local:expLocal;
   const other=oplHas(act.other)?+act.other:0;
-  const linked=pnlOrderShip(o).act,expSG=o.expectedSGCost||o.shipcost||0,sg=oplHas(act.sg)?+act.sg:(linked||expSG);
+  const _ps=pnlOrderShip(o),rsx=_ps.rs||0,linked=_ps.act,expSG=o.expectedSGCost||o.shipcost||0,sg=oplHas(act.sg)?+act.sg:(linked||expSG);
   const etsy=effEtsy(o),ref=(!o.cancelled&&o.customerRefund)?Math.max(0,o.customerRefund-(o.insuranceTotalRecovered||0)):0;
   const pp=rows.reduce((s,r)=>s+r.pp,0),pk=rows.reduce((s,r)=>s+r.pk,0),rev=itemsRev+deliv;
-  const profit=rev-etsy-pp-pk-local-sg-other-ref;
+  const profit=rev-etsy-pp-pk-local-sg-other-ref-rsx;
   const items=rows.map(r=>{const sh=r.rev/base,rv=r.rev+deliv*sh,lc=oplHas(act.local)?local*sh:r.ls,ot=other*sh,e=etsy*sh,s=sg*sh,rf=ref*sh;
-    return{...r,revD:rv,etsy:e,local:lc,sg:s,other:ot,profit:rv-e-r.pp-r.pk-lc-s-ot-rf};});
+    return{...r,revD:rv,etsy:e,local:lc,sg:s,other:ot,profit:rv-e-r.pp-r.pk-lc-s-ot-rf-rsx*sh};});
   const embTot=rows.reduce((s,r)=>s+r.emb,0);
-  return{o,items,embTot,delivEff:deliv+embTot,rev,itemsRev,deliv,etsy,pp,pk,local,sg,other,ref,profit,
+  return{o,items,embTot,rsx,delivEff:deliv+embTot,rev,itemsRev,deliv,etsy,pp,pk,local,sg,other,ref,profit,
     est:{local:!oplHas(act.local),sg:!oplHas(act.sg)&&!linked,other:false,deliv:!oplHas(act.deliv)&&o.deliveryPaidByBuyer===undefined}};}
 function oplSet(id,k,v){const o=orders.find(x=>x.id===id);if(!o)return;o.act=o.act||{};if(v===''||isNaN(+v))delete o.act[k];else o.act[k]=+v;saveLS();oplRender();}
 function oplS(k,v){(window._opl=window._opl||{dur:'month',from:'',to:'',q:''})[k]=v;oplRender();}
@@ -9125,7 +9189,7 @@ function oplRender(){
   const K=(a,b,c)=>`<div style="flex:1;min-width:120px;background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:10px 12px"><div style="font-size:10px;color:var(--t3);text-transform:uppercase">${a}</div><div style="font-size:16px;font-weight:800;${c?'color:'+c:''}">${b}</div></div>`;
   const inp=(r,k,val,exp,est)=>`<input type="number" step="any" value="${oplHas(r.o.act&&r.o.act[k])?r.o.act[k]:''}" placeholder="${Math.round(exp)}" onclick="event.stopPropagation()" onchange="oplSet(${r.o.id},'${k}',this.value)" title="${est?'Estimated from price list — type the actual':'Actual entered'}" style="width:74px;text-align:right;padding:4px;border:1px solid ${est?'var(--brd)':'var(--sage)'};border-radius:6px;background:${est?'var(--bg2)':'var(--card)'};color:var(--tx)"/>`;
   host.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px"><select onchange="oplS('dur',this.value)" style="padding:7px;border:1px solid var(--brd);border-radius:9px">${opt}</select>${st.dur==='custom'?`<input type="date" value="${st.from||''}" onchange="oplS('from',this.value)"/> to <input type="date" value="${st.to||''}" onchange="oplS('to',this.value)"/>`:''}<input placeholder="Search order / customer / SKU" value="${esc(st.q||'')}" onchange="oplS('q',this.value)" style="padding:7px;border:1px solid var(--brd);border-radius:9px;min-width:210px"/><button class="btn bt bsm" onclick="oplCSV()">⬇ Item-wise CSV</button></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${K('Orders / units',rs.length+' / '+units)}${K('Client paid',fmt(rev))}${K('Etsy fees',fmt(S('etsy')))}${K('Product + pack',fmt(S('pp')+S('pk')))}${K('Local shipping',fmt(S('local')))}${K('ShipGlobal',fmt(S('sg')))}${K('Other',fmt(S('other')))}${K('Delivery recovered',fmt(S('delivEff')))}${K('Shipping cost',fmt(S('local')+S('sg')))}${K('Order profit',fmt(profit),cl(profit))}${K('Margin',(rev>0?profit/rev*100:0).toFixed(1)+'%',cl(profit))}${K('Etsy Ads (period)',fmt(ads))}${K('Other overhead',fmt(over))}${K('Profit after ads & overhead',fmt(profit-ads-over),cl(profit-ads-over))}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${K('Orders / units',rs.length+' / '+units)}${K('Client paid',fmt(rev))}${K('Etsy fees',fmt(S('etsy')))}${K('Product + pack',fmt(S('pp')+S('pk')))}${K('Local shipping',fmt(S('local')))}${K('ShipGlobal',fmt(S('sg')))}${K('Other',fmt(S('other')))}${K('Reship / return costs',fmt(S('rsx')))}${K('Delivery recovered',fmt(S('delivEff')))}${K('Shipping cost',fmt(S('local')+S('sg')))}${K('Order profit',fmt(profit),cl(profit))}${K('Margin',(rev>0?profit/rev*100:0).toFixed(1)+'%',cl(profit))}${K('Etsy Ads (period)',fmt(ads))}${K('Other overhead',fmt(over))}${K('Profit after ads & overhead',fmt(profit-ads-over),cl(profit-ads-over))}</div>
   ${pending?`<div style="font-size:11px;color:var(--t3);margin-bottom:8px">⚠ ${pending} order(s) still use price-list estimates for local shipping / ShipGlobal (grey boxes). Type the real amounts — the greyed number is the estimate. Green box = actual.</div>`:''}
   <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:var(--bg2);color:var(--t3);font-size:10px;text-transform:uppercase"><th ${tl}>Date</th><th ${tl}>Order</th><th ${tl}>Customer</th><th ${td}>Items paid</th><th ${td}>Delivery paid by client</th><th ${td}>Etsy</th><th ${td}>Purchase+pack</th><th ${td}>Local ship (actual)</th><th ${td}>ShipGlobal (actual)</th><th ${td}>Other</th><th ${td}>Profit</th><th ${td}>Margin</th></tr></thead><tbody>
   ${rs.map((r,i)=>{const o=r.o,m=r.rev>0?r.profit/r.rev*100:0;return `<tr onclick="oplTog(${i},${o.id})" style="cursor:pointer;border-bottom:1px solid var(--brd)"><td ${tl}>${esc(o.date||'')}</td><td ${tl}><b>#${esc(o.ordNo||'')}</b> <span style="color:var(--t3)">▸ ${r.items.length}</span></td><td ${tl}>${esc(o.customer||'')}</td><td ${td}>${fmt(r.itemsRev)}</td><td ${td}>${inp(r,'deliv',r.deliv,r.deliv,r.est.deliv)}</td><td ${td}>${fmt(r.etsy)}</td><td ${td}>${fmt(r.pp+r.pk)}</td><td ${td}>${inp(r,'local',r.local,r.local,r.est.local)}</td><td ${td}>${inp(r,'sg',r.sg,r.sg,r.est.sg)}</td><td ${td}>${inp(r,'other',r.other,r.other,r.est.other)}</td><td ${td} ><b style="color:${cl(r.profit)}">${fmt(r.profit)}</b></td><td ${td}>${m.toFixed(1)}%</td></tr>
@@ -9199,6 +9263,207 @@ const _x6st=switchTab;switchTab=function(t){_x6st.apply(this,arguments);if(t==='
 })();
 
 init();
+</script>
+<script>
+// ═══════════ ORDER ISSUES: refund / return / cancel / reship (full order, particular item, missing item, repair) ═══════════
+const ISS_LBL={refund:'💸 Refund',return:'↩️ Return',cancel:'🚫 Cancel',reship:'📦 Reship'},ISS_SC={full:'Full order',item:'Particular item(s)',missing:'Missing item',repair:'Repairing item'};
+function issOrder(){return orders.find(x=>x.id===+$i('iss-id').value);}
+function openIssueModal(id){const o=orders.find(x=>x.id===id);if(!o)return;
+  $i('iss-id').value=id;$i('iss-type').value='refund';$i('iss-remark').value='';$i('iss-awb').value='';
+  ['iss-refund','iss-retship','iss-rsship','iss-rsprod'].forEach(k=>{const e=$i(k);e.value='';delete e.dataset.dirty;});
+  $i('iss-restock').checked=true;$i('iss-deduct').checked=false;$i('iss-status').value='resolved';
+  $i('iss-info').innerHTML=`<b>Order:</b> #${esc(o.ordNo||'')} &nbsp;|&nbsp; <b>Customer:</b> ${esc(o.customer||'—')} &nbsp;|&nbsp; <b>Paid:</b> ${fmt(o.totalRev||0)} &nbsp;|&nbsp; <b>Items:</b> ${(o.items||[]).length}`;
+  issFillScope();issRender();$i('iss-mo').classList.add('open');}
+function issFillScope(){const t=$i('iss-type').value,sc=$i('iss-scope'),prev=sc.value,opts=t==='cancel'?['full','item']:['full','item','missing','repair'];
+  sc.innerHTML=opts.map(k=>`<option value="${k}">${ISS_SC[k]}</option>`).join('');sc.value=opts.includes(prev)?prev:opts[0];}
+function issSel(){const o=issOrder();if(!o)return[];const sc=$i('iss-scope').value;
+  return (o.items||[]).map((it,i)=>{const c=$i('iss-chk-'+i),q=$i('iss-qty-'+i);
+    if(sc==='full')return{idx:i,sku:it.sku,name:it.name||it.sku,qty:it.qty||1,price:it.price||0};
+    if(c&&c.checked)return{idx:i,sku:it.sku,name:it.name||it.sku,qty:Math.max(1,Math.min(it.qty||1,+(q&&q.value)||1)),price:it.price||0};return null;}).filter(Boolean);}
+function issRender(ev){const o=issOrder();if(!o)return;const t=$i('iss-type').value,tid=ev&&ev.target&&ev.target.id,srcIsType=tid==='iss-type';
+  if(srcIsType)issFillScope();
+  const sc=$i('iss-scope').value,items=o.items||[],box=$i('iss-items');
+  if(sc==='full'){box.innerHTML=`<div style="padding:8px 12px;background:var(--bg2);border-radius:9px;font-size:11px;color:var(--t2)">Whole order — ${items.length} item(s): ${items.map(i=>esc(i.sku||i.name)).join(', ')}</div>`;}
+  else if(srcIsType||tid==='iss-scope'||!box.querySelector('input')||!ev||(tid||'').startsWith('iss-chk')||(tid||'').startsWith('iss-qty')){
+    const was={};items.forEach((_,i)=>{const c=$i('iss-chk-'+i),q=$i('iss-qty-'+i);if(c)was[i]={c:c.checked,q:q&&q.value};});
+    if(!(tid||'').startsWith('iss-qty')){
+    box.innerHTML=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:5px">Select ${sc==='missing'?'missing':sc==='repair'?'repairing':''} item(s):</div>`+items.map((it,i)=>{const w=was[i];
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg2);border-radius:8px;margin-bottom:4px;border:1px solid var(--brd)"><input type="checkbox" id="iss-chk-${i}" ${w?(w.c?'checked':''):''} onchange="issRender(event)" style="width:auto"/><span class="sku-b">${esc(it.sku||'')}</span><span style="flex:1;font-size:11px">${esc(it.name||it.sku)}</span><span style="font-size:11px;color:var(--t2)">Qty <input type="number" id="iss-qty-${i}" min="1" max="${it.qty||1}" value="${w&&w.q?w.q:1}" onchange="issRender(event)" style="width:46px;padding:2px 4px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)"/> / ${it.qty||1}</span><span style="font-size:11px;font-weight:700;color:var(--sage)">${fmt((it.price||0)*(it.qty||1))}</span></div>`;}).join('');}}
+  const sel=issSel(),rev=sc==='full'?(o.totalRev||sel.reduce((s,x)=>s+x.price*x.qty,0)):sel.reduce((s,x)=>s+x.price*x.qty,0);
+  const cost=sel.reduce((s,x)=>{const pl=products.find(p=>p.sku===x.sku);return s+((pl?(pl.pp||0)+(pl.pack||0):0)*x.qty);},0);
+  $i('iss-g-refund').style.display=t==='reship'?'none':'';$i('iss-g-return').style.display=t==='return'?'':'none';$i('iss-g-reship').style.display=t==='reship'?'':'none';
+  const rf=$i('iss-refund');if(!rf.dataset.dirty)rf.value=(sel.length||sc==='full')?rev.toFixed(2):'';
+  const rp=$i('iss-rsprod');if(!rp.dataset.dirty)rp.value=(sc==='repair'||!sel.length)?'':cost.toFixed(2);
+  $i('iss-rsprod-hint').textContent=sc==='repair'?'(repair charge)':'(purchase + pack from price list)';
+  if(srcIsType||tid==='iss-scope'||!ev){$i('iss-deduct').checked=(t==='reship'&&sc!=='repair');$i('iss-status').value=t==='reship'?'open':'resolved';}
+  $i('iss-refund-note').textContent=t==='cancel'?'Cancellation refund is excluded from P&L (order revenue is zeroed, not deducted) and stock is restored.':t==='return'?'Counted as a refund in P&L; return shipping is added as an order cost.':'Counted as a refund in P&L against this order.';
+  $i('iss-effect').innerHTML=issEffect(t,sc,sel);}
+function issEffect(t,sc,sel){const n=sel.reduce((s,x)=>s+x.qty,0),w=sc==='full'?'whole order':n+' unit(s)';
+  return t==='reship'?`📦 Posts reship shipping + item/repair cost as <b>expenses linked to this order</b> (reduces its profit) for <b>${w}</b>.`:t==='cancel'?`🚫 Marks <b>${w}</b> as cancelled, restores stock, refund excluded from P&L.`:t==='return'?`↩️ Adds refund to this order, return shipping as cost, optional restock for <b>${w}</b>.`:`💸 Adds refund to this order's P&L for <b>${w}</b>.`;}
+function issSave(){const o=issOrder();if(!o)return;const t=$i('iss-type').value,sc=$i('iss-scope').value,remark=$i('iss-remark').value.trim(),sel=issSel();
+  if(!remark){showToast('Remark is required','var(--coral)');$i('iss-remark').focus();return;}
+  if(sc!=='full'&&!sel.length){showToast('Select at least one item','var(--coral)');return;}
+  const N=id=>parseFloat($i(id).value)||0,refund=t==='reship'?0:N('iss-refund'),retShip=t==='return'?N('iss-retship'):0,rsShip=t==='reship'?N('iss-rsship'):0,rsProd=t==='reship'?N('iss-rsprod'):0;
+  if(t==='reship'&&!rsShip&&!rsProd){if(!confirm('No reship / item cost entered. Save with ₹0 cost?'))return;}
+  if(t==='cancel'&&o.cancelled&&o.cancelType==='full'){showToast('Order is already fully cancelled','var(--coral)');return;}
+  const stockItems=sel.map(x=>({sku:x.sku,qty:x.qty,name:x.name,price:x.price}));
+  const en={id:Date.now(),status:$i('iss-status').value,date:new Date().toISOString().slice(0,10),type:t,scope:sc,items:sel.map(x=>({sku:x.sku,name:x.name,qty:x.qty,price:x.price})),refund,returnShip:retShip,reshipShip:rsShip,reshipProduct:rsProd,awb:$i('iss-awb').value.trim(),remark,expIds:[],prevStatus:o.status};
+  const mk=(title,cat,amt,note)=>{const id=Date.now()+Math.random();expenses.push({id,title,date:en.date,cat,amount:amt,qty:1,sku:null,vendor:cat==='shipping'?'ShipGlobal':'',ref:o.ordNo,orderRef:o.ordNo,reship:true,issueId:en.id,trackingId:en.awb||'',notes:note+' | '+remark,vendorCredit:0});en.expIds.push(id);};
+  const lbl=ISS_SC[sc]+(sc==='full'?'':': '+sel.map(x=>(x.sku||x.name)+'×'+x.qty).join(', '));
+  if(t==='refund'||t==='return'){if(refund>0)o.customerRefund=+((o.customerRefund||0)+refund).toFixed(2);
+    if(t==='return'){if(retShip>0)mk('Return shipping #'+o.ordNo,'shipping',retShip,'Return shipping — '+lbl);
+      if($i('iss-restock').checked){adjustStock(stockItems,+1);en.restocked=true;}}}
+  else if(t==='cancel'){en.cancelRefund=refund;
+    if(sc==='full'){Object.assign(o,{cancelled:true,cancelType:'full',cancellationRefund:refund,cancellationReason:remark,status:'Cancelled'});adjustStock(o.items||[],+1);}
+    else{const ci=sel.map(x=>({sku:x.sku,name:x.name,qty:x.qty,cancelledRev:x.price*x.qty}));
+      Object.assign(o,{cancelled:true,cancelType:'itemwise',cancelledItems:(o.cancelType==='itemwise'&&o.cancelledItems?o.cancelledItems:[]).concat(ci),cancellationRefund:(o.cancellationRefund||0)+refund,cancellationReason:remark,status:'Cancelled'});adjustStock(stockItems,+1);}
+    en.restocked=true;}
+  else{if(rsShip>0)mk('Reship #'+o.ordNo,'shipping',rsShip,'Reship shipping — '+lbl);
+    if(rsProd>0)mk((sc==='repair'?'Repair cost #':'Reship item cost #')+o.ordNo,'other',rsProd,(sc==='repair'?'Repair cost — ':'Replacement item cost — ')+lbl);
+    if($i('iss-deduct').checked){adjustStock(stockItems,-1);en.deducted=true;}}
+  (o.issues=o.issues||[]).push(en);o.updatedAt=new Date().toISOString();
+  saveLS();$i('iss-mo').classList.remove('open');
+  try{auditEntry('issue','order',o.id,o.ordNo,ISS_LBL[t]+' · '+lbl+' | refund ₹'+refund+' | reship ₹'+(rsShip+rsProd)+' | '+remark);}catch(e){}
+  try{renderOrderDashboard();}catch(e){}try{oplRender();}catch(e){}
+  showToast(ISS_LBL[t]+' recorded for order #'+o.ordNo,'var(--sage)');}
+function issDel(oid,iid){const o=orders.find(x=>x.id===oid);if(!o)return;const en=(o.issues||[]).find(x=>x.id===iid);if(!en)return;
+  if(!confirm('Delete this issue entry and reverse its refund / cost / stock effects?'))return;
+  const items=en.items.map(x=>({sku:x.sku,qty:x.qty,name:x.name,price:x.price}));
+  if((en.type==='refund'||en.type==='return')&&en.refund>0)o.customerRefund=Math.max(0,+((o.customerRefund||0)-en.refund).toFixed(2));
+  expenses=expenses.filter(e=>e.issueId!==en.id);
+  if(en.restocked&&en.type==='return')adjustStock(items,-1);
+  if(en.deducted)adjustStock(items,+1);
+  if(en.type==='cancel'){adjustStock(en.scope==='full'?(o.items||[]):items,-1);
+    const clr=()=>['cancelled','cancelType','cancelledItems','cancellationRefund','cancellationReason'].forEach(k=>delete o[k]);
+    if(en.scope==='full'||!o.cancelledItems)clr();
+    else{o.cancelledItems=o.cancelledItems.filter(c=>!items.some(x=>x.sku===c.sku&&x.qty===c.qty));o.cancellationRefund=Math.max(0,(o.cancellationRefund||0)-(en.cancelRefund||0));if(!o.cancelledItems.length)clr();}
+    if(!o.cancelled)o.status=en.prevStatus||'Processing';}
+  o.issues=o.issues.filter(x=>x.id!==iid);saveLS();
+  try{renderOrderDashboard();}catch(e){}try{oplRender();}catch(e){}showToast('Issue entry removed & effects reversed','var(--sage)');}
+function issLogHTML(o){const L=o&&o.issues;if(!L||!L.length)return'';
+  return `<div class="cancel-box" style="border-color:rgba(232,146,74,0.35);background:rgba(232,146,74,0.05)"><div class="cancel-box-title" style="color:var(--orange)">⚠ Issue Log (${L.length})</div>`+L.map(en=>{
+    const amt=[en.refund>0?'refund '+fmt(en.refund):'',en.returnShip>0?'return ship '+fmt(en.returnShip):'',en.reshipShip>0?'reship ship '+fmt(en.reshipShip):'',en.reshipProduct>0?(en.scope==='repair'?'repair ':'item ')+fmt(en.reshipProduct):''].filter(Boolean).join(' · ');
+    return `<div style="font-size:11px;line-height:1.7;padding:6px 0;border-top:1px solid var(--brd)"><div style="display:flex;justify-content:space-between;gap:8px"><div><b>${ISS_LBL[en.type]}</b> · ${ISS_SC[en.scope]} · <span style="color:var(--t3)">${esc(en.date)}</span></div><span style="white-space:nowrap"><select onchange="issSetStatus(${o.id},${en.id},this.value)" style="font-size:10px;padding:1px 3px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)">${Object.keys(ISS_ST).map(k=>`<option value="${k}" ${(en.status||'resolved')===k?'selected':''}>${ISS_ST[k]}</option>`).join('')}</select> ${en.type==='reship'?`<a href="#" onclick="issAwb(${o.id},${en.id});return false">✎ AWB</a> `:''}<a href="#" onclick="issDel(${o.id},${en.id});return false" style="color:var(--coral)">✕ remove</a></span></div>${en.scope!=='full'&&en.items.length?`<div style="color:var(--t2)">${en.items.map(x=>esc(x.sku||x.name)+' × '+x.qty).join(', ')}</div>`:''}${amt?`<div>${amt}</div>`:''}${en.awb?`<div style="color:var(--t3)">AWB ${esc(en.awb)}</div>`:''}<div style="color:var(--t2)">📝 ${esc(en.remark)}</div></div>`;}).join('')+'</div>';}
+// Remark is mandatory on the existing Cancel Order dialog too
+(function(){const f=applyCancelOrder;applyCancelOrder=function(){if(!$i('cancel-ord-reason').value.trim()){showToast('Enter a remark / reason for the cancellation','var(--coral)');$i('cancel-ord-reason').focus();return;}return f.apply(this,arguments);};
+  const l=[...document.querySelectorAll('#cancel-ord-mo label')].find(x=>/Cancellation Reason/.test(x.textContent));if(l)l.innerHTML='Cancellation Remark <span style="color:var(--coral)">* required</span>';})();
+</script>
+<script>
+// ═══════════ v4 features ═══════════
+// ---- shared: recalc a single order's profit once its ShipGlobal cost is known ----
+function sgRecalcOrder(o){if(!o||!o.sgActualShip)return;
+  const grossRev=o.totalRev||0,bd=o.deliveryPaidByBuyer||0,fees=calcEtsyFees(grossRev-bd,o.tax||0,bd),ic=o.itemCosts||{};let cogs=0;
+  (o.items||[]).forEach(it=>{const pl=skuMap.get(it.sku),cc=ic[it.sku]||{},q=it.qty||1;
+    cogs+=(cc.purchaseCost!==undefined?cc.purchaseCost:(pl?pl.pp:0))*q;cogs+=(cc.localShip!==undefined?cc.localShip:(pl?pl.courier||0:0))*q;
+    cogs+=((cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))+(cc.otherCost||0))*q;});
+  const np=grossRev-fees.total-cogs-o.sgActualShip-(o.customerRefund||0);
+  Object.assign(o,{shipcost:o.sgActualShip,totalEtsy:fees.total,profit:np,nm:netMarginPct(np,grossRev),sgProfitRecalculated:true});}
+
+// ---- 2. Unmatched shipping inbox ----
+function sgUnmatched(){return expenses.filter(e=>e.vendor==='ShipGlobal'&&e.cat==='shipping'&&!e.cancelled&&!e.reship&&!e.orderRef&&!e.unmatchedIgnored&&e.trackingId&&(e.amount||0)>0&&
+  !orders.some(o=>(o.shipNo&&String(o.shipNo).trim()===String(e.trackingId).trim())||(o.ext&&o.ext.awb&&String(o.ext.awb).trim()===String(e.trackingId).trim())||(e.invoiceNo&&String(o.ordNo)===String(e.invoiceNo))));}
+function sgScore(e,o){const tk=x=>String(x||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>1);
+  const a=tk(e.customerName),b=tk((o.customer||'')+' '+(o.shipName||'')),ov=a.filter(w=>b.includes(w)).length,dd=Math.abs((new Date(e.date)-new Date(o.date))/864e5)||0;
+  let sc=ov*10-Math.min(dd,60)/6;if(!o.shipNo&&!(o.ext&&o.ext.awb))sc+=3;if(o.cancelled&&o.cancelType==='full')sc-=20;return sc;}
+function openUnmatchedSG(){sgUnmRender();$i('sgunm-mo').classList.add('open');}
+function sgUnmRender(){const L=sgUnmatched(),box=$i('sgunm-body');
+  if(!L.length){box.innerHTML='<div style="padding:18px;text-align:center;color:var(--sage)">✅ Every ShipGlobal charge is linked to an order.</div>';return;}
+  box.innerHTML=L.map((e,k)=>{const ranked=orders.filter(o=>!(o.cancelled&&o.cancelType==='full')).map(o=>({o,sc:sgScore(e,o)})).sort((a,b)=>b.sc-a.sc).slice(0,40);
+    return `<div style="border:1px solid var(--brd);border-radius:10px;padding:10px 12px;margin-bottom:8px"><div style="font-size:12px"><b style="font-family:monospace">${esc(e.trackingId)}</b> · ${esc(e.date||'')} · <b>${fmt(e.amount)}</b>${e.customerName?' · 👤 '+esc(e.customerName):''}</div>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><select id="sgu-sel-${k}" style="flex:1;min-width:260px;padding:6px;border:1px solid var(--brd);border-radius:8px;background:var(--bg2);color:var(--tx)">${ranked.map((r,n)=>`<option value="${r.o.id}">${n===0?'⭐ ':''}#${esc(r.o.ordNo||'')} · ${esc(r.o.customer||'')} · ${esc(r.o.date||'')}</option>`).join('')}</select>
+    <button class="btn bp bsm" onclick="sgLink(${e.id},${k})">🔗 Link</button><button class="btn bo bsm" onclick="sgIgnore(${e.id})">Ignore</button></div></div>`;}).join('');}
+function sgLink(eid,k){const e=expenses.find(x=>x.id===eid),o=orders.find(x=>String(x.id)===$i('sgu-sel-'+k).value);if(!e||!o)return;
+  e.orderRef=o.ordNo;e.invoiceNo=o.ordNo;e.ref=o.ordNo;if(!e.customerName)e.customerName=o.customer||'';
+  if(!o.shipNo)o.shipNo=e.trackingId;o.sgActualShip=e.amount;o.sgProfitRecalculated=false;
+  if(String(e.trackingId).toUpperCase().startsWith('SG'))o.sgTrackingUrl='https://shipglobal.in/tracking/?awb='+encodeURIComponent(e.trackingId);
+  sgRecalcOrder(o);o.updatedAt=new Date().toISOString();saveLS();try{renderAll();renderOrderDashboard();}catch(x){}
+  try{auditEntry('edit','order',o.id,o.ordNo,'ShipGlobal '+e.trackingId+' ₹'+e.amount+' manually linked');}catch(x){}
+  sgUnmRender();showToast('Linked to order #'+o.ordNo,'var(--sage)');}
+function sgIgnore(eid){const e=expenses.find(x=>x.id===eid);if(!e)return;e.unmatchedIgnored=true;saveLS();sgUnmRender();ijBadges();}
+
+// ---- 3 & 4. Margin threshold + auto-discount on the Etsy PDF import table ----
+function stgLM(){try{const v=parseFloat(localStorage.getItem('ij_lowmargin'));return isNaN(v)?15:v;}catch(e){return 15;}}
+function stgSetLM(v,i){try{localStorage.setItem('ij_lowmargin',String(parseFloat(v)||0));}catch(e){}pdfStagedOrders.forEach((_,k)=>{const b=$i('stg-it-'+k);if(b)b.innerHTML=stgItems(k);});}
+function stgSummary(mg,i,o){const lm=stgLM();let P=0,R=0,low=0;mg.forEach(m=>{P+=m.profit;R+=m.revD;if(m.revD>0&&m.profit/m.revD*100<lm)low++;});
+  const om=R>0?P/R*100:0,c=om>=30?'var(--sage)':om>=lm?'var(--gold2)':'var(--coral)';
+  return `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:11px;margin:6px 0;padding:8px 10px;background:var(--bg2);border-radius:8px"><span>📊 Order margin <b style="color:${c}">${om.toFixed(1)}%</b> <span style="color:var(--t3)">(profit ${fmt(P)} on ${fmt(R)})</span></span>${low?`<span style="color:var(--coral);font-weight:700">⚠ ${low} item(s) below ${lm}%</span>`:`<span style="color:var(--sage)">✓ all items ≥ ${lm}%</span>`}<span style="margin-left:auto;display:flex;gap:6px;align-items:center">Min margin <input type="number" value="${lm}" onchange="stgSetLM(this.value,${i})" style="width:54px;padding:3px;border:1px solid var(--brd);border-radius:6px;text-align:right;background:var(--card);color:var(--tx)"/>% <button class="btn bo bxs" onclick="stgAuto(${i})" title="Sets each item's discount so every item reaches the min margin, keeping the order total equal to what Etsy charged">🎯 Auto-discount to min margin</button></span></div>`;}
+function stgAuto(i){const o=pdfStagedOrders[i];if(!o)return;const X=stgLM()/100,T=o.subTotal,its=o.items,n=its.length;
+  const fr=calcEtsyFees(o.subTotal,o.tax||0,o.delivery||0).total/Math.max(1,o.subTotal+(o.delivery||0));
+  const q=its.map(x=>x.qty||1),L=its.map(x=>x.listingPrice||0),sumL=L.reduce((s,v,j)=>s+v*q[j],0)||1;
+  const need=its.map((x,j)=>{const pl=products.find(p=>p.sku===x.sku);if(!pl)return L[j]*T/sumL;const c=(pl.pp||0)+(pl.pack||0)+(pl.courier||0),d=1-fr-X;return d>0?c/d:Infinity;});
+  let p=need.map((v,j)=>Math.min(L[j],isFinite(v)?v:L[j])),sum=p.reduce((s,v,j)=>s+v*q[j],0),warn='';
+  if(sum>T){const k=T/sum;p=p.map(v=>v*k);warn=' ⚠ The min margin can’t be met on every item at this order total — discounts set to the closest even split.';}
+  else{let rem=T-sum;for(let t=0;t<12&&rem>0.01;t++){const room=p.map((v,j)=>Math.max(0,L[j]-v)*q[j]),R=room.reduce((s,v)=>s+v,0);if(R<=0)break;const add=Math.min(rem,R);p=p.map((v,j)=>v+(room[j]/R*add)/q[j]);rem-=add;}}
+  its.forEach((x,j)=>{if(!(L[j]>0))return;x.price=x.soldPrice=x.rate=+p[j].toFixed(2);x.disc=+((1-p[j]/L[j])*100).toFixed(2);x.manual=true;});
+  const b=$i('stg-it-'+i);if(b)b.innerHTML=stgItems(i);showToast('🎯 Discounts set for min margin '+stgLM()+'%.'+warn,warn?'var(--coral)':'var(--sage)',4500);}
+
+// ---- 6. Issue case status ----
+const ISS_ST={open:'🔴 Open',progress:'🟠 In progress',sent:'🚚 Sent',delivered:'📬 Delivered',resolved:'✅ Resolved'};
+const issIsOpen=en=>['open','progress','sent'].includes(en.status||'resolved');
+function issAllEntries(){const L=[];orders.forEach(o=>(o.issues||[]).forEach(en=>L.push({o,en})));return L;}
+function issRefreshViews(){try{renderOrderDashboard();}catch(e){}try{oplRender();}catch(e){}if($i('issrep-mo').classList.contains('open'))issRepRender();}
+function issSetStatus(oid,iid,v){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[]).find(x=>x.id===iid);if(!en)return;en.status=v;en.statusAt=new Date().toISOString().slice(0,10);o.updatedAt=new Date().toISOString();saveLS();
+  try{auditEntry('issue','order',o.id,o.ordNo,'Case status → '+ISS_ST[v]);}catch(e){}issRefreshViews();}
+function issAwb(oid,iid){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[]).find(x=>x.id===iid);if(!en)return;
+  const v=prompt('Reship AWB / tracking number:',en.awb||'');if(v===null)return;en.awb=v.trim();
+  expenses.forEach(e=>{if(e.issueId===en.id&&e.cat==='shipping')e.trackingId=en.awb;});
+  if(en.awb&&(en.status==='open'||en.status==='progress'))en.status='sent';saveLS();issRefreshViews();}
+
+// ---- 5. Issue analytics + open cases ----
+function issInRange(d,k){if(k==='all'||!d)return true;const t=new Date(),y=t.getFullYear(),m=t.getMonth(),dt=new Date(d+'T00:00:00');
+  if(k==='30d')return dt>=new Date(Date.now()-30*864e5);if(k==='month')return dt.getFullYear()===y&&dt.getMonth()===m;if(k==='year')return dt.getFullYear()===y;
+  if(k==='fy'){const s=new Date(m>=3?y:y-1,3,1);return dt>=s;}return true;}
+const issCost=en=>en.type==='cancel'?0:(en.refund||0)+(en.returnShip||0)+(en.reshipShip||0)+(en.reshipProduct||0);
+function openIssueReport(){issRepRender();$i('issrep-mo').classList.add('open');}
+function issRepRender(){const k=$i('issrep-dur').value,all=issAllEntries(),L=all.filter(x=>issInRange(x.en.date,k)),open=all.filter(x=>issIsOpen(x.en));
+  const tot=L.reduce((s,x)=>s+issCost(x.en),0),canc=L.reduce((s,x)=>s+(x.en.type==='cancel'?(x.en.cancelRefund||x.en.refund||0):0),0);
+  const K=(a,b,c)=>`<div style="flex:1;min-width:130px;background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:9px 12px"><div style="font-size:10px;color:var(--t3);text-transform:uppercase">${a}</div><div style="font-size:16px;font-weight:800;${c?'color:'+c:''}">${b}</div></div>`;
+  const th='style="padding:5px 6px;text-align:right;font-size:10px;text-transform:uppercase;color:var(--t3)"',tl='style="padding:5px 6px"',td='style="padding:5px 6px;text-align:right"';
+  const bar=(v,max,c)=>`<div style="height:6px;background:var(--bg2);border-radius:4px;min-width:70px"><div style="height:6px;width:${max>0?Math.round(v/max*100):0}%;background:${c};border-radius:4px"></div></div>`;
+  // by type
+  const bt={};L.forEach(x=>{const b=bt[x.en.type]=bt[x.en.type]||{n:0,c:0};b.n++;b.c+=x.en.type==='cancel'?0:issCost(x.en);});
+  const maxT=Math.max(0,...Object.values(bt).map(b=>b.c));
+  // by sku
+  const sold={};orders.filter(o=>!(o.cancelled&&o.cancelType==='full')&&issInRange(o.date,k)).forEach(o=>(o.items||[]).forEach(i=>{sold[i.sku]=(sold[i.sku]||0)+(i.qty||1);}));
+  const bs={};L.forEach(x=>{const en=x.en,its=en.items&&en.items.length?en.items:(x.o.items||[]),rv=its.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0)||its.length||1;
+    its.forEach(i=>{const sh=((i.price||0)*(i.qty||1)||1)/rv,b=bs[i.sku]=bs[i.sku]||{name:i.name||i.sku,u:0,n:0,c:0,types:{}};b.u+=i.qty||1;b.n++;b.c+=issCost(en)*sh;b.types[en.type]=(b.types[en.type]||0)+1;});});
+  const skuRows=Object.entries(bs).sort((a,b)=>b[1].c-a[1].c||b[1].u-a[1].u),maxS=Math.max(0,...skuRows.map(r=>r[1].c));
+  // by month
+  const bm={};L.forEach(x=>{const m=(x.en.date||'').slice(0,7)||'—',b=bm[m]=bm[m]||{n:0,c:0};b.n++;b.c+=issCost(x.en);});
+  const mRows=Object.entries(bm).sort((a,b)=>b[0].localeCompare(a[0])),maxM=Math.max(0,...mRows.map(r=>r[1].c));
+  const today=Date.now();
+  $i('issrep-body').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${K('Cases',L.length)}${K('Cost to business',fmt(tot),tot>0?'var(--coral)':'')}${K('Cancel refunds (not a loss)',fmt(canc))}${K('Open cases',open.length,open.length?'var(--orange)':'var(--sage)')}</div>
+  <div style="font-size:11px;font-weight:700;margin:6px 0">🔴 Open cases ${open.length?'':'— none 🎉'}</div>
+  ${open.length?`<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px"><tr><th ${th} style="text-align:left">Order</th><th ${th} style="text-align:left">Case</th><th ${th}>Age</th><th ${th}>Cost</th><th ${th}>Status</th><th ${th}></th></tr>${open.sort((a,b)=>(a.en.date||'').localeCompare(b.en.date||'')).map(x=>{const age=Math.max(0,Math.round((today-new Date(x.en.date+'T00:00:00'))/864e5));return `<tr style="border-top:1px solid var(--brd)"><td ${tl}><b>#${esc(x.o.ordNo||'')}</b><div style="color:var(--t3)">${esc(x.o.customer||'')}</div></td><td ${tl}>${ISS_LBL[x.en.type]} · ${ISS_SC[x.en.scope]}${x.en.items.length&&x.en.scope!=='full'?`<div style="color:var(--t3)">${x.en.items.map(i=>esc(i.sku||i.name)+'×'+i.qty).join(', ')}</div>`:''}<div style="color:var(--t2)">📝 ${esc(x.en.remark)}${x.en.awb?' · AWB '+esc(x.en.awb):''}</div></td><td ${td} ><span style="color:${age>14?'var(--coral)':'var(--t2)'}">${age}d</span></td><td ${td}>${fmt(issCost(x.en))}</td><td ${td}><select onchange="issSetStatus(${x.o.id},${x.en.id},this.value)" style="font-size:11px;padding:2px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)">${Object.keys(ISS_ST).map(s=>`<option value="${s}" ${x.en.status===s?'selected':''}>${ISS_ST[s]}</option>`).join('')}</select></td><td ${td}><a href="#" onclick="$i('issrep-mo').classList.remove('open');extOpenOrder(${x.o.id});return false">Open order →</a></td></tr>`;}).join('')}</table>`:''}
+  <div style="font-size:11px;font-weight:700;margin:10px 0 4px">By type</div>
+  <table style="width:100%;border-collapse:collapse;font-size:11px"><tr><th ${th} style="text-align:left">Type</th><th ${th}>Cases</th><th ${th}>Cost</th><th ${th}></th></tr>${Object.entries(bt).map(([t,b])=>`<tr style="border-top:1px solid var(--brd)"><td ${tl}>${ISS_LBL[t]}</td><td ${td}>${b.n}</td><td ${td}>${t==='cancel'?'—':fmt(b.c)}</td><td ${td}>${bar(b.c,maxT,'var(--orange)')}</td></tr>`).join('')||`<tr><td colspan="4" ${tl}>No cases in this period</td></tr>`}</table>
+  <div style="font-size:11px;font-weight:700;margin:12px 0 4px">By product (SKU) — which items cause the most trouble</div>
+  <table style="width:100%;border-collapse:collapse;font-size:11px"><tr><th ${th} style="text-align:left">SKU</th><th ${th}>Units affected</th><th ${th}>Sold</th><th ${th}>Issue rate</th><th ${th}>Cases</th><th ${th}>Cost</th><th ${th}></th></tr>${skuRows.slice(0,25).map(([sku,b])=>{const sd=sold[sku]||0,rt=sd>0?b.u/sd*100:null;return `<tr style="border-top:1px solid var(--brd)"><td ${tl}><b>${esc(sku||'—')}</b><div style="color:var(--t3)">${esc(String(b.name).slice(0,48))}</div></td><td ${td}>${b.u}</td><td ${td}>${sd||'—'}</td><td ${td}><b style="color:${rt!==null&&rt>=10?'var(--coral)':'var(--t2)'}">${rt===null?'—':rt.toFixed(0)+'%'}</b></td><td ${td}>${b.n} <span style="color:var(--t3)">(${Object.entries(b.types).map(([t,c])=>ISS_LBL[t].slice(0,2)+c).join(' ')})</span></td><td ${td}>${fmt(b.c)}</td><td ${td}>${bar(b.c,maxS,'var(--coral)')}</td></tr>`;}).join('')||`<tr><td colspan="7" ${tl}>No cases in this period</td></tr>`}</table>
+  <div style="font-size:11px;font-weight:700;margin:12px 0 4px">By month</div>
+  <table style="width:100%;border-collapse:collapse;font-size:11px"><tr><th ${th} style="text-align:left">Month</th><th ${th}>Cases</th><th ${th}>Cost</th><th ${th}></th></tr>${mRows.map(([m,b])=>`<tr style="border-top:1px solid var(--brd)"><td ${tl}>${m}</td><td ${td}>${b.n}</td><td ${td}>${fmt(b.c)}</td><td ${td}>${bar(b.c,maxM,'var(--indigo)')}</td></tr>`).join('')||`<tr><td colspan="4" ${tl}>No cases in this period</td></tr>`}</table>
+  <div style="font-size:10px;color:var(--t3);margin-top:10px">Cost = refunds + return shipping + reship shipping + replacement / repair cost. Cancellation refunds are shown separately because they don't hit P&L. Per-SKU cost is split across the items in a case by their sold value. Issue rate = units affected ÷ units sold in the same period.</div>`;}
+
+// ---- 7. Automatic snapshots + undo ----
+async function ijSnap(label){try{let L=(await idbGet('ij_snaps'))||[];
+  L.unshift({ts:Date.now(),label,counts:{o:orders.length,e:expenses.length},data:JSON.parse(JSON.stringify({orders,expenses,stock:products.map(p=>({id:p.id,stock:p.stock}))}))});
+  await idbPut('ij_snaps',L.slice(0,5));return true;}catch(e){console.warn('snapshot failed',e);return false;}}
+async function ijSnapNow(){const ok=await ijSnap('Manual snapshot');showToast(ok?'📸 Snapshot saved':'Could not save snapshot',ok?'var(--sage)':'var(--coral)');openBackups();}
+async function openBackups(){$i('bak-mo').classList.add('open');const box=$i('bak-body');box.innerHTML='Loading…';
+  let L=[];try{L=(await idbGet('ij_snaps'))||[];}catch(e){}
+  box.innerHTML=L.length?L.map((x,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--brd);border-radius:10px;margin-bottom:6px"><div style="flex:1;font-size:12px"><b>${esc(x.label)}</b><div style="font-size:10px;color:var(--t3)">${new Date(x.ts).toLocaleString()} · ${x.counts.o} orders · ${x.counts.e} expenses</div></div><button class="btn ${i===0?'bp':'bo'} bsm" onclick="ijRestore(${i})">${i===0?'↩ Undo last import':'Restore'}</button></div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--t3)">No snapshots yet — one is taken automatically before your next import.</div>';}
+async function ijRestore(i){const L=(await idbGet('ij_snaps'))||[],x=L[i];if(!x)return;
+  if(!confirm('Restore "'+x.label+'" from '+new Date(x.ts).toLocaleString()+'?\n\nCurrent orders, expenses and stock will be replaced (a snapshot of the current state is saved first).'))return;
+  await ijSnap('Before restore');const d=JSON.parse(JSON.stringify(x.data));
+  orders=d.orders;expenses=d.expenses;(d.stock||[]).forEach(s=>{const p=products.find(q=>q.id===s.id);if(p)p.stock=s.stock;});
+  saveLS();try{renderAll();renderOrderDashboard();}catch(e){}$i('bak-mo').classList.remove('open');showToast('↩ Restored snapshot','var(--sage)');}
+(function(){['commitPDFImport','commitSGImport'].forEach(n=>{const f=window[n];if(typeof f!=='function'){console.warn('backup hook: missing',n);return;}
+  window[n]=async function(){const ok=await ijSnap(n==='commitSGImport'?'Before ShipGlobal import':'Before Etsy PDF import'),r=await f.apply(this,arguments);
+    if(ok)setTimeout(()=>showToast('🛟 Snapshot saved before import — undo from Backups','var(--indigo)',3500),1200);return r;};});})();
+
+// ---- badges ----
+function ijBadges(){const u=sgUnmatched().length,o=issAllEntries().filter(x=>issIsOpen(x.en)).length,a=$i('sgunm-badge'),b=$i('issrep-badge');
+  if(a){a.textContent=u;a.style.display=u?'':'none';}if(b){b.textContent=o;b.style.display=o?'':'none';}}
+(function(){const f=renderOrderDashboard;renderOrderDashboard=function(){const r=f.apply(this,arguments);try{ijBadges();}catch(e){}return r;};setTimeout(()=>{try{ijBadges();}catch(e){}},1500);})();
 </script>
 </body>
 </html>
