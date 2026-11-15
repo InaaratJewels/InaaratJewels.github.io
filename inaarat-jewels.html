@@ -907,6 +907,18 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
     <select id="pl-fc" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="">All Categories</option></select>
     <select id="pl-sort" onchange="renderPL()" style="background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none;font-family:Inter,sans-serif"><option value="sku">SKU ↑</option><option value="name">Name A-Z</option><option value="price-desc">Price ↓ High</option><option value="price-asc">Price ↑ Low</option><option value="profit-desc">Profit ↓ High</option><option value="profit-asc">Profit ↑ Low</option><option value="stock-desc">Stock ↓ High</option><option value="stock-asc">Stock ↑ Low</option><option value="sold-desc">Most Sold ↓</option><option value="sold-asc">Least Sold ↑</option></select>
   </div>
+  <div id="bulk-bar" class="bulk-bar">
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px">Bulk edit selected products <span style="font-weight:400;color:var(--t3)">(blank fields are skipped)</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:10px">
+      <div class="f"><label>Courier ₹</label><input id="b_courier" type="number" placeholder="skip"/></div>
+      <div class="f"><label>Discount %</label><input id="b_disc" type="number" placeholder="skip"/></div>
+      <div class="f"><label>India add-on ₹</label><input id="b_india" type="number" placeholder="skip"/></div>
+      <div class="f"><label>USA add-on ₹</label><input id="b_usa" type="number" placeholder="skip"/></div>
+      <div class="f"><label>World add-on ₹</label><input id="b_world" type="number" placeholder="skip"/></div>
+      <div class="f"><label>Etsy Ads ₹</label><input id="b_etsyad" type="number" placeholder="skip"/></div>
+    </div>
+    <button class="btn ba bsm" onclick="applyBulk()">✓ Apply to Selected</button>
+  </div>
   <div class="pl-wrapper">
     <div class="pl-header">
       <div class="pl-hc">#</div><div class="pl-hc">Image</div><div class="pl-hc">Details</div>
@@ -2054,7 +2066,7 @@ window.addEventListener('focus', () => {
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--indigo);margin-bottom:6px">Insurance Recovery Summary</div>
       <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Customer Refund Amount</span><span id="rw-sum-refund" style="font-weight:700;color:var(--coral)"></span></div>
       <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Total Insurance Recovered</span><span id="rw-sum-ins" style="font-weight:700;color:var(--indigo)"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Etsy TX Fee Refunded to You (6.5%)</span><span id="rw-sum-etsy-refund" style="font-weight:700;color:var(--sage)"></span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Etsy Fees Refunded to You (proportional)</span><span id="rw-sum-etsy-refund" style="font-weight:700;color:var(--sage)"></span></div>
       <div style="border-top:1px solid rgba(76,92,138,0.2);margin:5px 0"></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span style="font-weight:700">Net P&L Impact</span><span id="rw-sum-net" style="font-weight:800;font-family:'Poppins',sans-serif;font-size:14px"></span></div>
       <div id="rw-sum-note" style="font-size:10px;color:var(--t3);margin-top:5px"></div>
@@ -2071,7 +2083,7 @@ window.addEventListener('focus', () => {
     <div id="rw-noins-summary" style="padding:10px 14px;background:linear-gradient(90deg,rgba(216,140,140,0.08),var(--bg2));border:1px solid rgba(216,140,140,0.25);border-radius:10px;margin-bottom:12px">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--coral);margin-bottom:6px">Refund P&L Impact</div>
       <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Customer Refund Amount</span><span id="rw-noins-refund" style="font-weight:700;color:var(--coral)"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Etsy TX Fee Refunded to You (6.5%)</span><span id="rw-noins-etsy-refund" style="font-weight:700;color:var(--sage)"></span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:var(--t2)">Etsy Fees Refunded to You (proportional)</span><span id="rw-noins-etsy-refund" style="font-weight:700;color:var(--sage)"></span></div>
       <div style="border-top:1px solid rgba(216,140,140,0.2);margin:5px 0"></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span style="font-weight:700">Net P&L Impact</span><span id="rw-noins-net" style="font-weight:800;font-family:'Poppins',sans-serif;font-size:14px;color:var(--coral)"></span></div>
     </div>
@@ -4467,14 +4479,33 @@ function effExp(e){
 // If order reconciled via Etsy Pay CSV → uses Gross−Net (exact amount Etsy kept)
 // Otherwise → uses totalEtsy (formula estimate)
 // Both values preserved — formula stored in totalEtsyFormula for audit
-function effEtsy(o){
-  if(!o) return 0;
-  if(o.cancelled && o.cancelType==='full') return 0;
-  if(o.refundIsCancellation) return 0;
+function etsyBaseFee(o){
   if(o.etsyReconciled && o.etsyGrossReceived!=null && o.etsyActualNet!=null){
     return Math.max(0,(o.etsyGrossReceived||0)-(o.etsyActualNet||0));
   }
   return o.totalEtsy||0;
+}
+// Share of the order refunded to the buyer. Etsy returns its fees (tx, processing, fixed, regulatory)
+// in the same proportion, so the fee kept by Etsy shrinks by this share.
+function etsyRefundFrac(o){
+  if(!o||o.refundIsCancellation||(o.cancelled&&o.cancelType==='full'))return 0;
+  const rev=o.totalRev||0; if(!(rev>0))return 0;
+  let r=o.customerRefund||0;
+  if(o.cancelled&&o.cancelType==='itemwise')r+=(o.cancelledItems||[]).reduce((s,c)=>s+(c.cancelledRev||0),0);
+  return Math.min(1,Math.max(0,r/rev));
+}
+function etsyFeeRefundFor(o,refundAmt){
+  const rev=(o&&o.totalRev)||0; if(!(rev>0)||!(refundAmt>0))return 0;
+  return etsyBaseFee(o)*Math.min(1,refundAmt/rev);
+}
+function effEtsy(o){
+  if(!o) return 0;
+  if(o.cancelled && o.cancelType==='full') return 0;
+  if(o.refundIsCancellation) return 0;
+  const base=etsyBaseFee(o);
+  // If the Etsy CSV already recorded the refund, its figures are authoritative
+  if(o.etsyReconciled && (o.etsyRefundAmount||0)>0) return base;
+  return base*(1-etsyRefundFrac(o));
 }
 
 // ══════════════════════════════════════════════
@@ -5068,7 +5099,7 @@ function renderUnifiedTable(fOrders,fExp){
           <div style="font-size:11px;color:var(--t2);line-height:1.8">
             <div><strong>Refund Amount:</strong> ${fmt(e.customerRefund)}</div>
             <div><strong>Item Dispatched:</strong> ${e.refundDispatched===false?'❌ No — treated as Cancellation':'✅ Yes — affects P&L'}</div>
-            ${(e.etsyTxRefund||0)>0?`<div><strong>Etsy TX Fee Refunded to You:</strong> <span style="color:var(--sage);font-weight:700">+ ${fmt(e.etsyTxRefund)}</span> <span style="font-size:10px;color:var(--t3)">(6.5% returned by Etsy)</span></div>`:''}
+            ${(e.etsyTxRefund||0)>0?`<div><strong>Etsy Fees Refunded to You:</strong> <span style="color:var(--sage);font-weight:700">+ ${fmt(e.etsyTxRefund)}</span> <span style="font-size:10px;color:var(--t3)">(returned by Etsy, in proportion to refund)</span></div>`:''}
             ${e.refundItemReturned!==undefined?`<div><strong>Item Returned:</strong> ${e.refundItemReturned?(e.refundItemSellable?'✅ Sellable — stock restored':'⚠ Damaged — stock not restored'):'❌ Not returned'}</div>`:''}
             ${(e.returnShipCost||0)>0?`<div><strong>Return Shipping Cost:</strong> − ${fmt(e.returnShipCost)}</div>`:''}
             ${e.refundIsCancellation?`<div style="color:var(--t3);font-size:10px">⚠ Treated as cancellation — excluded from P&L since item was not dispatched.</div>`:`
@@ -5517,10 +5548,10 @@ function rwSetInsurance(val){
     const refundAmt=parseFloat($i('rw-refund-amount').value)||0;
     $i('rw-noins-refund').textContent=fmt(refundAmt);
     // Etsy refunds TX fee back to you on returns
-    const etsyRefund=refundAmt*ETSY_TX_RATE;
+    const etsyRefund=etsyFeeRefundFor(orders.find(o=>o.id===parseFloat($i('rw-order-id').value)),refundAmt);
     $i('rw-noins-net').textContent='−'+fmt(refundAmt-etsyRefund);
     const etsyEl=$i('rw-noins-etsy-refund');
-    if(etsyEl)etsyEl.textContent='+'+fmt(etsyRefund)+' (Etsy TX refunded to you)';
+    if(etsyEl)etsyEl.textContent='+'+fmt(etsyRefund)+' (Etsy fees refunded to you)';
     $i('rw-step3b').style.display='block';
   }
 }
@@ -5545,7 +5576,7 @@ function rwCalcInsurance(){
   const insShip=parseFloat($i('rw-ins-ship').value)||0;
   const insProd=parseFloat($i('rw-ins-prod').value)||0;
   const totalIns=insShip+insProd;
-  const etsyRefund=refundAmt*ETSY_TX_RATE; // Etsy TX fee refunded back to you
+  const etsyRefund=etsyFeeRefundFor(orders.find(o=>o.id===parseFloat($i('rw-order-id').value)),refundAmt); // Etsy fees refunded back to you
   const netImpact=refundAmt-totalIns-etsyRefund;
   $i('rw-sum-refund').textContent='−'+fmt(refundAmt);
   $i('rw-sum-ins').textContent='+'+fmt(totalIns);
@@ -5559,7 +5590,7 @@ function rwCalcInsurance(){
   } else {
     netEl.textContent='−'+fmt(netImpact);
     netEl.style.color='var(--coral)';
-    $i('rw-sum-note').textContent=`⚠ Net loss of ${fmt(netImpact)} after insurance + Etsy TX refund will reduce your P&L.`;
+    $i('rw-sum-note').textContent=`⚠ Net loss of ${fmt(netImpact)} after insurance + Etsy fee refund will reduce your P&L.`;
   }
 }
 function rwConfirm(){
@@ -5570,7 +5601,7 @@ function rwConfirm(){
   // Validate refund amount
   const orderRev=orders[idx].totalRev||0;
   if(refundAmt>orderRev*1.5){showToast('⚠ Refund ('+fmt(refundAmt)+') exceeds 150% of order value ('+fmt(orderRev)+') — please verify','var(--coral)');return;}
-  const etsyTxRefund=refundAmt*ETSY_TX_RATE; // Etsy refunds TX fee back to you
+  const etsyTxRefund=etsyFeeRefundFor(orders[idx],refundAmt); // Etsy refunds its fees proportionally
   orders[idx].customerRefund=refundAmt;
   orders[idx].refundDispatched=_rwDispatched;
   delete orders[idx]._sgFlagRefund; // cleared once refund wizard is run
@@ -5601,7 +5632,7 @@ function rwConfirm(){
   saveLS();renderOrderDashboard();
   const insMsg=_rwInsurance?` | Insurance: +${fmt(orders[idx].insuranceTotalRecovered)}`:'';
   const returnMsg=_rwItemReturned?(_rwItemSellable?' | Stock restored':''):' | Stock not returned';
-  showToast(`✓ Refund ${fmt(refundAmt)} applied | Etsy TX refund: +${fmt(etsyTxRefund)}${insMsg}${returnMsg}`);
+  showToast(`✓ Refund ${fmt(refundAmt)} applied | Etsy fee refund: +${fmt(etsyTxRefund)}${insMsg}${returnMsg}`);
 }
 function rwSetReturnStep(hasInsurance){
   $i('rw-step3').style.display='none';
