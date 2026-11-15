@@ -729,7 +729,7 @@ input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
       </div>
       <div class="coll-body closed" id="op-body">
         <div style="height:8px"></div>
-        <div class="info-row">✦ Misc(10%) Returns(10%) Damage(15%) auto from Purchase Price · Etsy: 6.5% TX + 5% Proc + 0.29% Reg + ₹25 fixed</div>
+        <div class="info-row">✦ Misc(10%) Returns(10%) Damage(15%) auto from Purchase Price · New quotes: 14.75% Etsy cost (6.5% TX + 5% processing + fees on shipping/tax) + ₹25 fixed · existing product prices keep the old 11.79%</div>
         <div class="g4">
           <div class="f pfx"><label>List Fee <span style="font-size:9px;color:var(--sage);font-weight:400">₹0 (Plus)</span></label><span class="ps">₹</span><input id="c_list" type="number" value="0" oninput="calc()" title="Etsy Plus credits cancel every ₹18 listing fee. Net listing cost = ₹0. Only enter a value here if you have additional listing platform costs."/></div>
           <div class="f pfx"><label>Payment Fixed ₹</label><span class="ps">₹</span><input id="c_payment" type="number" value="0" oninput="calc()" title="The ₹25 Etsy fixed processing fee is already included in calcEtsyFees(). Enter ₹0 here to avoid double-counting. Only use this field for other payment gateway costs."/></div>
@@ -1950,6 +1950,7 @@ window.addEventListener('focus', () => {
   <div id="iss-g-extra" style="display:none;margin-top:8px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="f"><label>Extra amount customer paid ₹</label><input type="number" id="iss-extra" min="0" step="any" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
     <div class="f"><label>Extra courier cost we paid ₹ <span style="font-size:10px;color:var(--t3);font-weight:400">(optional)</span></label><input type="number" id="iss-extra-cost" min="0" step="any" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div></div>
+    <div class="f" style="margin-top:6px"><label>Etsy fees actually charged on it ₹ <span style="font-size:10px;color:var(--t3);font-weight:400">(optional — from your Etsy statement; empty = auto 6.5% + 5% + ₹25 + reg)</span></label><input type="number" id="iss-extra-fee" min="0" step="any" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
     <label style="font-size:11px;display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" id="iss-extra-etsy" checked style="width:auto"/> Paid through Etsy — add Etsy fees on it (untick if paid directly, e.g. UPI)</label>
     <div style="font-size:10px;color:var(--t3);margin-top:4px">If ShipGlobal bills the higher express rate on its invoice, leave the courier cost empty — the invoice import already covers it.</div></div>
   <div class="f" style="margin-top:10px"><label>Remark <span style="color:var(--coral)">* required</span></label><input type="text" id="iss-remark" placeholder="e.g. Earring missing in parcel, customer sent photo / stone fell off, repair at vendor…" style="width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:7px 10px;color:var(--tx);font-size:12px;outline:none"/></div>
@@ -2167,10 +2168,19 @@ function triggerDownload(content, filename, mime='text/csv') {
 let ETSY_TX_RATE = 0.065;   // 6.5% transaction fee on subtotal (your revenue)
 let ETSY_PAY_RATE = 0.05;    // 5.0% processing fee on FULL buyer payment (subtotal+tax+delivery)
 let ETSY_PAY_FIXED = 25;      // ₹25 fixed per order (verified from Etsy statements — NOT ₹30)
-let ETSY_REG_OP_RATE = 0.0029;  // 0.29% regulatory operating fee on subtotal
+let ETSY_REG_OP_RATE = 0.0029;  // 0.29% regulatory fee — price-list / estimate maths only (kept so listing prices don't move)
+let ETSY_REG_ACT = 0.0005;      // ≈0.05% regulatory fee on (items + delivery) — what Etsy statements actually show on real orders
 const ETSY_LIST_FEE    = 18;      // ₹18 listing fee — NOT charged per sale, only on listing/relist
                                   // → used only in pricing calc amortisation, never in calcEtsyFees()
-let ETSY_FULL_RATE = ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE; // 11.79%
+// Tax at source Etsy India deducts per order (verified Nov-2026 statement): TCS 0.5%, TDS 0.1% of items+delivery.
+// Tracked separately — NOT an Etsy fee (usually claimable as tax credit; confirm with your accountant).
+const ETSY_TCS_RATE = 0.005, ETSY_TDS_RATE = 0.001;
+let ETSY_FULL_RATE = ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE; // 11.79% — LEGACY rate, products priced before FEE_V2_FROM keep it
+// V2 (new products / new calculator quotes): effective variable Etsy cost as % of the PRODUCT price, measured on 107 real orders (Jan–Nov 2026):
+//   6.5% TX on items + 1.5% TX on shipping + 6.7% processing (5% of items+shipping+buyer tax) + 0.06% regulatory = 14.75%  (+ ₹25 fixed/order)
+// Shipping and buyer tax are pass-through, but Etsy still charges fees on them — the old 11.79% ignored that.
+let ETSY_FULL_RATE_V2 = 0.1475;
+const FEE_V2_FROM = '2026-11-15';   // products added on/after this date (or flagged feeV:2) use V2; older products keep their prices
 
 // Shared net margin helper — single formula used everywhere
 function netMarginPct(profit, grossRev) {
@@ -2208,12 +2218,20 @@ function normaliseRegion(raw) {
 //
 // VERIFIED: CSV "Fees" column = processing fee only (5% × listingAmt + ₹25)
 //           TX fee (6.5%) and reg fee (0.29%) appear separately in Etsy Finance
-function calcEtsyFees(subtotal, salesTax, delivery) {
-  const orderTotal = subtotal + (salesTax || 0) + (delivery || 0);
-  const txFee    = subtotal   * ETSY_TX_RATE;                        // 6.5% on your revenue
-  const procFee  = orderTotal * ETSY_PAY_RATE + ETSY_PAY_FIXED;     // 5% on full buyer total + ₹25
-  const regOpFee = subtotal   * ETSY_REG_OP_RATE;                   // 0.29% on your revenue
-  return { txFee, procFee, regOpFee, total: txFee + procFee + regOpFee };
+function calcEtsyFees(subtotal, salesTax, delivery, opts) {
+  // Verified against two Etsy order statements (Nov 2026):
+  //  • Transaction fee 6.5% applies to items AND delivery (Etsy shows a separate "delivery transaction fee")
+  //  • Processing fee 5% of the full buyer total (items + tax + delivery) + ₹25 per payment
+  //  • Regulatory operating fee ≈0.05% of items + delivery
+  // opts.legacy = old behaviour (fees on items only, 0.29% reg) — used by price-list maths and manual orders
+  const lg = !!(opts && opts.legacy), del = delivery || 0;
+  const orderTotal = subtotal + (salesTax || 0) + del;
+  const feeBase  = lg ? subtotal : subtotal + del;
+  const txFee    = feeBase * ETSY_TX_RATE;
+  const procFee  = orderTotal * ETSY_PAY_RATE + ETSY_PAY_FIXED;
+  const regOpFee = lg ? subtotal * ETSY_REG_OP_RATE : feeBase * ETSY_REG_ACT;
+  // txFee = item TX (6.5% of items) + shipping TX (6.5% of delivery) — Etsy bills them as two lines
+  return { txFee, procFee, regOpFee, total: txFee + procFee + regOpFee, tcs: feeBase*ETSY_TCS_RATE, tds: feeBase*ETSY_TDS_RATE };
 }
 
 // Legacy wrapper for call sites that don't yet pass tax/delivery
@@ -2358,7 +2376,8 @@ function renderDashboard() {
     const kpiEtsySub=$i('kpi-etsy-sub');
     if(kpiEtsySub){
       if(reconciledCount>0){
-        kpiEtsySub.textContent=reconciledCount+' orders use actual fees';
+        const tcsTds=allOrders.reduce((s,o)=>s+(o.etsyTcs!=null?(o.etsyTcs+(o.etsyTds||0)):(o.cancelled&&o.cancelType==='full'?0:(o.totalRev||0)*(ETSY_TCS_RATE+ETSY_TDS_RATE))),0);
+        kpiEtsySub.textContent=reconciledCount+' orders use actual fees · TCS/TDS '+fmt(tcsTds)+' (tax credit, not in fees)';
         kpiEtsySub.style.color='var(--sage2)';
       } else {
         kpiEtsySub.textContent='formula estimate';
@@ -3584,6 +3603,8 @@ function copySKU(sku, el) {
 //  USA/World profit independently calculated (not copied from India).
 // ══════════════════════════════════════════════
 function calcPricing(d) {
+  const v2 = d.feeV===2 || (d.feeV==null && !!d.addedAt && d.addedAt>=FEE_V2_FROM);
+  const FR = v2 ? ETSY_FULL_RATE_V2 : ETSY_FULL_RATE;
   const pp=+(d.pp||0),mg=+(d.margin||0),disc=+(d.disc||0);
   const misc=pp*.10,ret=pp*.10,damage=pp*.15;
   const courier=+(d.courier||0),pack=+(d.pack||0),addcost=+(d.addcost||0);
@@ -3592,7 +3613,7 @@ function calcPricing(d) {
   const fc=pp+misc+ret+damage+courier+pack+addcost+listfee+payment+etsyad+ai+plus+social+gift;
 
   // Product sell price (product portion only — shipping handled separately)
-  const denom = 1 - ETSY_FULL_RATE - mg/100;
+  const denom = 1 - FR - mg/100;
   const baseSell = denom > 0 ? (fc + ETSY_PAY_FIXED) / denom : 0;
   // Listing price (product only) — grossed up for discount
   const lp = disc < 100 ? baseSell / (1 - disc/100) : baseSell;
@@ -3614,12 +3635,11 @@ function calcPricing(d) {
 
   // Actual ShipGlobal cost recovered after Etsy takes its fees on the TR
   // SG_cost = TR × (1 − ETSY_FULL_RATE)  — this is the net you receive for shipping
-  const inSG=inTR*(1-ETSY_FULL_RATE), usSG=usTR*(1-ETSY_FULL_RATE), woSG=woTR*(1-ETSY_FULL_RATE);
+  const inSG=inTR*(1-FR), usSG=usTR*(1-FR), woSG=woTR*(1-FR);
 
   // Etsy fees on total sell (product + shipping combined — how Etsy actually bills)
-  const inFees = calcEtsyFees(inF, 0, 0);
-  const usFees = calcEtsyFees(usF, 0, 0);
-  const woFees = calcEtsyFees(woF, 0, 0);
+  const _fees = x => v2 ? {total:x*FR+ETSY_PAY_FIXED} : calcEtsyFees(x, 0, 0, {legacy:true});
+  const inFees = _fees(inF), usFees = _fees(usF), woFees = _fees(woF);
 
   // Profit: total sell − Etsy fees − fixed product costs − actual ShipGlobal cost
   // (Etsy fees already include fees on the shipping portion via calcEtsyFees(full amount))
@@ -3635,15 +3655,16 @@ function calcPricing(d) {
     inTR,usTR,woTR,       // Total Receivable (what buyer pays for shipping)
     inSG,usSG,woSG,       // Actual ShipGlobal cost (what you pay the courier)
     inAdder:iA,usAdder:uA,woAdder:wA,
+    feeV: v2?2:d.feeV,
     etsyTxFee:baseSell*ETSY_TX_RATE,
-    etsyProcFee:baseSell*ETSY_PAY_RATE+ETSY_PAY_FIXED,
-    etsyRegFee:baseSell*ETSY_REG_OP_RATE,
+    etsyProcFee:v2 ? baseSell*(FR-ETSY_TX_RATE-ETSY_REG_ACT)+ETSY_PAY_FIXED : baseSell*ETSY_PAY_RATE+ETSY_PAY_FIXED,  // V2: incl. fees Etsy takes on shipping & buyer tax
+    etsyRegFee:baseSell*(v2?ETSY_REG_ACT:ETSY_REG_OP_RATE),
     etsyFixedFee:ETSY_PAY_FIXED,
-    etsyTotalFee:baseSell*ETSY_FULL_RATE+ETSY_PAY_FIXED,
+    etsyTotalFee:baseSell*FR+ETSY_PAY_FIXED,
     inL,usL,woL,inF,usF,woF,inPr,usPr,woPr,inNM,usNM,woNM,
     disc,margin:mg,courier,pack,addcost,listfee,payment,etsyad,ai,plus,social,gift};
 }
-function getFormData(){return{pp:gn('c_pp'),margin:gn('c_margin'),courier:gn('c_courier'),pack:gn('c_pack'),addcost:gn('c_addcost'),list:gn('c_list'),payment:gn('c_payment'),etsyad:gn('c_etsyad'),ai:gn('c_ai'),plus:gn('c_plus'),social:gn('c_social'),gift:gn('c_gift'),india:0,usa:0,world:0,disc:gn('c_disc'),shippingOn:false};}
+function getFormData(){return{pp:gn('c_pp'),margin:gn('c_margin'),courier:gn('c_courier'),pack:gn('c_pack'),addcost:gn('c_addcost'),list:gn('c_list'),payment:gn('c_payment'),etsyad:gn('c_etsyad'),ai:gn('c_ai'),plus:gn('c_plus'),social:gn('c_social'),gift:gn('c_gift'),india:0,usa:0,world:0,disc:gn('c_disc'),shippingOn:false,feeV:2};}
 function calc(){
   const d=getFormData(),r=calcPricing(d);
   $i('d_pp').textContent=fmt(d.pp);$i('d_tc').textContent=fmt(r.totalCost);$i('d_sp').textContent=fmt(r.listingPrice);
@@ -3767,11 +3788,11 @@ function dupProduct(){const d=getFormData(),r=calcPricing(d);const rawSKU='IJ-'+
 function clearCalc(){['c_pp','c_courier','c_pack','c_addcost','c_disc','c_list','c_etsyad','c_ai','c_plus','c_social','c_gift','c_payment'].forEach(id=>$i(id).value=0);$i('c_margin').value=50;calc();}
 function openAddProductModal(){$i('ap_sku').value='IJ-'+String(skuCtr).padStart(3,'0');['ap_name','ap_color','ap_size','ap_vendor','ap_cat'].forEach(id=>$i(id).value='');$i('ap_stock').value=1;$i('ap_pp').value=0;$i('ap_margin').value=45;$i('ap_addcost').value=0;$i('ap_courier').value=25;$i('ap_pack').value=50;$i('ap_list').value=18;$i('ap_etsyad').value=100;$i('ap_ai').value=30;$i('ap_plus').value=18;$i('ap_social').value=35;$i('ap_gift').value=50;$i('ap_disc').value=25;apImgData=null;$i('ap_img_url').value='';$i('ap_img_prev').textContent='Paste a URL above to preview';$i('ap_etsy_url').value='';$i('ap_preview').textContent='';$i('add-mo').classList.add('open');}
 function prevAPImgUrl(url){if(!url){apImgData=null;$i('ap_img_prev').innerHTML='Paste a URL above to preview';return;}apImgData=url;$i('ap_img_prev').innerHTML=`<img src="${esc(url)}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
-function previewAPCalc(){const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:0,usa:0,world:0,disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);$i('ap_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
-function addProductDirect(){const name=$i('ap_name').value.trim();if(!name){showToast('Enter name!');return;}const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:0,usa:0,world:0,disc:gn('ap_disc'),shippingOn:true};const r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _apId=Date.now();products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:apImgData,etsyUrl:$i('ap_etsy_url').value,reorderAt:parseInt($i('ap_reorder_at')?.value)||2,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()});skuCtr++;$i('add-mo').classList.remove('open');renderAll();saveLS();auditEntry('add','product',_apId,sku,'Name: '+name);showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);}
+function previewAPCalc(){const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:0,usa:0,world:0,disc:gn('ap_disc'),shippingOn:true,feeV:2};const r=calcPricing(d);$i('ap_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
+function addProductDirect(){const name=$i('ap_name').value.trim();if(!name){showToast('Enter name!');return;}const d={pp:gn('ap_pp'),margin:gn('ap_margin'),courier:gn('ap_courier'),pack:gn('ap_pack'),addcost:gn('ap_addcost'),list:gn('ap_list'),etsyad:gn('ap_etsyad'),ai:gn('ap_ai'),plus:gn('ap_plus'),social:gn('ap_social'),gift:gn('ap_gift'),india:0,usa:0,world:0,disc:gn('ap_disc'),shippingOn:true,feeV:2};const r=calcPricing(d);const rawSKU='IJ-'+String(skuCtr).padStart(3,'0');const sku=nextFreeSKU();const adjusted=sku!==rawSKU;const _apId=Date.now();products.push({...d,...r,id:_apId,name,sku,color:$i('ap_color').value,size:$i('ap_size').value,stock:+$i('ap_stock').value||1,vendor:$i('ap_vendor').value,cat:$i('ap_cat').value,img:apImgData,etsyUrl:$i('ap_etsy_url').value,reorderAt:parseInt($i('ap_reorder_at')?.value)||2,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()});skuCtr++;$i('add-mo').classList.remove('open');renderAll();saveLS();auditEntry('add','product',_apId,sku,'Name: '+name);showToast(adjusted?`SKU adjusted to ${sku}`:'Added — '+sku);}
 function openEditModal(id){const p=products.find(x=>x.id===id);if(!p)return;$i('edit-id').value=id;$i('e_name').value=p.name;$i('e_sku').value=p.sku;$i('e_color').value=p.color||'';$i('e_size').value=p.size||'';$i('e_stock').value=p.stock;$i('e_vendor').value=p.vendor||'';$i('e_cat').value=p.cat||'';$i('e_pp').value=p.pp;$i('e_margin').value=p.margin;$i('e_courier').value=p.courier||0;$i('e_pack').value=p.pack||0;$i('e_addcost').value=p.addcost||0;$i('e_etsyad').value=p.etsyad||0;$i('e_disc').value=p.disc;eImgData=p.img||null;$i('e_img_url').value=p.img||'';$i('e_etsy_url').value=p.etsyUrl||'';$i('e_img_prev').innerHTML=p.img?`<img src="${esc(p.img)}" style="max-height:80px;border-radius:8px"/>`:'Paste a URL above to preview';previewEditCalc();$i('edit-mo').classList.add('open');}
 function prevEImgUrl(url){if(!url){eImgData=null;$i('e_img_prev').innerHTML='Paste a URL above to preview';return;}eImgData=url;$i('e_img_prev').innerHTML=`<img src="${esc(url)}" style="max-height:80px;border-radius:8px" onerror="this.parentElement.textContent='Invalid image URL'"/>`;}
-function previewEditCalc(){const d={pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),list:gn('e_list')||0,etsyad:gn('e_etsyad'),ai:30,plus:18,social:35,gift:50,india:0,usa:0,world:0,disc:gn('e_disc'),shippingOn:true};const r=calcPricing(d);$i('e_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
+function previewEditCalc(){const d={pp:gn('e_pp'),margin:gn('e_margin'),courier:gn('e_courier'),pack:gn('e_pack'),addcost:gn('e_addcost'),list:gn('e_list')||0,etsyad:gn('e_etsyad'),ai:30,plus:18,social:35,gift:50,india:0,usa:0,world:0,disc:gn('e_disc'),shippingOn:true,feeV:(products.find(x=>x.id===+$i('edit-id').value)||{}).feeV,addedAt:(products.find(x=>x.id===+$i('edit-id').value)||{}).addedAt};const r=calcPricing(d);$i('e_preview').innerHTML=`Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Net: ${r.inNM.toFixed(1)}%`;}
 function saveEdit(){
   const id=+$i('edit-id').value;
   const newSku=($i('e_sku').value||'').trim();
@@ -3948,7 +3969,7 @@ function pleVarSync(pid){
   else{s.readOnly=false;s.title='';}
 }
 function pleLivePreview(pid) {
-  const d = {pp:pleg(pid,'pp'),margin:pleg(pid,'margin'),disc:pleg(pid,'disc'),courier:pleg(pid,'courier'),pack:pleg(pid,'pack'),addcost:pleg(pid,'addcost'),list:pleg(pid,'list'),payment:pleg(pid,'payment'),etsyad:pleg(pid,'etsyad'),ai:pleg(pid,'ai'),plus:pleg(pid,'plus'),social:pleg(pid,'social'),gift:pleg(pid,'gift'),india:0,usa:0,world:0,shippingOn:false};
+  const d = {pp:pleg(pid,'pp'),margin:pleg(pid,'margin'),disc:pleg(pid,'disc'),courier:pleg(pid,'courier'),pack:pleg(pid,'pack'),addcost:pleg(pid,'addcost'),list:pleg(pid,'list'),payment:pleg(pid,'payment'),etsyad:pleg(pid,'etsyad'),ai:pleg(pid,'ai'),plus:pleg(pid,'plus'),social:pleg(pid,'social'),gift:pleg(pid,'gift'),india:0,usa:0,world:0,shippingOn:false,feeV:(products.find(x=>x.id===pid)||{}).feeV,addedAt:(products.find(x=>x.id===pid)||{}).addedAt};
   const r = calcPricing(d);
   const el = $i(`ple-prev-${pid}`);
   if(el) el.innerHTML = `Cost: <strong>${fmt(r.totalCost)}</strong> | Listing: <strong>${fmt(r.listingPrice)}</strong> | Profit: <strong style="color:${r.inPr<0?'var(--coral)':'var(--sage)'}">${fmt(r.inPr)}</strong> | Margin: ${r.inNM.toFixed(1)}%`;
@@ -4480,13 +4501,21 @@ function effExp(e){
 // Otherwise → uses totalEtsy (formula estimate)
 // Both values preserved — formula stored in totalEtsyFormula for audit
 function etsyBaseFee(o){
+  // 1) Etsy monthly statement imported → every real fee line, already net of refund credits
+  if(o.etsyFeeActual!=null) return o.etsyFeeActual;
+  // 2) Payments CSV only: its Gross−Net is the PROCESSING fee alone (5% of buyer total + ₹25).
+  //    Add transaction (6.5%) + regulatory (0.05%) on Gross (= items + delivery after discount).
   if(o.etsyReconciled && o.etsyGrossReceived!=null && o.etsyActualNet!=null){
-    return Math.max(0,(o.etsyGrossReceived||0)-(o.etsyActualNet||0));
+    const g=o.etsyGrossReceived||0;
+    return Math.max(0,g-(o.etsyActualNet||0)) + g*(ETSY_TX_RATE+ETSY_REG_ACT);
   }
   return o.totalEtsy||0;
 }
-// Share of the order refunded to the buyer. Etsy returns its fees (tx, processing, fixed, regulatory)
-// in the same proportion, so the fee kept by Etsy shrinks by this share.
+// Etsy returns processing/TX/regulatory fees in proportion to a refund but keeps the ₹25 fixed fee.
+function etsyFeeAfterRefund(base,frac){
+  const fixed=Math.min(base,ETSY_PAY_FIXED);
+  return base-(base-fixed)*Math.min(1,Math.max(0,frac||0));
+}
 function etsyRefundFrac(o){
   if(!o||o.refundIsCancellation||(o.cancelled&&o.cancelType==='full'))return 0;
   const rev=o.totalRev||0; if(!(rev>0))return 0;
@@ -4496,16 +4525,19 @@ function etsyRefundFrac(o){
 }
 function etsyFeeRefundFor(o,refundAmt){
   const rev=(o&&o.totalRev)||0; if(!(rev>0)||!(refundAmt>0))return 0;
-  return etsyBaseFee(o)*Math.min(1,refundAmt/rev);
+  const bf=etsyBaseFee(o);return (bf-Math.min(bf,ETSY_PAY_FIXED))*Math.min(1,refundAmt/rev);
 }
 function effEtsy(o){
   if(!o) return 0;
   if(o.cancelled && o.cancelType==='full') return 0;
   if(o.refundIsCancellation) return 0;
   const base=etsyBaseFee(o);
-  // If the Etsy CSV already recorded the refund, its figures are authoritative
-  if(o.etsyReconciled && (o.etsyRefundAmount||0)>0) return base;
-  return base*(1-etsyRefundFrac(o));
+  if(o.etsyFeeIsNet) return base;   // statement figures already include Etsy's refund credits
+  if(o.etsyReconciled && (o.etsyRefundAmount||0)>0){
+    const tot=o.etsyListAmt||o.totalRev||0;
+    return etsyFeeAfterRefund(base, tot>0?o.etsyRefundAmount/tot:0);
+  }
+  return etsyFeeAfterRefund(base, etsyRefundFrac(o));
 }
 
 // ══════════════════════════════════════════════
@@ -4601,7 +4633,7 @@ function renderOrderDashboard(){
     accRow('Gross Revenue',fmt(rev))+
     accRow('Customer Refunds','− '+fmt(totalCustRefunds),totalCustRefunds>0)+
     accRow('Net Revenue',fmt(netRev),true)+
-    accRow('Etsy Fees (6.5% TX + 5% Proc + 0.29% Reg + ₹25 fixed)','− '+fmt(totalEtsy));
+    accRow('Etsy Fees (6.5% TX incl. delivery + 5% Proc + ₹25 + Reg)','− '+fmt(totalEtsy));
 
   const totalGSTPaid=fExp.filter(e=>e.cat==='purchase'&&!e.cancelled).reduce((s,e)=>s+((e.gstItems||[]).reduce((gs,gi)=>gs+(gi.gst||0),0)),0);
 
@@ -4644,7 +4676,7 @@ function renderOrderDashboard(){
     accRow('− Product Purchase Cost (sold items)','− '+fmt(cogsProductCost))+
     accRow('− Packing Cost (sold items)','− '+fmt(cogsPacking))+
     accRow('− Local Courier (sold items)','− '+fmt(cogsLocalCourier))+
-    accRow('− Etsy Fees (6.5%+5%+0.29%+₹25)','− '+fmt(totalEtsy))+
+    accRow('− Etsy Fees (6.5% incl. delivery + 5% + ₹25 + reg)','− '+fmt(totalEtsy))+
     accRow('− Actual Shipping (ShipGlobal gross incl. GST)','− '+fmt(totalSGShipping))+
     (()=>{const sgGST=fExp.filter(e=>e.vendor==='ShipGlobal'&&e.cat==='shipping').reduce((s,e)=>s+((e.gstItems||[]).reduce((gs,gi)=>gs+(gi.gst||0),0)),0);return sgGST>0?accRow('  + ShipGlobal GST ITC (recoverable)','+ '+fmt(sgGST))+accRow('  = Net Shipping Cost (after ITC)',fmt(totalSGShipping-sgGST)):'';})()+ 
     accRow('− Marketing / Ads (expense entries)','− '+fmt(totalMarketing))+
@@ -4760,6 +4792,7 @@ function renderRVSAPanel(fOrders, fExp) {
   let shipCharged = 0;
   fOrders.forEach(o => {
     if (o.cancelled && o.cancelType === 'full') return;
+    if (o.deliveryRecovered != null) return;   // already includes ship-in-price + delivery + upgrades (counted below)
     const region = normaliseRegion(o.region);
     const disc = (o.discPct || 0) / 100;  // discPct is stored as 0–100 e.g. 22 means 22%
     (o.items || []).forEach(item => {
@@ -4810,7 +4843,11 @@ function renderRVSAPanel(fOrders, fExp) {
   const miscVar  = miscActual  - miscReserved;
   // Shipping: positive = you paid MORE than you charged → over (bad)
   // Etsy takes TX+Proc+Reg% on shipping income (₹25 fixed is per-order, not per-component)
-  const etsyOnShipping = shipCharged * (ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_OP_RATE);
+  const _exO = fOrders.filter(o => !(o.cancelled && o.cancelType === 'full'));
+  const _exTot = _exO.reduce((s, o) => s + (o.extraDeliveryPaid || 0), 0);
+  const _exFee = _exO.reduce((s, o) => s + (o.issues || []).filter(x => x.type === 'extra').reduce((a, x) => a + ijExtraFee(x), 0), 0);
+  // TX 6.5% + Proc 5% + Reg on normal delivery income; upgrades carry their own actual fee (incl. ₹25)
+  const etsyOnShipping = Math.max(0, shipCharged - _exTot) * (ETSY_TX_RATE + ETSY_PAY_RATE + ETSY_REG_ACT) + _exFee;
   // Net reserve = what's left for lost/damaged/reshipment
   const shipReserveNet = shipCharged - etsyOnShipping - shipActual;
   // Variance for display (positive = surplus reserve, negative = shortfall)
@@ -5056,7 +5093,7 @@ function renderUnifiedTable(fOrders,fExp){
               ${(e.insuranceTotalRecovered||0)>0?`<div class="oexp-pl-row"><span class="oexp-pl-lbl">🛡️ Insurance Recovered</span><span class="oexp-pl-val" style="color:var(--indigo)">+ ${fmt(e.insuranceTotalRecovered)}</span></div>`:''}
               ${e.refundIsCancellation?`<div class="oexp-pl-row"><span class="oexp-pl-lbl">↩️ Refund Type</span><span class="oexp-pl-val" style="color:var(--t3);font-size:10px">Cancellation (no P&L impact)</span></div>`:''}
               <div class="oexp-pl-row oexp-hi"><span class="oexp-pl-lbl">Net Revenue</span><span class="oexp-pl-val">${fmt(adjRev2)}</span></div>
-              <div class="oexp-pl-row"><span class="oexp-pl-lbl">Etsy Commission (6.5%+5%+0.29%+₹25)</span><span class="oexp-pl-val" style="color:var(--coral)">− ${fmt(etsyFee)}</span></div>
+              <div class="oexp-pl-row"><span class="oexp-pl-lbl">Etsy Commission (6.5% incl. delivery + 5% + ₹25 + reg)</span><span class="oexp-pl-val" style="color:var(--coral)">− ${fmt(etsyFee)}</span></div>
               <div class="oexp-pl-row oexp-tot"><span class="oexp-pl-lbl">After Platform Fee</span><span class="oexp-pl-val" style="color:var(--indigo)">${fmt(adjRev2-etsyFee)}</span></div>
               ${(e.insuranceTotalRecovered||0)>0?`<div style="margin-top:6px;padding:6px 10px;background:rgba(76,92,138,0.08);border:1px solid rgba(76,92,138,0.2);border-radius:8px;font-size:10px;color:var(--indigo)"><strong>🛡️ Insurance Breakdown:</strong> Ship: ${fmt(e.insuranceShipRecovered||0)} · Product: ${fmt(e.insuranceProdRecovered||0)} · Total: ${fmt(e.insuranceTotalRecovered)}</div>`:''}
             </div>
@@ -5115,20 +5152,18 @@ function renderUnifiedTable(fOrders,fExp){
           ${(e.shipcost||0)>0||sgSyncedCost!==null?`<div style="margin-top:8px;padding:10px 14px;background:rgba(76,92,138,0.06);border:1px solid rgba(76,92,138,0.18);border-radius:10px">
             <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--indigo);margin-bottom:8px">🚢 Shipping Reserve vs Actual</div>
             ${(()=>{
-              const pl=e.items&&e.items[0]?products.find(p=>p.sku===e.items[0].sku):null;
-              const region=(e.region||'india').toLowerCase();
-              // SG recovery = what was built into listing price to cover SG cost
-              const sgRecov=pl?(region==='usa'?(pl.usSG||0):region==='world'?(pl.woSG||0):(pl.inSG||0)):0;
-              // Buyer also paid delivery on top of the listing price
-              const buyerDel=e.deliveryPaidByBuyer||0;
-              // Total shipping income from buyer
-              const shipIncome=sgRecov+buyerDel;
-              // Etsy fees on shipping income: TX(6.5%)+Proc(5%)+Reg(0.29%) only
-              // ₹25 fixed is per-ORDER not per shipping component — excluded here
-              const etsyOnShip=shipIncome*(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE);
+              // A = ship-in-price already inside the item prices, B = delivery from the Etsy PDF, E = express upgrades paid later
+              const E=e.extraDeliveryPaid||0;
+              const B=Math.max(0,(e.deliveryPaidByBuyer||0)-E);
+              let A=e.extraDeliveryFromListing>0?e.extraDeliveryFromListing:0;
+              if(!A){try{A=oplCalc(e).embTot||0;}catch(err){A=0;}}
+              if(!A){const pl=e.items&&e.items[0]?products.find(p=>p.sku===e.items[0].sku):null;const region=(e.region||'india').toLowerCase();A=pl?(region==='usa'?(pl.usSG||0):region==='world'?(pl.woSG||0):(pl.inSG||0)):0;}
+              // Etsy fees on A+B: TX 6.5% + Proc 5% + Reg (the ₹25 is per-order, already in the order's own fee)
+              const feeAB=(A+B)*(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_ACT);
+              // Upgrades: actual fee per payment (6.5% + 5% + ₹25 + reg, or the figure you typed from Etsy)
+              const feeE=(e.issues||[]).filter(function(x){return x.type==='extra';}).reduce(function(t,x){return t+ijExtraFee(x);},0);
               const actualShip=sgSyncedCost!==null?sgSyncedCost:(e.shipcost||0);
-              // Reserve = what is left for future loss/damage/reshipment
-              const reserve=shipIncome-etsyOnShip-actualShip;
+              const reserve=A+B+E-feeAB-feeE-actualShip;
               const gc=c=>c>=0?'rgba(143,191,159,0.1)':'rgba(216,140,140,0.08)';
               const bc=c=>c>=0?'rgba(143,191,159,0.4)':'rgba(216,140,140,0.4)';
               const tc=c=>c>=0?'#2A7A40':'var(--coral)';
@@ -5136,10 +5171,11 @@ function renderUnifiedTable(fOrders,fExp){
                 +'<div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase">'+title+'</div>'
                 +'<div style="font-weight:700;color:'+(hi?tc(val):(val<0?'var(--coral)':'var(--sage)'))+'">'+fmt(val)+'</div>'
                 +'<div style="font-size:9px;color:var(--t3)">'+sub+'</div></div>';
-              return '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:11px">'
-                +cell('SG Recovery',sgRecov,'in price',false)
-                +cell('Buyer Delivery',buyerDel,'from PDF',false)
-                +cell('Etsy on Ship',-etsyOnShip,'TX+Proc+Reg',false)
+              return '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;font-size:11px">'
+                +cell('SG Recovery',A,'in listing price',false)
+                +cell('Buyer Delivery',B,'from PDF',false)
+                +cell('Express Upgrade',E,'paid later',false)
+                +cell('Etsy on Ship',-(feeAB+feeE),'TX+Proc (+₹25 on upgrade)',false)
                 +cell('SG Actual',-actualShip,(sgSyncedCost!==null?'synced':'estimated'),false)
                 +cell('Reserve',reserve,'loss/reship',true)
                 +'</div>'
@@ -6173,14 +6209,14 @@ function calcOrderTotal(){
   if(items.length>0){
     grossRev=items.reduce((s,i)=>s+i.price*i.qty,0);
     // CORRECTED: pass tax and delivery for proper processing fee base
-    const etsyFees=calcEtsyFees(grossRev, tax, ship);
+    const etsyFees=calcEtsyFees(grossRev, tax, ship, {legacy:true});
     etsy=etsyFees.total;
     cost=items.reduce((s,i)=>s+i.cost*i.qty,0);
     profit=grossRev-etsy-cost-ship-refund;
     nm=netMarginPct(profit,grossRev);
   }else{
     grossRev=rev;
-    const fees=calcEtsyFees(rev, tax, ship);
+    const fees=calcEtsyFees(rev, tax, ship, {legacy:true});
     etsy=fees.total;cost=0;profit=rev-etsy-ship-refund;nm=netMarginPct(profit,rev);
   }
   $i('o_preview').innerHTML=`Rev: <strong style="color:var(--sage)">${fmt(grossRev)}</strong> | Etsy: <strong style="color:var(--coral)">${fmt(etsy)}</strong> <span style="font-size:10px;color:var(--t3)">(6.5%+5%+0.29%+₹25)</span> | COGS: <strong style="color:var(--gold2)">${fmt(cost)}</strong> | Ship: <strong style="color:var(--t2)">${fmt(ship)}</strong> | Profit: <strong style="color:${profit<0?'var(--coral)':'var(--indigo)'}">${fmt(profit)}</strong> | Net: ${nm.toFixed(1)}%`;
@@ -6188,7 +6224,7 @@ function calcOrderTotal(){
 function calcEOrderTotal(){const items=getItems('eoi'),rev=gn('eo_rev'),ship=gn('eo_shipcost'),tax=gn('eo_tax'),refund=gn('eo_refund');
   const grossRev=items.reduce((s,i)=>s+i.price*i.qty,0)||rev;
   // CORRECTED: pass tax and delivery
-  const etsyFees=calcEtsyFees(grossRev, tax, ship);
+  const etsyFees=calcEtsyFees(grossRev, tax, ship, {legacy:true});
   const etsy=etsyFees.total,cost=items.reduce((s,i)=>s+i.cost*i.qty,0);
   const profit=grossRev-etsy-cost-ship-refund,nm=netMarginPct(profit,grossRev);
   $i('eo_preview').innerHTML=`Rev: ${fmt(rev)} | Etsy: ${fmt(etsy)} <span style="font-size:10px;color:var(--t3)">(6.5%+5%+0.29%+₹${ETSY_PAY_FIXED})</span> | Cost: ${fmt(cost)} | Profit: <strong style="color:${profit<0?'var(--coral)':'var(--indigo)'}">${fmt(profit)}</strong> | Net: ${nm.toFixed(1)}%`;}
@@ -6278,7 +6314,7 @@ async function saveOrder(){
   if(unknownSkus.length&&!confirm('⚠ SKU(s) not in Price List: '+unknownSkus.join(', ')+'\n\nCOGS will show ₹0 for these. Continue?'))return;
   const grossRev=items.reduce((s,i)=>s+i.price*i.qty,0)||rev;
   // CORRECTED: pass tax and delivery to calcEtsyFees (tax=buyer-paid, delivery=0 for manual orders)
-  const etsyFees=calcEtsyFees(grossRev, tax, ship);
+  const etsyFees=calcEtsyFees(grossRev, tax, ship, {legacy:true});
   const etsy=etsyFees.total,cost=items.reduce((s,i)=>s+i.cost*i.qty,0);
   const profit=grossRev-etsy-cost-ship-refund,nm=netMarginPct(profit,grossRev);
 
@@ -6343,7 +6379,7 @@ function saveEditOrder(){
   const items=getItems('eoi'),rev=gn('eo_rev'),ship=gn('eo_shipcost'),tax=gn('eo_tax'),refund=gn('eo_refund');
   const grossRev=items.reduce((s,i)=>s+i.price*i.qty,0)||rev;
   // CORRECTED: pass tax and delivery
-  const etsyFees=calcEtsyFees(grossRev, tax, ship);
+  const etsyFees=calcEtsyFees(grossRev, tax, ship, {legacy:true});
   const etsy=etsyFees.total,cost=items.reduce((s,i)=>s+i.cost*i.qty,0);
   const profit=grossRev-etsy-cost-ship-refund,nm=netMarginPct(profit,grossRev);
   // Preserve existing itemCosts overrides if present
@@ -7196,7 +7232,7 @@ function psoCalc(idx){
   if(itemTotal>0)html+=`<span style="font-size:10px;color:var(--t3)">Item Total: ${fmt(itemTotal)}</span>`;
   if(disc>0)html+=`<span style="font-size:10px">Discount: <strong style="color:var(--coral)">−${fmt(disc)}</strong>${discPct>0?` <span style="background:rgba(216,140,140,0.12);color:var(--coral);border-radius:20px;padding:1px 6px;font-size:9px">${discPct}%</span>`:''}</span>`;
   html+=`<span>Buyer Paid: <strong style="color:var(--sage)">+${fmt(rev)} subtotal ${del>0?`+ ${fmt(del)} delivery`:''} = ${fmt(grossRevStaging)}</strong></span>`;
-  html+=`<span>Etsy Fees: <strong style="color:var(--coral)">−${fmt(etsy)}</strong> <span style="font-size:9px;color:var(--t3)">(6.5%+5%+₹25+0.29%)</span></span>`;
+  html+=`<span>Etsy Fees: <strong style="color:var(--coral)">−${fmt(etsy)}</strong> <span style="font-size:9px;color:var(--t3)">(6.5% incl. delivery + 5% + ₹25 + reg)</span></span>`;
   html+=`<span>COGS: <strong style="color:var(--coral)">−${fmt(stagingCogs)}</strong></span>`;
   if(expectedSGCostPSO>0)html+=`<span>Est. SG Shipping: <strong style="color:var(--coral)">−${fmt(expectedSGCostPSO)}</strong> <span style="font-size:9px;color:var(--t3)">(pricelist)</span></span>`;
   html+=`<span style="border-left:2px solid var(--brd);padding-left:10px">Est. Profit: <strong style="font-size:13px;color:${profit>=0?'var(--indigo)':'var(--coral)'}">${fmt(profit)}</strong></span>`;
@@ -7693,7 +7729,7 @@ async function commitSGImport(){
     const buyerDelivery = o.deliveryPaidByBuyer||0;
     // subTotal = grossRev - buyerDelivery
     const subTotal = grossRev - buyerDelivery;
-    const etsyFees = calcEtsyFees(subTotal, o.tax||0, buyerDelivery);
+    const etsyFees = {total: ijOrderEtsy(o)};
     const itemCosts = o.itemCosts||{};
     let cogs=0;
     (o.items||[]).forEach(item=>{
@@ -8209,6 +8245,8 @@ function handleEtsyCSV(file){
       const rawHeaders=parseCSVLine(lines[0]).map(h=>h.replace(/^\uFEFF/,'').trim());
       const col=name=>{const n=name.toLowerCase();const i=rawHeaders.findIndex(h=>h.toLowerCase()===n);return i>=0?i:-1;};
 
+      // Monthly statement (Date,Type,Title,Info,…) → dedicated importer with every fee line
+      if(col('Type')>=0&&col('Title')>=0&&col('Info')>=0&&col('Order ID')<0){ return handleEtsyStatementText(text,rawHeaders,lines,statusEl,summaryEl,commitBtn); }
       const cOrdId=col('Order ID'),cGross=col('Gross Amount'),cFees=col('Fees'),cNet=col('Net Amount');
       const cListAmt=col('Listing Amount'),cStatus=col('Status'),cFundsDate=col('Funds Available');
       const cRefund=col('Refund Amount'),cBuyer=col('Buyer Name'),cCurrency=col('Currency'),cOrdDate=col('Order Date');
@@ -8247,9 +8285,9 @@ function handleEtsyCSV(file){
         if(!appOrd){unmatched.push(row.ordId);return;}
         matched++;
         matchedRows.push({row, appOrd});
-        const appFees=appOrd.totalEtsy||0;
+        const appFees=row.listAmt>0?(0.05*row.listAmt+ETSY_PAY_FIXED):0; // CSV Fees = processing only
         const diff=row.fees-appFees;
-        if(Math.abs(diff)>100) mismatches.push({ordId:row.ordId,appFees,csvFees:row.fees,diff,rev:appOrd.totalRev||0});
+        if(Math.abs(diff)>5) mismatches.push({ordId:row.ordId,appFees,csvFees:row.fees,diff,rev:appOrd.totalRev||0});
       });
 
       // Stage results for commit
@@ -8257,7 +8295,7 @@ function handleEtsyCSV(file){
         csvTotalGross, csvTotalFees, csvTotalNet, csvTotalRefund};
 
       // App totals for comparison
-      const appTotalFees=orders.reduce((s,o)=>s+(o.totalEtsy||0),0);
+      const appTotalFees=csvRows.reduce((s,r)=>s+(r.listAmt>0?0.05*r.listAmt+ETSY_PAY_FIXED:0),0);
       const appTotalRev=orders.reduce((s,o)=>s+(o.totalRev||0),0);
       const feeDiff=csvTotalFees-appTotalFees, revDiff=csvTotalGross-appTotalRev;
 
@@ -8268,17 +8306,17 @@ function handleEtsyCSV(file){
 
       // ── Build preview UI (no data written yet) ────────────────────
       const mismatchNote=`<div style="font-size:10px;color:var(--t3);margin-bottom:8px">
-        Etsy's CSV <strong>Fees</strong> column shows only the transaction fee component. It does not include processing fees (5% + ₹25) which Etsy deducts separately in your payment account statement. This difference is normal and expected — it does not mean our formula is wrong.
+        Etsy's CSV <strong>Fees</strong> column is the <strong>processing fee only</strong> (5% of buyer total + ₹25). Transaction (6.5%) and regulatory fees are not in this file — upload the monthly <em>statement</em> CSV for exact figures. Until then the app adds 6.5% + 0.05% of Gross as the estimate.
       </div>`;
 
       const mismatchHTML=mismatches.length?`
         <div class="card" style="margin-top:10px;border-color:rgba(216,140,140,0.4)">
-          <div class="ct" style="color:var(--coral)">⚠ Fee Column Differences (>₹100) — ${mismatches.length} order(s)</div>
+          <div class="ct" style="color:var(--coral)">⚠ Processing-fee differences (>₹5) — ${mismatches.length} order(s)</div>
           ${mismatchNote}
           <div style="max-height:200px;overflow-y:auto">
           <table style="width:100%;border-collapse:collapse;font-size:11px">
             <tr style="color:var(--t3);font-weight:700;border-bottom:1px solid var(--brd);position:sticky;top:0;background:var(--card)">
-              <td style="padding:4px 6px">Order ID</td><td style="padding:4px 6px;text-align:right">Revenue</td><td style="padding:4px 6px;text-align:right">App Fees</td><td style="padding:4px 6px;text-align:right">CSV Fees</td><td style="padding:4px 6px;text-align:right">Diff</td>
+              <td style="padding:4px 6px">Order ID</td><td style="padding:4px 6px;text-align:right">Revenue</td><td style="padding:4px 6px;text-align:right">App Proc. Fee</td><td style="padding:4px 6px;text-align:right">CSV Fees</td><td style="padding:4px 6px;text-align:right">Diff</td>
             </tr>
             ${mismatches.map(m=>`<tr style="border-bottom:1px solid var(--brd)">
               <td style="padding:4px 6px;color:var(--ac);font-weight:600">${m.ordId}</td>
@@ -8310,10 +8348,10 @@ function handleEtsyCSV(file){
               <div style="font-size:10px;font-weight:700;margin-top:2px;color:${Math.abs(revDiff)<500?'var(--sage)':'var(--gold2)'}">${revDiff>=0?'+':''}${fmt(revDiff)} diff</div>
             </div>
             <div class="card" style="text-align:center">
-              <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Etsy Fees (CSV column)</div>
+              <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Processing fee (CSV)</div>
               <div style="font-size:18px;font-weight:700;color:var(--coral)">${fmt(csvTotalFees)}</div>
               <div style="font-size:10px;color:var(--t3);margin-top:2px">App calculated: ${fmt(appTotalFees)}</div>
-              <div style="font-size:10px;color:var(--t3);margin-top:2px;font-style:italic">CSV shows TX fee only, not processing fees</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px;font-style:italic">CSV Fees = processing only (5% + ₹25)</div>
             </div>
             <div class="card" style="text-align:center;background:rgba(143,191,159,0.08);border-color:rgba(143,191,159,0.3)">
               <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px">Net to Your Bank</div>
@@ -8358,6 +8396,7 @@ function handleEtsyCSV(file){
 
 function commitEtsyCSV(){
   if(!_etsyCSVStaged){showToast('No staged data — upload CSV first','var(--coral)');return;}
+  if(_etsyCSVStaged.kind==='statement') return commitEtsyStatement();
   const {matchedRows, matched, unmatched} = _etsyCSVStaged;
   // Write to orders
   matchedRows.forEach(({row, appOrd})=>{
@@ -8376,6 +8415,7 @@ function commitEtsyCSV(){
     appOrd.etsyRefundAmount  = row.refund;
     appOrd.etsySettled       = row.status==='SETTLED';
     appOrd.etsyReconciled    = true;           // flag: P&L now uses actual, not formula
+    appOrd.etsyListAmt       = row.listAmt;    // buyer total (refund share is measured against this)
     appOrd.updatedAt         = new Date().toISOString();
   });
   saveLS();
@@ -8393,6 +8433,90 @@ function commitEtsyCSV(){
   const dz=$i('etsy-csv-dz');
   if(dz){const inp=dz.querySelector('input[type=file]');if(inp)inp.value='';}
   showToast(`✅ Etsy CSV applied — ${matched} orders updated, ${unmatched.length} unmatched skipped`,'var(--sage)',5000);
+}
+
+// ══════════════════════════════════════════════
+//  ETSY MONTHLY STATEMENT IMPORTER — real per-order fees
+//  Lines per order: item TX, shipping TX, processing, regulatory (+ credits on refunds),
+//  TCS / TDS (tax at source, tracked separately). Re-importing is safe (lines keyed, merged).
+// ══════════════════════════════════════════════
+function _stmtMoney(x){
+  if(x==null)return 0; x=String(x).trim(); if(!x||x==='--')return 0;
+  const neg=/^-|−/.test(x); const v=parseFloat(x.replace(/[^\d.]/g,''))||0; return neg?-v:v;
+}
+function handleEtsyStatementText(text,hdr,lines,statusEl,summaryEl,commitBtn){
+  const ix=n=>hdr.findIndex(h=>h.toLowerCase()===n.toLowerCase());
+  const cD=ix('Date'),cT=ix('Type'),cTi=ix('Title'),cI=ix('Info'),cN=ix('Net');
+  const byOrd={}, seen={}, other={ads:0,adsCredit:0,plus:0,listing:0,listingCredit:0};
+  for(let i=1;i<lines.length;i++){
+    const c=parseCSVLine(lines[i]); if(c.length<5)continue;
+    const type=c[cT]||'', title=c[cTi]||'', info=c[cI]||'', net=_stmtMoney(c[cN]);
+    const m=(info+' '+title).match(/Order #(\d+)/);
+    if(!m){
+      if(type==='Marketing'&&/Etsy Ads/i.test(title)) other.ads+=net;
+      else if(type==='Marketing'&&/Plus/i.test(title)) other.plus+=net;
+      else if(type==='Fee'&&/Credit for Etsy Ads/i.test(title)) other.adsCredit+=net;
+      else if(type==='Fee'&&/^Credit for listing/i.test(title)) other.listingCredit+=net;
+      else if(type==='Fee'&&/^Listing fee/i.test(title)) other.listing+=net;
+      continue;
+    }
+    let t=null;
+    if(type==='Fee') t='fee';
+    else if(type==='Tax'&&/\bTCS\b|collected at source/i.test(title)) t='tcs';
+    else if(type==='Tax'&&/\bTDS\b|deducted at source/i.test(title)) t='tds';
+    if(!t)continue;
+    const base=[c[cD],title,net,m[1]].join('|'); seen[base]=(seen[base]||0)+1;
+    (byOrd[m[1]]=byOrd[m[1]]||[]).push({k:base+'#'+seen[base],t,v:net});
+  }
+  const ids=Object.keys(byOrd); if(!ids.length) throw new Error('No per-order fee lines found in this statement.');
+  const matchedRows=[],unmatched=[],diffs=[]; let actFee=0,appFee=0,tcs=0,tds=0;
+  ids.forEach(id=>{
+    const appOrd=orders.find(o=>String(o.ordNo)===String(id));
+    const sum=t=>-byOrd[id].filter(e=>e.t===t).reduce((s,e)=>s+e.v,0);
+    const fee=sum('fee'),t1=sum('tcs'),t2=sum('tds');
+    if(!appOrd){unmatched.push(id);return;}
+    const formula=(appOrd.totalEtsyFormula!=null?appOrd.totalEtsyFormula:appOrd.totalEtsy)||0;
+    matchedRows.push({id,appOrd,entries:byOrd[id]}); actFee+=fee;appFee+=formula;tcs+=t1;tds+=t2;
+    if(Math.abs(fee-formula)>5) diffs.push({id,formula,fee,diff:fee-formula});
+  });
+  _etsyCSVStaged={kind:'statement',matchedRows,unmatched,matched:matchedRows.length};
+  if(statusEl){statusEl.textContent='✅ Statement parsed — '+ids.length+' orders, '+matchedRows.length+' matched, '+unmatched.length+' not in app.';statusEl.style.color='var(--sage)';}
+  const row=(l,v,c)=>'<div class="srow"><span class="sl2">'+l+'</span><span class="sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</span></div>';
+  if(summaryEl){summaryEl.style.display='block';summaryEl.innerHTML=
+    '<div class="card"><div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">Etsy statement vs app formula (matched orders)</div>'
+    +row('Etsy actual fees (TX + shipping TX + processing + regulatory, net of refund credits)',fmt(actFee),'var(--coral)')
+    +row('App formula',fmt(appFee))+row('Difference (actual − formula)',(actFee-appFee>=0?'+':'')+fmt(actFee-appFee))
+    +row('TCS 0.5% (tax at source, tracked separately)',fmt(tcs))+row('TDS 0.1% (tax at source, tracked separately)',fmt(tds))+'</div>'
+    +'<div class="card" style="margin-top:8px"><div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px">Shop-level charges in this statement (not written to orders)</div>'
+    +row('Etsy Ads',fmt(-other.ads))+row('Etsy Ads credit (Plus)',fmt(other.adsCredit))+row('Etsy Plus subscription',fmt(-other.plus))
+    +row('Listing fees (net of Plus credits)',fmt(-(other.listing+other.listingCredit)))+'</div>'
+    +(diffs.length?'<div class="card" style="margin-top:8px;border-color:rgba(216,140,140,0.4)"><div class="ct" style="color:var(--coral)">⚠ Orders where actual ≠ formula (>₹5)</div><table style="width:100%;font-size:11px;border-collapse:collapse">'
+      +diffs.map(d=>'<tr><td style="padding:3px 6px;color:var(--ac);font-weight:600">'+d.id+'</td><td style="text-align:right">'+fmt(d.formula)+'</td><td style="text-align:right;color:var(--coral)">'+fmt(d.fee)+'</td><td style="text-align:right;font-weight:700">'+(d.diff>=0?'+':'')+fmt(d.diff)+'</td></tr>').join('')+'</table><div style="font-size:10px;color:var(--t3);margin-top:4px">Columns: order · app formula · Etsy actual · difference. Refunded orders differ by Etsy\'s refund credits.</div></div>':'<div style="font-size:11px;color:var(--sage);margin-top:6px">✓ Every matched order is within ₹5 of the formula</div>')
+    +(unmatched.length?'<div style="margin-top:8px;font-size:11px;color:var(--gold2)">⚠ '+unmatched.length+' order(s) not in app: <span style="color:var(--t3)">'+unmatched.slice(0,8).join(', ')+(unmatched.length>8?' …':'')+'</span></div>':'');}
+  if(commitBtn){commitBtn.style.display='inline-flex';commitBtn.textContent='✓ Apply & Save ('+matchedRows.length+' orders)';}
+}
+function commitEtsyStatement(){
+  const {matchedRows,unmatched,matched}=_etsyCSVStaged;
+  matchedRows.forEach(({appOrd,entries})=>{
+    if(appOrd.totalEtsyFormula==null) appOrd.totalEtsyFormula=appOrd.totalEtsy||0;
+    const led=appOrd.etsyLedger=appOrd.etsyLedger||[]; const have=new Set(led.map(e=>e.k));
+    entries.forEach(e=>{if(!have.has(e.k))led.push(e);});
+    const sum=t=>-led.filter(e=>e.t===t).reduce((s,e)=>s+e.v,0);
+    const before=etsyBaseFee(appOrd);
+    appOrd.etsyFeeActual=+sum('fee').toFixed(2); appOrd.etsyFeeIsNet=true;
+    appOrd.etsyTcs=+sum('tcs').toFixed(2); appOrd.etsyTds=+sum('tds').toFixed(2);
+    appOrd.etsyReconciled=true; appOrd.updatedAt=new Date().toISOString();
+    auditEntry('edit','order',appOrd.id,appOrd.ordNo,'Etsy statement fee: ₹'+before.toFixed(0)+' → ₹'+appOrd.etsyFeeActual.toFixed(0)+' (TCS ₹'+appOrd.etsyTcs+', TDS ₹'+appOrd.etsyTds+')');
+  });
+  saveLS();
+  auditEntry('import','etsy_statement',Date.now(),'EtsyStatementCSV','Applied '+matched+' orders');
+  _etsyCSVStaged=null;
+  $i('etsy-csv-mo').classList.remove('open');
+  const s=$i('etsy-csv-status'),u=$i('etsy-csv-summary'),b=$i('etsy-csv-commit');
+  if(s){s.style.display='none';s.textContent='';} if(u){u.style.display='none';u.innerHTML='';} if(b)b.style.display='none';
+  const dz=$i('etsy-csv-dz'); if(dz){const inp=dz.querySelector('input[type=file]');if(inp)inp.value='';}
+  try{ if(typeof renderDashboard==='function')renderDashboard(); if(typeof applyGF==='function')applyGF(); }catch(e){}
+  showToast('✅ Etsy statement applied — '+matched+' orders updated, '+unmatched.length+' not in app','var(--sage)',5000);
 }
 
 
@@ -9523,7 +9647,7 @@ function issLogHTML(o){const L=o&&o.issues;if(!L||!L.length)return'';
 // ═══════════ v4 features ═══════════
 // ---- shared: recalc a single order's profit once its ShipGlobal cost is known ----
 function sgRecalcOrder(o){if(!o||!o.sgActualShip)return;
-  const grossRev=o.totalRev||0,bd=o.deliveryPaidByBuyer||0,fees=calcEtsyFees(grossRev-bd,o.tax||0,bd),ic=o.itemCosts||{};let cogs=0;
+  const grossRev=o.totalRev||0,bd=o.deliveryPaidByBuyer||0,fees={total:ijOrderEtsy(o)},ic=o.itemCosts||{};let cogs=0;
   (o.items||[]).forEach(it=>{const pl=skuMap.get(it.sku),cc=ic[it.sku]||{},q=it.qty||1;
     cogs+=(cc.purchaseCost!==undefined?cc.purchaseCost:(pl?pl.pp:0))*q;cogs+=(cc.localShip!==undefined?cc.localShip:(pl?pl.courier||0:0))*q;
     cogs+=((cc.packCost!==undefined?cc.packCost:(pl?pl.pack||0:0))+(cc.otherCost||0))*q;});
@@ -9673,7 +9797,7 @@ document.addEventListener('focusout',function(e){
 function ijRulesGet(){try{return JSON.parse(localStorage.getItem('ij_settings')||'{}').rules||{};}catch(e){return{};}}
 function ijRulesSet(o){let s={};try{s=JSON.parse(localStorage.getItem('ij_settings')||'{}');}catch(e){}s.rules={...(s.rules||{}),...o};localStorage.setItem('ij_settings',JSON.stringify(s));try{queueDriveBackup();}catch(e){}}
 function ijApplyFees(){const c=ijRulesGet().fees;if(!c)return;const was=Math.abs(ETSY_FULL_RATE-(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE))<1e-9;
-  if(isFinite(c.tx))ETSY_TX_RATE=c.tx;if(isFinite(c.pay))ETSY_PAY_RATE=c.pay;if(isFinite(c.fix))ETSY_PAY_FIXED=c.fix;if(isFinite(c.reg))ETSY_REG_OP_RATE=c.reg;
+  if(isFinite(c.tx))ETSY_TX_RATE=c.tx;if(isFinite(c.pay))ETSY_PAY_RATE=c.pay;if(isFinite(c.fix))ETSY_PAY_FIXED=c.fix;if(isFinite(c.reg))ETSY_REG_OP_RATE=c.reg;if(isFinite(c.regAct))ETSY_REG_ACT=c.regAct;
   if(was)ETSY_FULL_RATE=ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE;}
 ijApplyFees();
 
@@ -9756,18 +9880,20 @@ async function ijRules(){
   const r=await ijDialog({title:'⚙ Rules',width:460,ok:'Save',msg:'Stock on order add / remove / edit, and Etsy fee rates (used by all P&L calculations).',
     fields:[{label:'Stock changes when order items change',type:'select',value:ijStockMode(),options:[['ask','Ask me each time'],['auto','Adjust automatically'],['off','Never adjust']]},
       {label:'Transaction fee %',type:'number',value:+(ETSY_TX_RATE*100).toFixed(4)},{label:'Payment processing %',type:'number',value:+(ETSY_PAY_RATE*100).toFixed(4)},
-      {label:'Payment processing fixed ₹',type:'number',value:ETSY_PAY_FIXED},{label:'Regulatory operating fee %',type:'number',value:+(ETSY_REG_OP_RATE*100).toFixed(4)}]});
+      {label:'Payment processing fixed ₹',type:'number',value:ETSY_PAY_FIXED},{label:'Regulatory fee % (price-list estimates)',type:'number',value:+(ETSY_REG_OP_RATE*100).toFixed(4)},{label:'Regulatory fee % on real orders (Etsy statements ≈ 0.05)',type:'number',value:+(ETSY_REG_ACT*100).toFixed(4)}]});
   if(!r)return;
   ijRulesSet({stock:r[0]});
   const was=Math.abs(ETSY_FULL_RATE-(ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE))<1e-9,v=r.slice(1).map(parseFloat);
-  if(v.every(isFinite)){ETSY_TX_RATE=v[0]/100;ETSY_PAY_RATE=v[1]/100;ETSY_PAY_FIXED=v[2];ETSY_REG_OP_RATE=v[3]/100;if(was)ETSY_FULL_RATE=ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE;
-    ijRulesSet({fees:{tx:ETSY_TX_RATE,pay:ETSY_PAY_RATE,fix:ETSY_PAY_FIXED,reg:ETSY_REG_OP_RATE}});
+  if(v.every(isFinite)){ETSY_TX_RATE=v[0]/100;ETSY_PAY_RATE=v[1]/100;ETSY_PAY_FIXED=v[2];ETSY_REG_OP_RATE=v[3]/100;ETSY_REG_ACT=v[4]/100;if(was)ETSY_FULL_RATE=ETSY_TX_RATE+ETSY_PAY_RATE+ETSY_REG_OP_RATE;
+    ijRulesSet({fees:{tx:ETSY_TX_RATE,pay:ETSY_PAY_RATE,fix:ETSY_PAY_FIXED,reg:ETSY_REG_OP_RATE,regAct:ETSY_REG_ACT}});
     try{renderAll();renderOrderDashboard();}catch(e){}}
   showToast('⚙ Rules saved','var(--sage)');}
 function ijSelfTest(){const R=[],ok=(n,c)=>R.push({test:n,pass:!!c});
   const f=calcEtsyFees(1000,0,0);ok('fees: total = parts',Math.abs(f.total-(f.txFee+f.procFee+f.regOpFee))<1e-9);
-  ok('fees: formula',Math.abs(f.total-(1000*ETSY_TX_RATE+1000*ETSY_PAY_RATE+ETSY_PAY_FIXED+1000*ETSY_REG_OP_RATE))<1e-9);
-  ok('fees: tax+delivery raise processing fee only',calcEtsyFees(1000,100,50).procFee>f.procFee&&Math.abs(calcEtsyFees(1000,100,50).txFee-f.txFee)<1e-9);
+  ok('fees: formula',Math.abs(f.total-(1000*ETSY_TX_RATE+1000*ETSY_PAY_RATE+ETSY_PAY_FIXED+1000*ETSY_REG_ACT))<1e-9);
+  ok('fees: tax raises processing only; delivery raises tx too',calcEtsyFees(1000,100,0).procFee>f.procFee&&Math.abs(calcEtsyFees(1000,100,0).txFee-f.txFee)<1e-9&&calcEtsyFees(1000,0,50).txFee>f.txFee);
+  ok('fees: matches Etsy statement (order ₹750)',Math.abs(calcEtsyFees(5179,536,859).total-750)<2);
+  ok('fees: matches Etsy statement (upgrade ₹162)',Math.abs(calcEtsyFees(0,0,1182).total-162)<1);
   const d=ijStockDelta([{sku:'A',qty:2},{sku:'B',qty:1}],[{sku:'A',qty:1},{sku:'C',qty:3}]);
   ok('stock delta: restore',d.restore.length===2&&d.restore.some(x=>x.sku==='A'&&x.qty===1)&&d.restore.some(x=>x.sku==='B'&&x.qty===1));
   ok('stock delta: deduct',d.deduct.length===1&&d.deduct[0].sku==='C'&&d.deduct[0].qty===3);
@@ -9948,7 +10074,7 @@ issSave=function(){const o=issOrder();if(!o)return;const t=$i('iss-type').value,
     en.refund=amt;en.deliveryRefund=amt;o.customerRefund=+((o.customerRefund||0)+amt).toFixed(2);o.deliveryRefunded=+((o.deliveryRefunded||0)+amt).toFixed(2);}
   else{const amt=N('iss-extra');if(!(amt>0)){showToast('Enter the extra amount the customer paid','var(--coral)');return;}
     const via=$i('iss-extra-etsy').checked,sum=issItemsSum(o),tx=o.tax||0;en.extraPaid=amt;en.viaEtsy=via;
-    if(via&&!o.etsyReconciled){const inc=calcEtsyFees(sum,tx,d0+amt).total-calcEtsyFees(sum,tx,d0).total;o.totalEtsy=+((o.totalEtsy||0)+inc).toFixed(2);en.etsyFeeAdded=inc;}
+    if(via){const mf=parseFloat(($i('iss-extra-fee')||{}).value),inc=+((mf>0)?mf:calcEtsyFees(0,0,amt).total).toFixed(2);en.etsyFeeManual=mf>0;if(!o.etsyReconciled){o.totalEtsy=+((o.totalEtsy||0)+inc).toFixed(2);en.etsyFeeAdded=inc;}else{en.etsyFeeInfo=inc;}}
     o.deliveryPaidByBuyer=+(d0+amt).toFixed(2);o.totalRev=+((o.totalRev||0)+amt).toFixed(2);o.extraDeliveryPaid=+((o.extraDeliveryPaid||0)+amt).toFixed(2);
     if(o.deliveryRecovered!=null)o.deliveryRecovered=+(o.deliveryRecovered+amt).toFixed(2);
     const c=N('iss-extra-cost');if(c>0){const id=Date.now()+Math.random();expenses.push({id,title:'Express upgrade shipping #'+o.ordNo,date:en.date,cat:'shipping',amount:c,qty:1,sku:null,vendor:'ShipGlobal',ref:o.ordNo,orderRef:o.ordNo,reship:true,issueId:en.id,notes:'Express upgrade extra cost | '+remark,vendorCredit:0});en.expIds.push(id);en.extraCost=c;}}
@@ -9964,7 +10090,7 @@ issDel=function(oid,iid){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[])
     o.extraDeliveryPaid=Math.max(0,+((o.extraDeliveryPaid||0)-sn.extraPaid).toFixed(2));if(sn.etsyFeeAdded)o.totalEtsy=Math.max(0,+((o.totalEtsy||0)-sn.etsyFeeAdded).toFixed(2));
     if(o.deliveryRecovered!=null)o.deliveryRecovered=Math.max(0,o.deliveryRecovered-sn.extraPaid);}
   issProfit(o);saveLS();try{renderOrderDashboard();}catch(e){}try{oplRender();}catch(e){}};
-(function(){const _o=openIssueModal;openIssueModal=function(id){_o.apply(this,arguments);['iss-extra','iss-extra-cost'].forEach(k=>$i(k).value='');$i('iss-extra-etsy').checked=true;};})();
+(function(){const _o=openIssueModal;openIssueModal=function(id){_o.apply(this,arguments);['iss-extra','iss-extra-cost','iss-extra-fee'].forEach(k=>{const el=$i(k);if(el)el.value='';});$i('iss-extra-etsy').checked=true;};})();
 function issQuick(id,type,scope){openIssueModal(id);$i('iss-type').value=type;issFillScope();$i('iss-scope').value=scope;
   ['iss-refund'].forEach(k=>delete $i(k).dataset.dirty);issRender({target:{id:'iss-scope'}});}
 </script>
@@ -9993,6 +10119,58 @@ function issQuick(id,type,scope){openIssueModal(id);$i('iss-type').value=type;is
       $i('issrep-body').insertAdjacentHTML('afterbegin',`<div style="font-size:11px;padding:8px 12px;margin-bottom:10px;background:rgba(122,170,138,0.1);border:1px solid rgba(122,170,138,0.4);border-radius:10px">⚡ <b>Express upgrades (income, not issues):</b> ${E.length} order(s) · customers paid <b style="color:var(--sage)">+${fmt(tot)}</b>${cost>0?' · courier extra '+fmt(cost):''}</div>`);}catch(e){console.warn(e);}};
   const _save=issSave;
   issSave=function(){try{if($i('iss-type').value==='extra')$i('iss-status').value='resolved';}catch(e){}return _save.apply(this,arguments);};
+})();
+</script>
+<script>
+// ═══════════ v11: corrected Etsy fee rules (verified against Etsy statements) ═══════════
+(function(){
+  // one-time: nothing to migrate for the rate settings — real-order regulatory rate is its own setting
+  // Fee actually charged on one express-upgrade payment
+  window.ijExtraFee=function(en){
+    if(!en||en.type!=='extra'||!en.viaEtsy)return 0;
+    if(en.etsyFeeManual)return en.etsyFeeAdded!=null?en.etsyFeeAdded:(en.etsyFeeInfo||0);
+    return calcEtsyFees(0,0,en.extraPaid||0).total;
+  };
+  // Etsy fees for a whole order: items + buyer delivery + tax on the original payment, plus each upgrade as its own payment
+  window.ijOrderEtsy=function(o){
+    const E=o.extraDeliveryPaid||0,bd=o.deliveryPaidByBuyer||0,sub=(o.totalRev||0)-bd,bdBase=Math.max(0,bd-E);
+    const ex=(o.issues||[]).filter(en=>en.type==='extra').reduce((s,en)=>s+ijExtraFee(en),0);
+    return calcEtsyFees(sub,o.tax||0,bdBase).total+ex;
+  };
+  // Apply the corrected rules to existing PDF-imported orders that are not reconciled to an Etsy statement
+  window.ijFeesMigrate=function(dry){
+    let n=0,delta=0,skipped=0;
+    orders.forEach(o=>{
+      if(o.cancelled&&o.cancelType==='full')return;
+      if(o.etsyReconciled){skipped++;return;}                                   // actual Etsy figures already used
+      if(o.subTotal===undefined&&o.deliveryPaidByBuyer===undefined){skipped++;return;} // manual order: no buyer-delivery data
+      const before=effEtsy(o),oldTot=o.totalEtsy;
+      o.totalEtsy=+ijOrderEtsy(o).toFixed(2);
+      const d=effEtsy(o)-before;
+      if(dry)o.totalEtsy=oldTot;
+      if(Math.abs(d)>0.005){n++;delta+=d;
+        if(!dry){o.profit=(o.profit||0)-d;o.nm=netMarginPct(o.profit,o.totalRev||0);o.updatedAt=new Date().toISOString();}}
+      if(!dry)(o.issues||[]).forEach(en=>{if(en.type==='extra'&&en.viaEtsy&&!en.etsyFeeManual&&en.etsyFeeAdded!=null)en.etsyFeeAdded=+ijExtraFee(en).toFixed(2);});
+    });
+    return{n,delta,skipped};
+  };
+  window.ijApplyFeeFix=async function(){
+    const d=ijFeesMigrate(true);
+    if(!d.n){showToast('Existing orders already match the corrected fee rules','var(--sage)');return;}
+    const ok=await ijConfirm('Recalculate Etsy fees on '+d.n+' existing order(s) with the corrected rules (6.5% also on delivery, upgrades carry 5% + ₹25, regulatory ≈0.05%)?\n\nTotal profit on those orders '+(d.delta>=0?'goes down':'goes up')+' by '+fmt(Math.abs(d.delta))+'. Orders already reconciled to an Etsy statement ('+d.skipped+' skipped, incl. manual orders) are not touched. A snapshot is saved first — you can undo it from Backups.','Apply','Corrected Etsy fees');
+    if(!ok)return;
+    await ijSnap('Before corrected Etsy fees');
+    const r=ijFeesMigrate(false);
+    await saveLS();
+    try{renderOrderDashboard();}catch(e){}try{oplRender();}catch(e){}try{renderAll();}catch(e){}
+    showToast('✅ Etsy fees corrected on '+r.n+' order(s)','var(--sage)',4500);
+  };
+  const s=document.getElementById('ord-search');
+  if(s&&s.parentElement&&!document.getElementById('ij-feefix-btn')){
+    const rb=[...document.querySelectorAll('button')].find(b=>/ijRules\(\)/.test(b.getAttribute('onclick')||''));
+    const html='<button id="ij-feefix-btn" class="btn bo bxs" onclick="ijApplyFeeFix()" title="Recalculate Etsy fees on existing orders with the corrected rules">♻ Apply corrected Etsy fees</button>';
+    if(rb)rb.insertAdjacentHTML('afterend',html);
+  }
 })();
 </script>
 </body>
