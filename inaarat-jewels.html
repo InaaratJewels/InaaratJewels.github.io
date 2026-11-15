@@ -5147,7 +5147,7 @@ function renderUnifiedTable(fOrders,fExp){
             })()}
           </div>`:''}
       </div>`;
-      return `<tr class="ut-tr" ${e._sgFlagRefund?'style="background:rgba(231,194,125,0.08)"':''} onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="ord-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-ord">▲ Order</span>${e._sgFlagRefund?'<span style="font-size:9px;background:rgba(231,194,125,0.2);color:var(--gold2);border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700">⚠ Refund</span>':''}</td><td style="font-weight:700;color:var(--ac)">${esc(e.ordNo)}</td><td>${esc(e.customer||'—')}</td><td>${skus||'—'}</td><td>—</td><td>—</td><td>${revDisplay}</td><td><span class="pill ${stMap[e.status]||'pac'}">${e.status||'—'}</span></td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+      return `<tr class="ut-tr" ${e._sgFlagRefund?'style="background:rgba(231,194,125,0.08)"':''} onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="ord-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-ord">▲ Order</span>${e._sgFlagRefund?'<span style="font-size:9px;background:rgba(231,194,125,0.2);color:var(--gold2);border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700">⚠ Refund</span>':''}</td><td style="font-weight:700;color:var(--ac)">${esc(e.ordNo)}</td><td>${esc(e.customer||'—')}</td><td>${skus||'—'}</td><td>${revDisplay}</td>${ordRevProfitCells(e)}<td><span class="pill ${stMap[e.status]||'pac'}">${e.status||'—'}</span></td><td style="white-space:nowrap">${e.date||'—'}</td></tr>
 <tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
     } else {
       const adjAmt=effExp(e),hasVC=(e.vendorCredit||0)>0;
@@ -5222,7 +5222,7 @@ function renderUnifiedTable(fOrders,fExp){
             ${e.cancelType==='itemwise'&&e.cancelledItems?`<div style="margin-top:6px"><strong>Cancelled Items:</strong><ul style="margin:4px 0 0 16px">${e.cancelledItems.map(ci=>`<li>${esc(ci.name||ci.sku)} × ${ci.qty} — ${fmt(ci.cancelledAmt||0)}</li>`).join('')}</ul></div>`:''}
           </div></div>`:''}
       </div>`;
-      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="pur-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:700;color:var(--tx)">${esc(e.title)}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td style="color:var(--t2)">${catLabel[e.cat]||e.cat||'—'}</td><td style="color:var(--t2)">${esc(e.vendor||'—')}</td><td>${amtDisplay}</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="font-size:11px;color:var(--t3)">${e.date||'—'}</td></tr>
+      return `<tr class="ut-tr" onclick="toggleUTRow('${expId}')"><td><input type="checkbox" class="pur-chk" data-id="${e.id}" onclick="event.stopPropagation()" style="width:14px;height:14px;cursor:pointer"/></td><td><span class="t-pur">▼ Purchase</span></td><td style="font-weight:700;color:var(--tx)">${esc(e.title)}</td><td style="font-size:11px;color:var(--t2)">${e.customerName?esc(e.customerName):'—'}</td><td>${e.sku?`<span class="sku-b">${esc(e.sku)}</span>`:'—'}</td><td>${amtDisplay}</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td>${e.poNo?`<span style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:var(--indigo);background:rgba(76,92,138,0.1);border:1px solid rgba(76,92,138,0.25);padding:1px 7px;border-radius:20px;white-space:nowrap">${esc(e.poNo)}</span>`:esc(e.ref||'—')}</td><td style="white-space:nowrap">${e.date||'—'}</td></tr>
 <tr class="ut-exp" id="${expId}"><td colspan="10">${expandedHTML}</td></tr>`;
     }
   }).join('');
@@ -5230,12 +5230,20 @@ function renderUnifiedTable(fOrders,fExp){
   c.innerHTML=`<div class="ut-wrap">
     <div class="ut-head"><span style="font-size:11px;font-weight:700;color:var(--t2)">Entries <span style="background:var(--ac);color:#fff;border-radius:20px;padding:1px 8px;font-size:10px;margin-left:4px">${unified.length}</span></span><span style="font-size:10px;color:var(--t3)">Click any row to expand</span></div>
     <div style="overflow-x:auto"><table class="ut">
-      <thead><tr><th style="width:22px"></th><th>Type</th><th>Order / Title</th><th>Customer</th><th>SKUs</th><th>Category</th><th>Vendor</th><th>Amount</th><th>Status / Ref</th><th>Date</th></tr></thead>
+      <thead><tr><th style="width:22px"></th><th>Type</th><th>Order / Title</th><th>Customer</th><th>SKUs</th><th>Amount</th><th>Sales Revenue</th><th>Profit</th><th>Status / Ref</th><th>Date</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
   </div>`;
 }
 
+// Sales revenue + profit cells for an order row in Entries (same numbers as the Order P&L tab)
+function ordRevProfitCells(o){
+  try{
+    if(o.cancelled&&o.cancelType==='full')return '<td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td>';
+    const r=oplCalc(o),pf=r.profit;
+    return `<td style="font-weight:600;white-space:nowrap">${fmt(r.rev)}</td><td style="font-weight:700;white-space:nowrap;color:${pf>=0?'#2A7A40':'var(--coral)'}">${pf>=0?'':'− '}${fmt(Math.abs(pf))}</td>`;
+  }catch(err){console.warn('row calc',err);return '<td>—</td><td>—</td>';}
+}
 function toggleUTRow(expId){
   const row=$i(expId);if(!row)return;
   const isOpen=row.classList.contains('open');
@@ -9597,7 +9605,7 @@ function issRepRender(){const k=$i('issrep-dur').value,all=issAllEntries(),L=all
   const today=Date.now();
   $i('issrep-body').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${K('Cases',L.length)}${K('Cost to business',fmt(tot),tot>0?'var(--coral)':'')}${K('Cancel refunds (not a loss)',fmt(canc))}${K('Open cases',open.length,open.length?'var(--orange)':'var(--sage)')}</div>
   <div style="font-size:11px;font-weight:700;margin:6px 0">🔴 Open cases ${open.length?'':'— none 🎉'}</div>
-  ${open.length?`<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px"><tr><th ${th} style="text-align:left">Order</th><th ${th} style="text-align:left">Case</th><th ${th}>Age</th><th ${th}>Cost</th><th ${th}>Status</th><th ${th}></th></tr>${open.sort((a,b)=>(a.en.date||'').localeCompare(b.en.date||'')).map(x=>{const age=Math.max(0,Math.round((today-new Date(x.en.date+'T00:00:00'))/864e5));return `<tr style="border-top:1px solid var(--brd)"><td ${tl}><b>#${esc(x.o.ordNo||'')}</b><div style="color:var(--t3)">${esc(x.o.customer||'')}</div></td><td ${tl}>${ISS_LBL[x.en.type]} · ${ISS_SC[x.en.scope]}${x.en.items.length&&x.en.scope!=='full'?`<div style="color:var(--t3)">${x.en.items.map(i=>esc(i.sku||i.name)+'×'+i.qty).join(', ')}</div>`:''}<div style="color:var(--t2)">📝 ${esc(x.en.remark)}${x.en.awb?' · AWB '+esc(x.en.awb):''}</div></td><td ${td} ><span style="color:${age>14?'var(--coral)':'var(--t2)'}">${age}d</span></td><td ${td}>${fmt(issCost(x.en))}</td><td ${td}><select onchange="issSetStatus(${x.o.id},${x.en.id},this.value)" style="font-size:11px;padding:2px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)">${Object.keys(ISS_ST).map(s=>`<option value="${s}" ${x.en.status===s?'selected':''}>${ISS_ST[s]}</option>`).join('')}</select></td><td ${td}><a href="#" onclick="$i('issrep-mo').classList.remove('open');extOpenOrder(${x.o.id});return false">Open order →</a></td></tr>`;}).join('')}</table>`:''}
+  ${open.length?`<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px"><tr><th ${th} style="text-align:left">Order</th><th ${th} style="text-align:left">Case</th><th ${th}>Age</th><th ${th}>Cost</th><th ${th}>Status</th><th ${th}></th></tr>${open.sort((a,b)=>(a.en.date||'').localeCompare(b.en.date||'')).map(x=>{const age=Math.max(0,Math.round((today-new Date(x.en.date+'T00:00:00'))/864e5));return `<tr style="border-top:1px solid var(--brd)"><td ${tl}><b>#${esc(x.o.ordNo||'')}</b><div style="color:var(--t3)">${esc(x.o.customer||'')}</div></td><td ${tl}>${ISS_LBL[x.en.type]} · ${ISS_SC[x.en.scope]}${x.en.items.length&&x.en.scope!=='full'?`<div style="color:var(--t3)">${x.en.items.map(i=>esc(i.sku||i.name)+'×'+i.qty).join(', ')}</div>`:''}<div style="display:flex;gap:4px;align-items:center;margin-top:3px;color:var(--t2)">📝<input type="text" value="${esc(x.en.remark||'')}" title="Edit remark" onchange="issSetRemark(${x.o.id},${x.en.id},this.value)" style="flex:1;min-width:140px;font-size:11px;padding:3px 6px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)"/></div>${x.en.type==='reship'?`<div style="display:flex;gap:4px;align-items:center;margin-top:3px;color:var(--t2)">AWB<input type="text" value="${esc(x.en.awb||'')}" placeholder="Reship AWB / tracking" onchange="issSetAwb(${x.o.id},${x.en.id},this.value)" style="flex:1;min-width:140px;font-size:11px;padding:3px 6px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)"/></div>`:''}</td><td ${td} ><span style="color:${age>14?'var(--coral)':'var(--t2)'}">${age}d</span></td><td ${td}>${fmt(issCost(x.en))}</td><td ${td}><select onchange="issSetStatus(${x.o.id},${x.en.id},this.value)" style="font-size:11px;padding:2px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--tx)">${Object.keys(ISS_ST).map(s=>`<option value="${s}" ${x.en.status===s?'selected':''}>${ISS_ST[s]}</option>`).join('')}</select></td><td ${td}><a href="#" onclick="$i('issrep-mo').classList.remove('open');extOpenOrder(${x.o.id});return false">Open order →</a></td></tr>`;}).join('')}</table>`:''}
   <div style="font-size:11px;font-weight:700;margin:10px 0 4px">By type</div>
   <table style="width:100%;border-collapse:collapse;font-size:11px"><tr><th ${th} style="text-align:left">Type</th><th ${th}>Cases</th><th ${th}>Cost</th><th ${th}></th></tr>${Object.entries(bt).map(([t,b])=>`<tr style="border-top:1px solid var(--brd)"><td ${tl}>${ISS_LBL[t]}</td><td ${td}>${b.n}</td><td ${td}>${t==='cancel'?'—':fmt(b.c)}</td><td ${td}>${bar(b.c,maxT,'var(--orange)')}</td></tr>`).join('')||`<tr><td colspan="4" ${tl}>No cases in this period</td></tr>`}</table>
   <div style="font-size:11px;font-weight:700;margin:12px 0 4px">By product (SKU) — which items cause the most trouble</div>
@@ -9959,6 +9967,33 @@ issDel=function(oid,iid){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[])
 (function(){const _o=openIssueModal;openIssueModal=function(id){_o.apply(this,arguments);['iss-extra','iss-extra-cost'].forEach(k=>$i(k).value='');$i('iss-extra-etsy').checked=true;};})();
 function issQuick(id,type,scope){openIssueModal(id);$i('iss-type').value=type;issFillScope();$i('iss-scope').value=scope;
   ['iss-refund'].forEach(k=>delete $i(k).dataset.dirty);issRender({target:{id:'iss-scope'}});}
+</script>
+<script>
+// ═══════════ v10: Extra payments are income, not issues; open cases editable from the Issues panel ═══════════
+(function(){
+  const _all=issAllEntries;
+  issAllEntries=function(){return _all().filter(x=>x.en.type!=='extra');};
+  window.issExtraEntries=function(){const L=[];orders.forEach(o=>(o.issues||[]).forEach(en=>{if(en.type==='extra')L.push({o,en});}));return L;};
+  window.issSetRemark=function(oid,iid,v){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[]).find(x=>x.id===iid);if(!en)return;
+    v=(v||'').trim();if(!v){showToast('Remark can’t be empty','var(--coral)');issRepRender();return;}
+    en.remark=v;o.updatedAt=new Date().toISOString();saveLS();try{auditEntry('issue','order',o.id,o.ordNo,'Case remark edited');}catch(e){}showToast('Remark updated','var(--sage)');issRefreshViews();};
+  window.issSetAwb=function(oid,iid,v){const o=orders.find(x=>x.id===oid),en=o&&(o.issues||[]).find(x=>x.id===iid);if(!en)return;
+    en.awb=(v||'').trim();expenses.forEach(e=>{if(e.issueId===en.id&&e.cat==='shipping')e.trackingId=en.awb;});
+    if(en.awb&&(en.status==='open'||en.status==='progress'))en.status='sent';o.updatedAt=new Date().toISOString();saveLS();showToast('AWB updated','var(--sage)');issRefreshViews();};
+  const _log=issLogHTML;
+  issLogHTML=function(o){
+    const L=(o&&o.issues)||[],ex=L.filter(e=>e.type==='extra'),rest=L.filter(e=>e.type!=='extra');
+    let h=rest.length?_log(Object.assign({},o,{issues:rest})):'';
+    if(ex.length)h+=`<div class="cancel-box" style="border-color:rgba(122,170,138,0.45);background:rgba(122,170,138,0.07)"><div class="cancel-box-title" style="color:var(--sage)">⚡ Extra Payments (${ex.length})</div>`+ex.map(en=>`<div style="font-size:11px;line-height:1.7;padding:6px 0;border-top:1px solid var(--brd)"><div style="display:flex;justify-content:space-between;gap:8px"><div><b>${ISS_SC[en.scope]||'Express delivery upgrade'}</b> · <span style="color:var(--t3)">${esc(en.date)}</span></div><a href="#" onclick="issDel(${o.id},${en.id});return false" style="color:var(--coral)">✕ remove</a></div><div>extra paid <b style="color:var(--sage)">+${fmt(en.extraPaid||0)}</b> ${en.viaEtsy?'(via Etsy)':'(direct)'}${en.extraCost>0?' · courier extra '+fmt(en.extraCost):''}</div><div style="color:var(--t2)">📝 ${esc(en.remark||'')}</div></div>`).join('')+'</div>';
+    return h;};
+  const _rep=issRepRender;
+  issRepRender=function(){_rep.apply(this,arguments);
+    try{const k=$i('issrep-dur').value,E=issExtraEntries().filter(x=>issInRange(x.en.date,k));if(!E.length)return;
+      const tot=E.reduce((s,x)=>s+(x.en.extraPaid||0),0),cost=E.reduce((s,x)=>s+(x.en.extraCost||0),0);
+      $i('issrep-body').insertAdjacentHTML('afterbegin',`<div style="font-size:11px;padding:8px 12px;margin-bottom:10px;background:rgba(122,170,138,0.1);border:1px solid rgba(122,170,138,0.4);border-radius:10px">⚡ <b>Express upgrades (income, not issues):</b> ${E.length} order(s) · customers paid <b style="color:var(--sage)">+${fmt(tot)}</b>${cost>0?' · courier extra '+fmt(cost):''}</div>`);}catch(e){console.warn(e);}};
+  const _save=issSave;
+  issSave=function(){try{if($i('iss-type').value==='extra')$i('iss-status').value='resolved';}catch(e){}return _save.apply(this,arguments);};
+})();
 </script>
 </body>
 </html>
